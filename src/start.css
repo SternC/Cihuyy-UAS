@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+body {
+    margin: 0;
+    background-image: url(src/assets/background.jpg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.mainContainer {
+    display: flex;
+}
+
+.videoContainer {
+    width: 700px;
+    height: 400px;
+    border-radius: 30px;
+    padding: 12px; /* border thickness */
+    background: linear-gradient(135deg, #666, #ccc, #888);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+  }
+  
+.videoFrame {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+}
+  
+.video-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+  
+.title {
+    position: relative;
+    font-size: 50px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(39, 66, 66, 0.7);
+    justify-self: center;
+}
+
+.menu {
+    padding: 20px;
+}
+
+.menuContainer{
+    position: relative;
+    display: grid;
+    gap: 10px;
+    margin-right: 20px;
+    padding: 8px; /* border thickness */
+    background: linear-gradient(135deg, #666, #ccc, #888);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    border-radius: 20px;
+    width: fit-content;
+    height: fit-content;
+}
+
+.menu-frame {
+    object-fit: cover;
+    width: fit-content;
+    height: fit-content;
+    background-color: black;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.mirrorButton {
+    position: relative;
+    padding: 10px 30px;
+    background: rgb(101, 202, 177);
+    color: #050505;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(113, 230, 200, 0.4);
+    transition: all 0.3s ease;
+}
+
+.mirrorButton:hover {
+    transform: translateY(2px);
+    box-shadow: 0 6px 20px rgba(40, 69, 62, 0.6);
+}
+
+/* Mirror shine effect */
+.mirrorButton::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -30%;
+    width: 150%;
+    height: 150%;
+    background: rgba(201, 83, 83, 0.13);
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    transition: all 0.7s ease;
+}
+
+.mirrorButton:hover::before {
+    left: 3%;
+}
+
+button {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    background: linear-gradient(135deg, #88f9d7, #5ecec4);
+    color: #1e1e1e;
+    border: 3px solid black;
+}
+
+.credit{
+    background: #607d8b;
+    font-size: 17px;
+    width: 50%;
+    color: white;  
+    position: relative;
+    padding: 7px 30px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 4px 15px #223945;
+    transition: all 0.3s ease; 
+}
+.credit:hover {
+    transform: translateY(2px);
+    box-shadow: 0 6px 20px rgba(40, 69, 62, 0.6);
+}
