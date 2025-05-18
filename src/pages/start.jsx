@@ -12,13 +12,13 @@ const MenuComponent = () => {
   }, []);
 
   return (
-    <div className="mainContainer items-center flex-col md:flex-row">
+    <div className="flex items-center flex-col lg:flex-row">
       <div className="menu">
         <div className="title">
           <h1>AMONG US</h1>
         </div>
         
-        <div className="menuContainer">
+        <div className="menuContainer lg:mr-[20px]">
           <div className="menu-frame">
             <button className="mirrorButton">PLAY</button>
             <button className="mirrorButton">CHARACTER</button>
@@ -28,11 +28,11 @@ const MenuComponent = () => {
         </div>
       </div>
       
-      <div className="videoContainer">
+      <div className="videoContainer max-w-[460px] max-h-[263px] lg:max-w-[700px] lg:max-h-[400px]">
         <div className="videoFrame">
-        <video autoPlay muted loop playsInline className="video-bg">
-          <source src="src/assets/Among Us ScreenSave.mp4" type="video/mp4" />
-        </video>
+          <video autoPlay muted loop playsInline className="video-bg ">
+            <source src="src/assets/Among Us ScreenSave.mp4" type="video/mp4" />
+          </video>
         </div>
       </div>
     </div>
