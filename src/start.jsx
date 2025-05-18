@@ -12,7 +12,7 @@ const MenuComponent = () => {
   }, []);
 
   return (
-    <div className="mainContainer">
+    <div className="mainContainer items-center flex-col md:flex-row">
       <div className="menu">
         <div className="title">
           <h1>AMONG US</h1>
