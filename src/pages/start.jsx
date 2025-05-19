@@ -31,7 +31,7 @@ const MenuComponent = () => {
       <div className="videoContainer max-w-[460px] max-h-[263px] lg:max-w-[700px] lg:max-h-[400px]">
         <div className="videoFrame">
           <video autoPlay muted loop playsInline className="video-bg ">
-            <source src="src/assets/Among Us ScreenSave.mp4" type="video/mp4" />
+            <source src="/Among Us ScreenSave.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
