@@ -111,7 +111,7 @@ body {
     left: 3%;
 }
 
-button {
+button{
     width: 300px;
     display: flex;
     align-items: center;
@@ -125,6 +125,7 @@ button {
     color: #1e1e1e;
     border: 3px solid black;
 }
+
 
 .credit{
     background: #607d8b;

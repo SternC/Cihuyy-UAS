@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './start.css';
 
 const MenuComponent = () => {
@@ -23,7 +24,7 @@ const MenuComponent = () => {
             <button className="mirrorButton">PLAY</button>
             <button className="mirrorButton">CHARACTER</button>
             <button className="mirrorButton">INVENTORY</button>
-            <button className="credit">CREDITS</button>
+            <Link to = "/credit"><button className="credit">CREDITS</button></Link>
           </div>
         </div>
       </div>
