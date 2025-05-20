@@ -117,7 +117,7 @@
     left: 3%;
 }
 
-button {
+button{
     width: 300px;
     align-items: center;
     justify-content: space-between;
@@ -127,6 +127,7 @@ button {
     cursor: pointer;
     position: relative;
 }
+
 
 .credit{
     background: #607d8b;

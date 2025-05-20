@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './start.css';
 
 const MenuComponent = () => {
@@ -27,7 +27,7 @@ const MenuComponent = () => {
                 onClick={() => navigate('/customChar')}>
               PLAY</button>
             <button className="mirrorButton">INVENTORY</button>
-            <button className="credit">CREDITS</button>
+            <Link to = "/credit"><button className="credit">CREDITS</button></Link>
           </div>
         </div>
       </div>
