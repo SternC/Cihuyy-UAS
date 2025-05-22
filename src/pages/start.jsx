@@ -26,7 +26,7 @@ const MenuComponent = () => {
             <button className="mirrorButton"
                 onClick={() => navigate('/customChar')}>
               PLAY</button>
-            <button className="mirrorButton">INVENTORY</button>
+            <button className="mirrorButton" onClick={() => navigate('/inventory')}>INVENTORY</button>
             <Link to = "/credit"><button className="credit">CREDITS</button></Link>
           </div>
         </div>

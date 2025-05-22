@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+.creditBody{
+    margin: 0;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+}

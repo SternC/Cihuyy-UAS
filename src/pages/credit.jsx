@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import './start.css';
 import { Link } from 'react-router-dom';
+import './credit.css'
 
 export default function Credit() {
   useEffect(() => {
@@ -13,7 +14,7 @@ export default function Credit() {
   }, []);
 
   return (
-    <div className="flex items-center flex-col lg:flex-row">
+    <div className="creditBody flex items-center flex-col lg:flex-row">
       <div className="menu">
         <div className="title">
           <h1>AMONG US</h1>
@@ -22,7 +23,6 @@ export default function Credit() {
         <div className="menuContainer lg:mr-[20px]">
           <div className="menu-frame">
             <Link to="/"><button className="mirrorButton">PLAY</button></Link>
-            <button className="mirrorButton">CHARACTER</button>
             <button className="mirrorButton">INVENTORY</button>
             <button className="credit">CREDITS</button>
           </div>
