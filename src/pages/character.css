@@ -9,64 +9,7 @@ body{
 .mainContainer{
     justify-self: center;
 }
-/*
-.quitButton {
-    background: transparent;
-    width: 50px;
-    height: 50px;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    padding: 0;
-    margin-left: 20px;
-    align-self: center;
-    margin-top: 10px;
-}
 
-.circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(170, 185, 198, 0.3);
-    border: 2px solid rgb(251, 249, 249);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.quitButton::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: rgba(170, 185, 198, 0.6);
-    border: 2px solid rgba(251, 249, 249, 0.8);
-    z-index: -1;
-    transition: all 0.3s ease;
-}
-
-.quitButton:hover .circle {
-    background: rgba(193, 201, 208, 0.6);
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
-.quitButton:hover::before {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: 0 0 15px rgba(225, 230, 229, 0.8);
-}
-*/
 .titleContainer{
     display: flex;
     color: white;

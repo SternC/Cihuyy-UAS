@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+body{
+    background-image: url('space.jpg');
+    width: auto;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.mainInventoryContainer{
+    justify-content: center;
+    justify-self: center;
+    margin: 20px 50px 0px 50px;
+}
+
+.titleContainer{
+    display: flex;
+    color: white;
+    gap: 20px;
+    width: 100%;
+    height: fit-content;
+    align-items: center;
+    margin: 10px;
+    font-size: 30px;
+    justify-self: center;
+}
+
+.inventoryContainer{
+    justify-self: center;
+    border-radius: 30px;
+    padding: 12px; /* border thickness */
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    width: fit-content;
+    height: fit-content;
+    gap: 20px;
+    background-color: rgba(119, 119, 119, 0.327);
+    border: 5px solid rgb(158, 193, 187);
+}
+
+.typeContainer{
+    padding: 30px;
+    padding-top: 0px;
+    padding-bottom: 100px;
+    justify-content: center;
+    justify-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    height: 500px;
+    margin-left: 10px;
+}
+.typeMenu{
+    width: 30px;
+    padding: 20px;
+    border-radius: 20px;
+    display: grid;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+  
+.typeButton {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    padding: 15px;
+    border-radius: 100px;
+    transition: transform 0.2s ease;
+    background-color: rgb(125, 173, 179);
+}
+.typeButton:hover {
+    transform: scale(1.1);
+    background-color: rgb(133, 216, 226);
+}
+.typeButton:active {
+    transform: scale(0.9);
+    background-color: rgba(133, 217, 226, 0.523);
+}
+
+
+.food{
+    width: 10px;
+    height: 10px;
+}
+
+.itemContainer{
+    color: white;
+    background-color: rgba(25, 29, 34, 0.58);
+    width: 650px;
+    height: 500px;
+    padding: 25px 30px 0px 30px;
+    border-radius: 0px;
+    border: 2px solid rgb(42, 127, 136);
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+    flex-wrap: wrap;
+    padding-bottom: 20px;
+}
+
+.itemButton{
+    background-color: rgba(57, 114, 110, 0.5);
+    width: 105px;
+    height: 105px;
+    margin-left: 10px;
+    border: 2px solid rgb(42, 128, 136);
+}
+
+.itemButton:hover{
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    box-shadow: 0 0 50px rgba(122, 254, 245, 0.5) inset;
+    border: 2px solid rgb(122, 254, 245);
+}
