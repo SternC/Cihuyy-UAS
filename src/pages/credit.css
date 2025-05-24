@@ -10,3 +10,8 @@
     height: 100vh;
     font-family: 'Courier New', Courier, monospace;
 }
+
+.credit{
+    text-align: left;
+    width: fit-content;
+}

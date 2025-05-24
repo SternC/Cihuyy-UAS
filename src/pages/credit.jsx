@@ -22,9 +22,9 @@ export default function Credit() {
         
         <div className="menuContainer lg:mr-[20px]">
           <div className="menu-frame">
-            <Link to="/"><button className="mirrorButton">PLAY</button></Link>
+            <Link to="/customChar"><button className="mirrorButton">PLAY</button></Link>
             <button className="mirrorButton">INVENTORY</button>
-            <button className="credit">CREDITS</button>
+            <Link to="/"><button className="credit">BACK</button></Link>
           </div>
         </div>
       </div>
