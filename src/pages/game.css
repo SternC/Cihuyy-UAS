@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+.mainGameContainer {
+    justify-content: center;
+    width: 1000px;
+    height: 100vh;
+    margin: 20px 20px 30px 20px;
+    font-family: 'Courier New', Courier, monospace;
+    justify-self: center;
+}
+
+.barContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 800px;
+    height: fit-content;
+    background-color: rgba(240, 248, 255, 0.26);
+    margin: 25px 50px 30px 50px;
+    border-radius: 20px;
+}
+
+.Bar {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
+.progressContain{
+    height: 20px;
+    width: 120px;
+    background-color: #dde0dd;
+}
+.progressBar{
+    height: 100%;
+    width: 10%;
+    background-color: rgb(31, 159, 142);
+    transition: width 0.3s ease-in-out;
+}
+.divider{
+    display: flex;
+}
+@media (max-width: 768px) {
+    .divider{
+        display: grid;
+    }
+    .barContainer{
+        width: 500px;
+    }
+}
+
+.mapStatusContainer {
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 800px;
+    height: fit-content;
+    background-color: rgba(240, 248, 255, 0.687);
+    margin: 25px 50px 30px 50px;
+    border-radius: 20px;
+}
