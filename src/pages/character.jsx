@@ -2,6 +2,7 @@ import React from 'react';
 import './character.css';
 import { useNavigate } from 'react-router-dom';
 
+
 const CustomizationPage = () => {
   const navigate = useNavigate();
   
@@ -44,11 +45,11 @@ const CustomizationPage = () => {
         </div>     
     
         <div className="char">
-          <h2>The character</h2>
+          <img src='charGIF.gif' className='character'/>        
         </div>
       </div>
 
-      <button className="nextButton">
+      <button className="nextButton" onClick={() => navigate('/game')}>
           NEXT
       </button>
 

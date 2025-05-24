@@ -6,6 +6,7 @@ import CustomizationPage from './pages/character.jsx';
 import Credit from './pages/credit.jsx'
 import InventoryPage from './pages/inventory.jsx';
 import InventoryFoodPage from './pages/inventoryfood.jsx';
+import TheGame from './pages/game.jsx';
 
 
 createRoot(document.getElementById('root')).render(
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/customChar" element={<CustomizationPage/>}/>  
           <Route path="/inventory" element={<InventoryPage/>}/>
           <Route path="/inventoryfood" element={<InventoryFoodPage/>}/>
+          <Route path="/game" element={<TheGame/>}/>
           <Route path="/credit" element={<Credit/>}/>
         </Routes>
       </Router>
