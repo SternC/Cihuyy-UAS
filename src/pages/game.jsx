@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './game.css';
 
+
 const theGame = () => {
   const navigate = useNavigate();
   
@@ -51,16 +52,55 @@ const theGame = () => {
 
         <div className='mapStatusContainer'>
           <div className='mapContainer'>
-          <div class="absolute character-info text-center justify-center">
-              <div class="nameBackground">
-                  <h2 id="charName" class="text-l font-bold"></h2>
+
+            <div className="charInfo absolute text-center justify-center">
+                <div class="nameBackground">
+                    <h2 id="charName" class="text-l font-bold"></h2>
+                </div>
+                <img id="charImage" src="rocket.png" alt="Selected Character"/>
+            </div>
+              <img src="spaceMap.jpg" className="spaceMap" />
+          
+            <div class="direction">
+              <div class="divider">
+                  <button>
+                      <img className="transform -rotate-90" src="direction.png"/>
+                  </button>
               </div>
-              <img id="charImage" src="#" alt="Selected Character"/>
-          </div>
-            <img src="mainMap.jpeg" alt="Map" />
+              <div class="divider">
+                  <button>
+                      <img className="transform rotate-180" src="direction.png"/>
+                  </button>
+                  <button>
+                      <img className="transform rotate-90" src="direction.png"/>
+                  </button>
+                  <button>
+                      <img src="direction.png"/>
+                  </button>
+              </div>
+            </div>
+
+            <div className="miniMapContainer" >
+              <img src="spaceMap.jpg" className="miniMapImage" />
+              <div className="miniMapMarker"></div> {/* Optional: shows player position */}
+            </div>
+
+            <div className='inventory-container'>
+              <button 
+                className="inventory-button" 
+                //onClick={() => navigate('/inventory')} 
+              >
+                Inventory
+              </button>
+            </div>
+
+            <div className='eventcontainer'>
+              Event not found!
+            </div>
+
           </div> 
-          <div className='statusContainer'> 
-          </div>
+
+        
         </div>
       </div>
         
