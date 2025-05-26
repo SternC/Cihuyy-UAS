@@ -45,7 +45,7 @@ const CustomizationPage = () => {
         </div>     
     
         <div className="char">
-          <img src='charGIF.gif' className='character'/>        
+          <img src='characters/charGIF.gif' className='character'/>        
         </div>
       </div>
 
