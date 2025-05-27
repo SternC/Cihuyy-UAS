@@ -34,7 +34,7 @@ export default function Credit() {
                 <video autoPlay muted loop playsInline className="video-bg w-full h-full object-cover">
                         <source src="/Among Us ScreenSave.mp4" type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-white p-4 z-10 bg-white/30">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 z-10 bg-white/30">
                     <h2 className="text-2xl font-bold mb-4">Credits</h2>
                     <p>Created by: Cihuyy</p>
                     <p>Stern-00000136391</p>
