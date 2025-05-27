@@ -1,36 +1,20 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './inventory.css'
 
 const InventoryPage = () => {
-  const navigate = useNavigate();
-  
-
-  const handleQuit = () => {
-    navigate('/'); 
-  };
-
-  
-
   return (
     <div className='mainInventoryContainer'>
       <div className="titleContainer">
-        <button className="quitButton" onClick={handleQuit}>
-          <div className="circle">X</div>
-        </button>
+        <Link to="/"><button className="quitButton"><div className="circle">X</div></button></Link>
         <h1>Inventory</h1> 
       </div>
 
       <div className="inventoryContainer w-[1000px] max-h-[700px]">   
         <div className="typeContainer">
           <div className="typeMenu">
-            <button className="typeButton" onClick={() => navigate('/inventory')}>
-              <img src='toolSymboll.png' className='Symbol'/>
-            </button>
-            <button className="typeButton" onClick={() => navigate('/inventoryfood')}>
-                <img src='foodSymbol.png' className='Symbol symbol'/>
-            </button>
-            
+            <Link to="/inventory"><button className="typeButton"><img src='toolSymboll.png' className='Symbol'/></button></Link>
+            <Link to="/inventoryfood"><button className="typeButton"><img src='foodSymbol.png' className='Symbol symbol'/></button></Link>
           </div>
         </div> 
             

@@ -1,24 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './game.css';
 
 
 const theGame = () => {
-  const navigate = useNavigate();
-  
-
-  const handleQuit = () => {
-    navigate('/'); 
-  };
-
-  
-
   return (
     <div className='mainGameContainer'>
       <div className="titleContainer">
-        <button className="quitButton" onClick={handleQuit}>
-          <div className="circle">X</div>
-        </button>
+        <Link to="/"><button className="quitButton"><div className="circle">X</div></button></Link>
         <h1>the game</h1> 
       </div>
       <div className='gameContainer'>
