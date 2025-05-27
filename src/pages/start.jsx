@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './start.css';
 
 const MenuComponent = () => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     const video = document.querySelector('.video-bg');
     if (video) {
@@ -23,10 +21,8 @@ const MenuComponent = () => {
         
         <div className="menuContainer lg:mr-[20px]">
           <div className="menu-frame">
-            <button className="mirrorButton"
-                onClick={() => navigate('/customChar')}>
-              PLAY</button>
-            <button className="mirrorButton" onClick={() => navigate('/inventory')}>INVENTORY</button>
+            <Link to="/customChar"><button className="mirrorButton">PLAY</button></Link>
+            <Link to="/inventory"><button className="mirrorButton">INVENTORY</button></Link>
             <Link to = "/credit"><button className="credit">CREDITS</button></Link>
           </div>
         </div>
