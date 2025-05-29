@@ -17,23 +17,45 @@ const theGame = () => {
     d: false
   });
 
+  // Map boundaries (adjust these values according to your map size)
+  const mapWidth = 3840;  // Total width of your map in pixels
+  const mapHeight = 2160; // Total height of your map in pixels
+  const viewportWidth = 1190;  // Width of your visible game area
+  const viewportHeight = 530; // Height of your visible game area
+
+  // Calculate boundaries (divided by 2 since the player is centered)
+  const maxX = (mapWidth - viewportWidth) / 2;
+  const minX = -maxX;
+  const maxY = (mapHeight - viewportHeight) / 2;
+  const minY = -maxY;
+
   const handleMove = (dx, dy) => {
-    const newX = playerPos.x + dx;
-    const newY = playerPos.y + dy;
-    setPlayerPos({ x: newX, y: newY });
-    setCameraPos({ x: -newX, y: -newY });
+    // Calculate potential new position
+    let newX = playerPos.x + dx;
+    let newY = playerPos.y + dy;
     
-    // Update rotation based on custom angles
-    if (dx > 0 && dy === 0) setRotation(50);      // Kanan
-    else if (dx < 0 && dy === 0) setRotation(230); // Kiri
-    else if (dx === 0 && dy > 0) setRotation(140);  // Bawah
-    else if (dx === 0 && dy < 0) setRotation(-40); // Atas
-    // Diagonal movements
-    else if (dx > 0 && dy < 0) setRotation(20);    // Kanan atas
-    else if (dx > 0 && dy > 0) setRotation(80);    // Kanan bawah
-    else if (dx < 0 && dy < 0) setRotation(260);   // Kiri atas
-    else if (dx < 0 && dy > 0) setRotation(200);   // Kiri bawah
+    // Apply boundaries
+    newX = Math.max(minX, Math.min(maxX, newX));
+    newY = Math.max(minY, Math.min(maxY, newY));
+    
+    // Only update if position changed
+    if (newX !== playerPos.x || newY !== playerPos.y) {
+      setPlayerPos({ x: newX, y: newY });
+      setCameraPos({ x: -newX, y: -newY });
+      
+      // Update rotation based on custom angles
+      if (dx > 0 && dy === 0) setRotation(50);      // Kanan
+      else if (dx < 0 && dy === 0) setRotation(230); // Kiri
+      else if (dx === 0 && dy > 0) setRotation(140);  // Bawah
+      else if (dx === 0 && dy < 0) setRotation(-40); // Atas
+      // Diagonal movements
+      else if (dx > 0 && dy < 0) setRotation(20);    // Kanan atas
+      else if (dx > 0 && dy > 0) setRotation(80);    // Kanan bawah
+      else if (dx < 0 && dy < 0) setRotation(260);   // Kiri atas
+      else if (dx < 0 && dy > 0) setRotation(200);   // Kiri bawah
+    }
   };
+
 
   // Keyboard event handler for diagonal movement
   useEffect(() => {
