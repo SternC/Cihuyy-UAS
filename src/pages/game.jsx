@@ -38,16 +38,24 @@ const theGame = () => {
   // Keyboard event handler for diagonal movement
   useEffect(() => {
     const handleKeyDown = (e) => {
-      const key = e.key.toLowerCase(); // Normalize to lowercase for WASD
-      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
-        setKeys(prev => ({ ...prev, [key]: true }));
+      // Handle WASD (case insensitive)
+      if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
+      }
+      // Handle arrow keys (exact match)
+      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        setKeys(prev => ({ ...prev, [e.key]: true }));
       }
     };
 
     const handleKeyUp = (e) => {
-      const key = e.key.toLowerCase(); // Normalize to lowercase for WASD
-      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
-        setKeys(prev => ({ ...prev, [key]: false }));
+      // Handle WASD (case insensitive)
+      if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
+        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: false }));
+      }
+      // Handle arrow keys (exact match)
+      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        setKeys(prev => ({ ...prev, [e.key]: false }));
       }
     };
 
