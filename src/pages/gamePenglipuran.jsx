@@ -6,8 +6,7 @@ import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
-
-const Beach = () => {
+const Village = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const { character } = useCharacter();
@@ -170,10 +169,10 @@ const Beach = () => {
             <div className="w-full h-full overflow-hidden relative">
               <div style={{ backgroundColor: '#1A3133' }}>
                 <img
-                  src="/map/kutaMap.png"
+                  src="/map/villageMap.png"
                   className="w-100% h-100% object-cover object-center"
                   style={{
-                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(2)`,
+                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(1.5)`,
                     transformOrigin: "center",
                     transition: "transform 0.3s ease",
                   }}
@@ -189,7 +188,7 @@ const Beach = () => {
             />
 
             <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-              <img src="/map/kutaMap.png" className="miniMapImage" style={{ width: "100%", height: "150px" }}/>
+              <img src="/map/villageMap.png" className="miniMapImage" style={{ width: "100%", height: "150px" }}/>
               <div
                 className="miniMapMarker"
                 style={{
@@ -222,4 +221,4 @@ const Beach = () => {
   );
 };
 
-export default Beach;
+export default Village;
