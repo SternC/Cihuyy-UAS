@@ -57,6 +57,9 @@ const CustomizationPage = () => {
     
         <div className="char">
           <img src={characterSkins[selectedColor]} className='character' alt={`Character ${selectedColor} skin`}/>
+          <div className="charName">
+            <input type="text" placeholder="Character Name" />
+          </div>
         </div>
       </div>
 
