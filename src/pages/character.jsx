@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import './character.css';
+// C:\Users\willy\OneDrive\Desktop\Cihuyy-UAS\src\pages\character.jsx
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useCharacter } from '../components/characterContext.jsx';
+import './character.css';
 
 const CustomizationPage = () => {
+  const { character, setCharacter } = useCharacter();
   const navigate = useNavigate();
-  const [selectedColor, setSelectedColor] = useState('red');
-  
+
   const characterSkins = {
     red: 'characters/charGIF6.gif',
     blue: 'characters/charGIF4.gif',
@@ -20,9 +21,12 @@ const CustomizationPage = () => {
   };
 
   const handleColorSelect = (color) => {
-    setSelectedColor(color);
+    setCharacter(prev => ({ ...prev, color }));
   };
-  
+
+  const handleNameChange = (e) => {
+    setCharacter(prev => ({ ...prev, name: e.target.value }));
+  };
 
   return (
     <div className='mainContainer'>
@@ -56,9 +60,14 @@ const CustomizationPage = () => {
         </div>     
     
         <div className="char">
-          <img src={characterSkins[selectedColor]} className='character' alt={`Character ${selectedColor} skin`}/>
+          <img src={characterSkins[character.color]} className='character' alt={`Character ${character.color} skin`}/>
           <div className="charName">
-            <input type="text" placeholder="Character Name" />
+            <input 
+              type="text" 
+              placeholder="Character Name" 
+              value={character.name}
+              onChange={handleNameChange}
+            />
           </div>
         </div>
       </div>
@@ -66,7 +75,6 @@ const CustomizationPage = () => {
       <button className="nextButton" onClick={() => navigate('/game')}>
           NEXT
       </button>
-
     </div>
   );
 };

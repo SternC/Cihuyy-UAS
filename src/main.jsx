@@ -7,10 +7,11 @@ import Credit from './pages/credit.jsx'
 import InventoryPage from './pages/inventory.jsx';
 import InventoryFoodPage from './pages/inventoryfood.jsx';
 import TheGame from './pages/game.jsx';
-
+import { CharacterProvider } from './components/characterContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <CharacterProvider>
       <Router>
         <Routes>
           <Route path="/" element={<App/>}/>
@@ -21,5 +22,6 @@ createRoot(document.getElementById('root')).render(
           <Route path="/credit" element={<Credit/>}/>
         </Routes>
       </Router>
+      </CharacterProvider>
   </StrictMode>
 )
