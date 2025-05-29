@@ -249,9 +249,16 @@ const theGame = () => {
               </div>
             </div>
 
-            <div className="miniMapContainer" >
+            <div className="miniMapContainer">
               <img src="theMainSpace.png" className="miniMapImage" />
-              <div className="miniMapMarker"></div> {/* Optional: shows player position */}
+              <div 
+                className="miniMapMarker"
+                style={{
+                  left: `${((playerPos.x - minX) / (maxX - minX)) * 97}%`,
+                  top: `${((playerPos.y - minY) / (maxY - minY)) * 94}%`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+              ></div>
             </div>
 
             <div className='inventory-container'>
