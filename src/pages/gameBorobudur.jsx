@@ -183,12 +183,12 @@ const Temple = () => {
             />
 
             <div className="miniMapContainer">
-              <img src="/map/BorobudurMap.png" className="miniMapImage" />
+              <img src="/map/BorobudurMap.png" className="miniMapImage" style={{ width: "175px", height: "160px" }}/>
               <div
                 className="miniMapMarker"
                 style={{
-                  left: `${((playerPos.x - minX) / (maxX - minX)) * 97}%`,
-                  top: `${((playerPos.y - minY) / (maxY - minY)) * 94}%`,
+                  left: `${(((playerPos.x * 3/2) - minX) / (maxX - minX)) * 85}%`,
+                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 100}%`,
                   transform: "translate(-50%, -50%)",
                 }}
               ></div>
