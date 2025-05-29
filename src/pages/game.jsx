@@ -23,32 +23,38 @@ const TheGame = () => {
     {
       id: 'home',
       name: 'Rumah Utama',
-      position: {x: -1300, y: 560  },
-      radius: 80,
+      position: {x: -1300, y: 540  },
+      radius: 100,
       path: '/home'
     },
     {
       id: 'borobudur',
-      name: 'Dapur',
-      position: {  x: -800, y: 800},
+      name: 'Borobudur',
+      position: { x: -35, y: 40},
       radius: 100,
       path: '/kitchen'
     },
     {
-      id: 'garden',
-      name: 'Taman',
-      position: { x: 400, y: 50 },
-      radius: 120,
-      path: '/garden'
+      id: 'seremu',
+      name: 'Semeru',
+      position: { x: -590, y: -660 },
+      radius: 100,
+      path: '/semeru'
     },
     {
-      id: 'workshop',
-      name: 'Bengkel',
-      position: { x: -100, y: -300 },
-      radius: 90,
-      path: '/workshop'
+      id: 'pindul',
+      name: 'Pindul',
+      position: { x: 1250, y: -60 },
+      radius: 100,
+      path: '/pindul'
+    },
+    {
+      id: 'kuta',
+      name: 'Kuta',
+      position: { x: 800, y: 700 },
+      radius: 100,
+      path: '/kuta'
     }
-    // Tambahkan lokasi lainnya
   ];
 
   useEffect(() => {
