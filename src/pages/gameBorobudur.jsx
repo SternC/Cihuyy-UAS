@@ -4,6 +4,7 @@ import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
+import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
 function getCharacterImage(color) {
   const characterImages = {
@@ -82,6 +83,7 @@ const Temple = () => {
   };
 
   return (
+    <PreventArrowScroll>
     <div className="mainGameContainer">
       <div className="titleContainer">
         <Link to="/">
@@ -210,6 +212,7 @@ const Temple = () => {
         </div>
       </div>
     </div>
+    </PreventArrowScroll>
   );
 };
 
