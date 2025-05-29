@@ -56,9 +56,14 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
       </div>
       <div className="divider">
         <button 
-          onMouseDown={() => startMovement('ArrowLeft')}
-          onMouseUp={stopMovement}
-          onMouseLeave={stopMovement}
+          onMouseDown={() => {
+            setKeys(prev => ({ ...prev, ArrowLeft: true }));
+            setIsFlipped(true);  
+          }}
+          onMouseUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
+          onMouseLeave={() => {
+            if (keys.ArrowLeft) setKeys(prev => ({ ...prev, ArrowLeft: false }))
+          }}
           style={{ userSelect: 'none' }}
         >
           <img className="transform rotate-180" src="direction.png" alt="Left"/>
@@ -72,9 +77,14 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
           <img className="transform rotate-90" src="direction.png" alt="Down"/>
         </button>
         <button 
-          onMouseDown={() => startMovement('ArrowRight')}
-          onMouseUp={stopMovement}
-          onMouseLeave={stopMovement}
+          onMouseDown={() => {
+            setKeys(prev => ({ ...prev, ArrowRight: true }));
+            setIsFlipped(false); 
+          }}
+          onMouseUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
+          onMouseLeave={() => {
+            if (keys.ArrowRight) setKeys(prev => ({ ...prev, ArrowRight: false }))
+          }}
           style={{ userSelect: 'none' }}
         >
           <img src="direction.png" alt="Right"/>

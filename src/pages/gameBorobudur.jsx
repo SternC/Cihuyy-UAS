@@ -6,21 +6,23 @@ import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
-function getCharacterImage(color) {
-  const characterImages = {
-    red: "charGIF6.gif",
-    blue: "charGIF4.gif",
-    purple: "charGIF.gif",
-    cyan: "charGIF2.gif",
-    brown: "charGIF5.gif",
-  };
-  return characterImages[color] || "charGIF.gif";
-}
 
 const Temple = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const { character } = useCharacter();
+
+  const getCharacterImage = (color, isMoving) => {
+    const characterImages = {
+      red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
+      blue: isMoving ? "charGIF4.gif" : "charGIFStatic4.gif",
+      purple: isMoving ? "charGIF.gif" : "charGIFStatic.gif",
+      cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
+      brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
+    };
+    return characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif");
+  };
+
 
   const mapBoundaries = {
     mapWidth: 1728,
@@ -43,6 +45,8 @@ const Temple = () => {
     isFlipped,
     setKeys,
     setIsFlipped,
+    isMoving, 
+    setIsMoving 
   } = useMovement({ x: 0, y: 0 }, mapBoundaries);
 
   const cameraPos = { x: -playerPos.x, y: -playerPos.y };
@@ -140,27 +144,27 @@ const Temple = () => {
         <div className="mapStatusContainer">
           <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
             <div className="top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 absolute text-center justify-center z-10">
-              <div className="nameBackground mb-4">
-                {" "}
-                <h2 className="text-xl font-bold text-white px-4 py-2 rounded-lg">
-                  {character.name || "Your Character"}
-                </h2>
-              </div>
+              <div className="flex flex-col items-center relative">
+                <div className="nameBackground mb-4 ">
+                  <h2 className="text-xl font-bold text-white px-4 py-2 rounded-lg">
+                    {character.name || "Your Character"}
+                  </h2>
+                </div>
 
-              <img
-                id="charImage"
-                src={`/characters/${getCharacterImage(character.color)}`}
-                alt="Character"
-                style={{
-                  transform: `rotate(${rotation}deg) scale(2.5) ${
-                    isFlipped ? "scaleX(-1)" : "scaleX(1)"
-                  }`,
-                  transition: "transform 0.15s ease-out",
-                  position: "absolute",
-                  left: isFlipped ? "20px" : "0",
-                  transformOrigin: "center",
-                }}
-              />
+                <img
+                  id="charImage"
+                  src={`/characters/${getCharacterImage(character.color, isMoving)}`}
+                  alt="Character"
+                  style={{
+                    transform: `rotate(${rotation}deg) scale(2.5) ${
+                      isFlipped ? "scaleX(-1)" : "scaleX(1)"
+                    }`,
+                    transition: "none",
+                    left: isFlipped ? "20px" : "0",
+                    transformOrigin: "center",
+                  }}
+                />
+              </div>
             </div>
 
             <div className="w-full h-full overflow-hidden relative">
