@@ -76,18 +76,6 @@
     overflow: hidden;
 }
 
-.mapStatusContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 900px;
-    height: fit-content;
-    background-color: rgba(240, 248, 255, 0.115);
-    margin: 0px 50px 30px 50px;
-    border-radius: 20px;
-    overflow: hidden;
-}
 
 #charImage {
     width: 50px;
@@ -142,7 +130,7 @@
     top: 30px;
     right: -40px;
     transform: translateX(-50%);
-    width: 150px;
+    width: 160px;
     height: 90px;
     border: 2px solid #fff;
     border-radius: 12px;
