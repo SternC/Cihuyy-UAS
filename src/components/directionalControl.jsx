@@ -1,15 +1,54 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
+  const intervalRef = useRef(null);
+  const pressedKeyRef = useRef(null);
+
+  const startMovement = (key) => {
+    if (intervalRef.current) return;
+    
+    if (key === 'ArrowLeft') {
+      setIsFlipped(true);
+    } else if (key === 'ArrowRight') {
+      setIsFlipped(false);
+    }
+    
+    setKeys(prev => ({ ...prev, [key]: true }));
+    pressedKeyRef.current = key;
+    
+    intervalRef.current = setInterval(() => {
+      setKeys(prev => ({ ...prev, [key]: true }));
+    }, 100);
+  };
+
+  const stopMovement = () => {
+    if (!intervalRef.current) return;
+    
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    
+    if (pressedKeyRef.current) {
+      setKeys(prev => ({ ...prev, [pressedKeyRef.current]: false }));
+      pressedKeyRef.current = null;
+    }
+  };
+
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="direction">
       <div className="divider">
         <button
-          onMouseDown={() => setKeys(prev => ({ ...prev, ArrowUp: true }))}
-          onMouseUp={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
-          onMouseLeave={() => {
-            if (keys.ArrowUp) setKeys(prev => ({ ...prev, ArrowUp: false }))
-          }}
+          onMouseDown={() => startMovement('ArrowUp')}
+          onMouseUp={stopMovement}
+          onMouseLeave={stopMovement}
           style={{ userSelect: 'none' }}
         >
           <img className="transform -rotate-90" src="direction.png" alt="Up"/>
@@ -30,11 +69,9 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
           <img className="transform rotate-180" src="direction.png" alt="Left"/>
         </button>
         <button 
-          onMouseDown={() => setKeys(prev => ({ ...prev, ArrowDown: true }))}
-          onMouseUp={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
-          onMouseLeave={() => {
-            if (keys.ArrowDown) setKeys(prev => ({ ...prev, ArrowDown: false }))
-          }}
+          onMouseDown={() => startMovement('ArrowDown')}
+          onMouseUp={stopMovement}
+          onMouseLeave={stopMovement}
           style={{ userSelect: 'none' }}
         >
           <img className="transform rotate-90" src="direction.png" alt="Down"/>

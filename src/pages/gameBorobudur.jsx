@@ -25,10 +25,10 @@ const Temple = () => {
 
 
   const mapBoundaries = {
-    mapWidth: 1152,
-    mapHeight: 1152,
-    viewportWidth: 10,
-    viewportHeight: 0,
+    mapWidth: 1728,
+    mapHeight: 1728,
+    viewportWidth: 400,
+    viewportHeight: 300,
   };
 
   const { minX, maxX, minY, maxY } = {
@@ -172,7 +172,7 @@ const Temple = () => {
                 src="/map/BorobudurMap.png"
                 className="w-100% h-100% object-cover object-center"
                 style={{
-                  transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(2.5)`,
+                  transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(1.5)`,
                   transformOrigin: "center",
                   transition: "transform 0.3s ease",
                 }}
