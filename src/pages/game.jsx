@@ -32,28 +32,28 @@ const TheGame = () => {
       name: 'Borobudur',
       position: { x: -35, y: 40},
       radius: 100,
-      path: '/kitchen'
+      path: '/temple'
     },
     {
       id: 'penglipuran',
       name: 'Penglipuran',
       position: { x: -590, y: -660 },
       radius: 100,
-      path: '/penglipuran'
+      path: '/village'
     },
     {
       id: 'pindul',
       name: 'Pindul',
       position: { x: 1250, y: -60 },
       radius: 100,
-      path: '/pindul'
+      path: '/cave'
     },
     {
       id: 'kuta',
       name: 'Kuta',
       position: { x: 800, y: 700 },
       radius: 100,
-      path: '/kuta'
+      path: '/beach'
     }
   ];
 
