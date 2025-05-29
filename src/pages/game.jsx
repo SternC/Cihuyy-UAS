@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './game.css';
 
-const theGame = () => {
+const TheGame = () => {
+  const navigate = useNavigate();
   const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
@@ -16,6 +17,65 @@ const theGame = () => {
     s: false,
     d: false
   });
+
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const locations = [
+    {
+      id: 'home',
+      name: 'Rumah Utama',
+      position: {x: -1300, y: 560  },
+      radius: 80,
+      path: '/home'
+    },
+    {
+      id: 'borobudur',
+      name: 'Dapur',
+      position: {  x: -800, y: 800},
+      radius: 100,
+      path: '/kitchen'
+    },
+    {
+      id: 'garden',
+      name: 'Taman',
+      position: { x: 400, y: 50 },
+      radius: 120,
+      path: '/garden'
+    },
+    {
+      id: 'workshop',
+      name: 'Bengkel',
+      position: { x: -100, y: -300 },
+      radius: 90,
+      path: '/workshop'
+    }
+    // Tambahkan lokasi lainnya
+  ];
+
+  useEffect(() => {
+    const checkLocationProximity = () => {
+      for (const location of locations) {
+        const distance = Math.sqrt(
+          Math.pow(playerPos.x - location.position.x, 2) + 
+          Math.pow(playerPos.y - location.position.y, 2)
+        );
+        
+        if (distance <= location.radius) {
+          setCurrentEvent(location);
+          return;
+        }
+      }
+      setCurrentEvent(null);
+    };
+
+    checkLocationProximity();
+  }, [playerPos]);
+
+  // Fungsi navigasi
+  const handleNavigate = () => {
+    if (currentEvent) {
+      navigate(currentEvent.path);
+    }
+  };
 
   // Map boundaries (adjust these values according to your map size)
   const mapWidth = 3840;  // Total width of your map in pixels
@@ -136,6 +196,7 @@ const theGame = () => {
       window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
   }, []);
+
   return (
     <div className='mainGameContainer'>
       <div className="titleContainer">
@@ -270,7 +331,13 @@ const theGame = () => {
               </button>
             </div>
             <div className='eventcontainer'>
-              Event not found!
+              {currentEvent ? (
+                <button onClick={handleNavigate}>
+                  Enter {currentEvent.name}
+                </button>
+              ) : (
+                <span>No nearby locations</span>
+              )}
             </div>
           </div> 
         </div>
@@ -279,4 +346,4 @@ const theGame = () => {
   );
 };
 
-export default theGame;
+export default TheGame;
