@@ -193,8 +193,8 @@ const Temple = () => {
               <div
                 className="miniMapMarker"
                 style={{
-                  left: `${(((playerPos.x * 3/2) - minX) / (maxX - minX)) * 100}%`,
-                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 100}%`,
+                  left: `${(((playerPos.x * 1) - minX) / (maxX - minX)) * 100}%`,
+                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 75}%`,
                   transform: "translate(-50%, -50%)",
                 }}
               ></div>
