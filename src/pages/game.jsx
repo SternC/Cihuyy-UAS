@@ -1,9 +1,100 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './game.css';
 
-
 const theGame = () => {
+  const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
+  const [keys, setKeys] = useState({
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
+  });
+
+  const handleMove = (dx, dy) => {
+    const newX = playerPos.x + dx;
+    const newY = playerPos.y + dy;
+    setPlayerPos({ x: newX, y: newY });
+    setCameraPos({ x: -newX, y: -newY });
+    
+    // Update rotation based on custom angles
+    if (dx > 0 && dy === 0) setRotation(50);      // Kanan
+    else if (dx < 0 && dy === 0) setRotation(230); // Kiri
+    else if (dx === 0 && dy > 0) setRotation(140);  // Bawah
+    else if (dx === 0 && dy < 0) setRotation(-40); // Atas
+    // Diagonal movements
+    else if (dx > 0 && dy < 0) setRotation(20);    // Kanan atas
+    else if (dx > 0 && dy > 0) setRotation(80);    // Kanan bawah
+    else if (dx < 0 && dy < 0) setRotation(260);   // Kiri atas
+    else if (dx < 0 && dy > 0) setRotation(200);   // Kiri bawah
+  };
+
+  // Keyboard event handler for diagonal movement
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        setKeys(prev => ({ ...prev, [e.key]: true }));
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        setKeys(prev => ({ ...prev, [e.key]: false }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Handle continuous movement and diagonal combinations
+  useEffect(() => {
+    const moveInterval = setInterval(() => {
+      const moveAmount = 5; // Reduced for smoother diagonal movement
+      let dx = 0;
+      let dy = 0;
+
+      if (keys.ArrowUp) dy -= moveAmount;
+      if (keys.ArrowDown) dy += moveAmount;
+      if (keys.ArrowLeft) dx -= moveAmount;
+      if (keys.ArrowRight) dx += moveAmount;
+
+      // Normalize diagonal movement speed
+      if (dx !== 0 && dy !== 0) {
+        const diagonalAmount = moveAmount * 0.7071; // 1/√2 for 45° movement
+        dx = dx > 0 ? diagonalAmount : -diagonalAmount;
+        dy = dy > 0 ? diagonalAmount : -diagonalAmount;
+      }
+
+      if (dx !== 0 || dy !== 0) {
+        handleMove(dx, dy);
+      }
+    }, 16); // ~60fps
+
+    return () => clearInterval(moveInterval);
+  }, [keys]);
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setKeys({
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowLeft: false,
+        ArrowRight: false,
+      });
+    };
+
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, []);
   return (
     <div className='mainGameContainer'>
       <div className="titleContainer">
@@ -11,59 +102,103 @@ const theGame = () => {
         <h1>the game</h1> 
       </div>
       <div className='gameContainer'>
-        <div class="barContainer">
-          <div class="divider">
-            <div class="Bar flex items-center gap-2 w-full">
-              <div class="progressContain h-4">
-                  <div class="progressBar h-4 w-1/2" data-status="meal"></div>
+        <div className="barContainer">
+          <div className="divider">
+            <div className="Bar flex items-center gap-2 w-full">
+              <div className="progressContain h-4">
+                  <div className="progressBar h-4 w-1/2" data-status="meal"></div>
               </div>
             </div>
-          <div class="Bar flex items-center gap-2 w-full">
-              <div class="progressContain h-4">
-                  <div class="progressBar h-4 w-1/2" data-status="sleep"></div>
+          <div className="Bar flex items-center gap-2 w-full">
+              <div className="progressContain h-4">
+                  <div className="progressBar h-4 w-1/2" data-status="sleep"></div>
               </div>
             </div>
           </div>
                       
-          <div class="divider">
-            <div class="Bar flex items-center gap-2 w-full">
-                <div class="progressContain h-4">
-                    <div class="progressBar h-4 w-1/2" data-status="hygiene"></div>
+          <div className="divider">
+            <div className="Bar flex items-center gap-2 w-full">
+                <div className="progressContain h-4">
+                    <div className="progressBar h-4 w-1/2" data-status="hygiene"></div>
                 </div>
             </div>
-            <div class="Bar flex items-center gap-2 w-full">
-              <div class="progressContain h-4">
-                  <div class="progressBar h-4 w-1/2" data-status="happy"></div>
+            <div className="Bar flex items-center gap-2 w-full">
+              <div className="progressContain h-4">
+                  <div className="progressBar h-4 w-1/2" data-status="happy"></div>
                 </div>
               </div>
           </div>
         </div>
 
         <div className='mapStatusContainer'>
-          <div className='mapContainer'>
-
-            <div className="charInfo absolute text-center justify-center">
+          <div className='w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]'>
+            <div className="top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 absolute text-center justify-center z-10">
                 <div class="nameBackground">
                     <h2 id="charName" class="text-l font-bold"></h2>
                 </div>
-                <img id="charImage" src="rocket.png" alt="Selected Character"/>
+                <img id="charImage" 
+                  src="rocket.png" 
+                  alt="Selected Character"
+                  style={{
+                    transform: `rotate(${rotation}deg)`,
+                    transition: 'transform 0.2s ease'
+                }}/>
             </div>
-              <img src="spaceMap.jpg" className="spaceMap" />
+
+            <div className="w-full h-full overflow-hidden relative">
+                  <img
+                  src="spaceMap.jpg"
+                  className="w-100% h-100% object-cover object-center"
+                  style={{
+                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(4)`,
+                    transformOrigin: 'center',
+                    transition: 'transform 0.3s ease'
+                  }}
+                />
+            </div>
           
             <div class="direction">
               <div class="divider">
-                  <button>
+                  <button
+                      onMouseDown={() => setKeys(prev => ({ ...prev, ArrowUp: true }))}
+                      onMouseUp={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
+                      onMouseLeave={() => {
+                        if (keys.ArrowUp) setKeys(prev => ({ ...prev, ArrowUp: false }))
+                      }}
+                      style={{ userSelect: 'none' }}
+                      >
                       <img className="transform -rotate-90" src="direction.png"/>
                   </button>
               </div>
               <div class="divider">
-                  <button>
+                  <button 
+                      onMouseDown={() => setKeys(prev => ({ ...prev, ArrowLeft: true }))}
+                      onMouseUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
+                      onMouseLeave={() => {
+                        if (keys.ArrowLeft) setKeys(prev => ({ ...prev, ArrowLeft: false }))
+                      }}
+                      style={{ userSelect: 'none' }}
+                      >
                       <img className="transform rotate-180" src="direction.png"/>
                   </button>
-                  <button>
+                  <button 
+                      onMouseDown={() => setKeys(prev => ({ ...prev, ArrowDown: true }))}
+                      onMouseUp={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
+                      onMouseLeave={() => {
+                        if (keys.ArrowDown) setKeys(prev => ({ ...prev, ArrowDown: false }))
+                      }}
+                      style={{ userSelect: 'none' }}
+                      >
                       <img className="transform rotate-90" src="direction.png"/>
                   </button>
-                  <button>
+                  <button 
+                      onMouseDown={() => setKeys(prev => ({ ...prev, ArrowRight: true }))}
+                      onMouseUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
+                      onMouseLeave={() => {
+                        if (keys.ArrowRight) setKeys(prev => ({ ...prev, ArrowRight: false }))
+                      }}
+                      style={{ userSelect: 'none' }}
+                      >
                       <img src="direction.png"/>
                   </button>
               </div>
@@ -82,17 +217,12 @@ const theGame = () => {
                 Inventory
               </button>
             </div>
-
             <div className='eventcontainer'>
               Event not found!
             </div>
-
           </div> 
-
-        
         </div>
       </div>
-        
     </div>
   );
 };
