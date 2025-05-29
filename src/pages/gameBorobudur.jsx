@@ -15,8 +15,8 @@ const Temple = () => {
   const getCharacterImage = (color, isMoving) => {
     const characterImages = {
       red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
-      blue: isMoving ? "charGIF4.gif" : "charGIFStatic4.gif",
-      purple: isMoving ? "charGIF.gif" : "charGIFStatic.gif",
+      yellow: isMoving ? "charGIF3.gif" : "charGIFStatic3.gif",
+      purple: isMoving ? "charGIF1.gif" : "charGIFStatic.gif",
       cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
       brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
     };
