@@ -1,4 +1,3 @@
-// C:\Users\willy\OneDrive\Desktop\Cihuyy-UAS\src\pages\character.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCharacter } from '../components/characterContext.jsx';

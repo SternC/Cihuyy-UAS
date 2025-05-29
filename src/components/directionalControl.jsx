@@ -19,7 +19,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
         <button 
           onMouseDown={() => {
             setKeys(prev => ({ ...prev, ArrowLeft: true }));
-            setIsFlipped(true);  // This should work now
+            setIsFlipped(true);  
           }}
           onMouseUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
           onMouseLeave={() => {
@@ -42,7 +42,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
         <button 
           onMouseDown={() => {
             setKeys(prev => ({ ...prev, ArrowRight: true }));
-            setIsFlipped(false);  // This should work now
+            setIsFlipped(false); 
           }}
           onMouseUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
           onMouseLeave={() => {

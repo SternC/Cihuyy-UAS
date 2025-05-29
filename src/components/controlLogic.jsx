@@ -1,10 +1,11 @@
 // hooks/useMovement.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useMovement = (initialPosition, mapBoundaries) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isMoving, setIsMoving] = useState(false); 
   const [keys, setKeys] = useState({
     ArrowUp: false,
     ArrowDown: false,
@@ -22,7 +23,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
   const maxY = (mapHeight - viewportHeight) / 2;
   const minY = -maxY;
 
-  const handleMove = (dx, dy) => {
+  const handleMove = useCallback((dx, dy) => {
     let newX = position.x + dx;
     let newY = position.y + dy;
     
@@ -32,7 +33,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     if (newX !== position.x || newY !== position.y) {
       setPosition({ x: newX, y: newY });
     }
-  };
+  }, [position, minX, maxX, minY, maxY]);
 
   // Keyboard event handlers
   useEffect(() => {
@@ -68,29 +69,31 @@ export const useMovement = (initialPosition, mapBoundaries) => {
 
   // Movement logic
   useEffect(() => {
-    const moveInterval = setInterval(() => {
-      const moveAmount = 20;
-      let dx = 0;
-      let dy = 0;
+  const moveInterval = setInterval(() => {
+    const moveAmount = 12;
+    let dx = 0;
+    let dy = 0;
 
-      if (keys.ArrowUp || keys.w) dy -= moveAmount;
-      if (keys.ArrowDown || keys.s) dy += moveAmount;
-      if (keys.ArrowLeft || keys.a) dx -= moveAmount;
-      if (keys.ArrowRight || keys.d) dx += moveAmount;
+    if (keys.ArrowUp || keys.w) dy -= moveAmount;
+    if (keys.ArrowDown || keys.s) dy += moveAmount;
+    if (keys.ArrowLeft || keys.a) dx -= moveAmount;
+    if (keys.ArrowRight || keys.d) dx += moveAmount;
 
+    const moving = dx !== 0 || dy !== 0;
+    setIsMoving(moving);
+
+    if (moving) {
       if (dx !== 0 && dy !== 0) {
         const diagonalAmount = moveAmount * 0.7071;
         dx = dx > 0 ? diagonalAmount : -diagonalAmount;
         dy = dy > 0 ? diagonalAmount : -diagonalAmount;
       }
-
-      if (dx !== 0 || dy !== 0) {
-        handleMove(dx, dy);
+      handleMove(dx, dy);
       }
     }, 16);
 
     return () => clearInterval(moveInterval);
-  }, [keys]);
+  }, [keys, handleMove]);
 
   // Reset keys on mouse up
   useEffect(() => {
@@ -121,6 +124,8 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     isFlipped,
     setKeys,
     setIsFlipped,
-    handleMove
+    handleMove,
+    isMoving, 
+    setIsMoving 
   };
 };
