@@ -168,15 +168,17 @@ const Temple = () => {
             </div>
 
             <div className="w-full h-full overflow-hidden relative">
-              <img
-                src="/map/BorobudurMap.png"
-                className="w-100% h-100% object-cover object-center"
-                style={{
-                  transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(1.5)`,
-                  transformOrigin: "center",
-                  transition: "transform 0.3s ease",
-                }}
-              />
+              <div style={{ backgroundColor: '#1A3133' }}>
+                <img
+                  src="/map/BorobudurMap.png"
+                  className="w-100% h-100% object-cover object-center"
+                  style={{
+                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(1.5)`,
+                    transformOrigin: "center",
+                    transition: "transform 0.3s ease",
+                  }}
+                />
+              </div>
             </div>
 
             <DirectionalControls
@@ -186,12 +188,12 @@ const Temple = () => {
               setIsFlipped={setIsFlipped}
             />
 
-            <div className="miniMapContainer">
-              <img src="/map/BorobudurMap.png" className="miniMapImage" style={{ width: "175px", height: "160px" }}/>
+            <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+              <img src="/map/BorobudurMap.png" className="miniMapImage" style={{ width: "100%", height: "150px" }}/>
               <div
                 className="miniMapMarker"
                 style={{
-                  left: `${(((playerPos.x * 3/2) - minX) / (maxX - minX)) * 85}%`,
+                  left: `${(((playerPos.x * 3/2) - minX) / (maxX - minX)) * 100}%`,
                   top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 100}%`,
                   transform: "translate(-50%, -50%)",
                 }}
