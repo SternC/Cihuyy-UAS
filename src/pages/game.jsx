@@ -70,7 +70,7 @@ const theGame = () => {
   // Handle continuous movement and diagonal combinations
   useEffect(() => {
     const moveInterval = setInterval(() => {
-      const moveAmount = 5; // Reduced for smoother diagonal movement
+      const moveAmount = 20; // Reduced for smoother diagonal movement
       let dx = 0;
       let dy = 0;
 
@@ -123,12 +123,14 @@ const theGame = () => {
       <div className='gameContainer'>
         <div className="barContainer">
           <div className="divider">
-            <div className="Bar flex items-center gap-2 w-full">
+            <div className="Bar flex items-center w-full">
+              <img src='symbol/mealSymbol.png' className='w-6 h-6'/>
               <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="meal"></div>
+                  <div className="progressBar h-4 w-1/2 " data-status="meal"></div>
               </div>
             </div>
           <div className="Bar flex items-center gap-2 w-full">
+              <img src='symbol/sleepSymbol.png' className='w-6 h-6'/>
               <div className="progressContain h-4">
                   <div className="progressBar h-4 w-1/2" data-status="sleep"></div>
               </div>
@@ -137,11 +139,13 @@ const theGame = () => {
                       
           <div className="divider">
             <div className="Bar flex items-center gap-2 w-full">
+                <img src='symbol/cleanSymbol.png' className='w-6 h-6'/>
                 <div className="progressContain h-4">
                     <div className="progressBar h-4 w-1/2" data-status="hygiene"></div>
                 </div>
             </div>
             <div className="Bar flex items-center gap-2 w-full">
+              <img src='symbol/happySymbol.png' className='w-6 h-6'/>
               <div className="progressContain h-4">
                   <div className="progressBar h-4 w-1/2" data-status="happy"></div>
                 </div>
