@@ -223,10 +223,29 @@ const theGame = () => {
               </div>
             </div>
 
-            <div className="miniMapContainer" >
-              <img src="spaceMap.jpg" className="miniMapImage" />
-              <div className="miniMapMarker"></div> {/* Optional: shows player position */}
-            </div>
+<div className="absolute bottom-[400px] right-[35px] w-[150px] h-[90px] border-2 border-white rounded overflow-hidden z-[2] bg-black">
+  {/* Static Minimap Background */}
+  <img 
+    src="spaceMap.jpg" 
+    className="absolute w-full h-full object-cover"
+    style={{
+      // Jika perlu penyesuaian gambar minimap
+      objectPosition: 'center center' 
+    }}
+  />
+  
+  {/* Moving Player Position Indicator - Presisi */}
+  <div
+    className="absolute w-2 h-2 bg-red-500 rounded-full z-10 border border-white"
+    style={{
+      left: `calc(${(playerPos.x / 2560) * 100}% + 70px)`, // Ditambah offset -4px untuk penyesuaian
+      top: `calc(${(playerPos.y / 1440) * 100}% + 45px)`,  // Ditambah offset -4px untuk penyesuaian
+      transform: 'translate(-50%, -50%)',
+      boxShadow: '0 0 3px 1px rgba(255,0,0,0.8)',
+      transition: 'left 0.2s linear, top 0.2s linear'
+    }}
+  ></div>
+</div>
 
             <div className='inventory-container'>
               <button 
