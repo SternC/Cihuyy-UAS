@@ -120,6 +120,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     keys,
     isFlipped,
     setKeys,
+    setIsFlipped,
     handleMove
   };
 };

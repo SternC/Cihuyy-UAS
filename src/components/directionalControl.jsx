@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DirectionalControls = ({ keys, setKeys }) => {
+const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
   return (
     <div className="direction">
       <div className="divider">
@@ -17,7 +17,10 @@ const DirectionalControls = ({ keys, setKeys }) => {
       </div>
       <div className="divider">
         <button 
-          onMouseDown={() => setKeys(prev => ({ ...prev, ArrowLeft: true }))}
+          onMouseDown={() => {
+            setKeys(prev => ({ ...prev, ArrowLeft: true }));
+            setIsFlipped(true);  // This should work now
+          }}
           onMouseUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
           onMouseLeave={() => {
             if (keys.ArrowLeft) setKeys(prev => ({ ...prev, ArrowLeft: false }))
@@ -37,7 +40,10 @@ const DirectionalControls = ({ keys, setKeys }) => {
           <img className="transform rotate-90" src="direction.png" alt="Down"/>
         </button>
         <button 
-          onMouseDown={() => setKeys(prev => ({ ...prev, ArrowRight: true }))}
+          onMouseDown={() => {
+            setKeys(prev => ({ ...prev, ArrowRight: true }));
+            setIsFlipped(false);  // This should work now
+          }}
           onMouseUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
           onMouseLeave={() => {
             if (keys.ArrowRight) setKeys(prev => ({ ...prev, ArrowRight: false }))
