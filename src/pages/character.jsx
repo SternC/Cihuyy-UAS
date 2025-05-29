@@ -9,7 +9,7 @@ const CustomizationPage = () => {
 
   const characterSkins = {
     red: 'characters/charGIF6.gif',
-    blue: 'characters/charGIF4.gif',
+    yellow: 'characters/charGIF3.gif',
     purple: 'characters/charGIF.gif',
     cyan: 'characters/charGIF2.gif',
     brown: 'characters/charGIF5.gif'
@@ -43,8 +43,8 @@ const CustomizationPage = () => {
             <button className="menuButton" onClick={() => handleColorSelect('red')}>
               <div className="color red"></div>
             </button>
-            <button className="menuButton" onClick={() => handleColorSelect('blue')}>
-              <div className="color blue"></div>
+            <button className="menuButton" onClick={() => handleColorSelect('yellow')}>
+              <div className="color yellow"></div>
             </button>
             <button className="menuButton" onClick={() => handleColorSelect('purple')}>
               <div className="color purple"></div>
