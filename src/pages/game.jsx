@@ -170,7 +170,7 @@ const theGame = () => {
 
             <div className="w-full h-full overflow-hidden relative">
                   <img
-                  src="spaceMap.jpg"
+                  src="theMainSpace.png"
                   className="w-100% h-100% object-cover object-center"
                   style={{
                     transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(4)`,
@@ -228,7 +228,7 @@ const theGame = () => {
             </div>
 
             <div className="miniMapContainer" >
-              <img src="spaceMap.jpg" className="miniMapImage" />
+              <img src="theMainSpace.png" className="miniMapImage" />
               <div className="miniMapMarker"></div> {/* Optional: shows player position */}
             </div>
 
