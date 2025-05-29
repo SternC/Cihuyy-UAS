@@ -24,10 +24,13 @@
 
 .Bar {
     display: flex;
-    gap: 20px;
+    gap: 10px;
     justify-content: center;
     align-items: center;
     margin: 10px;
+}
+.Bar img{
+    filter: invert(100%); /*JNGAN DIILANGIN YG INI*/
 }
 
 .progressContain{
@@ -40,7 +43,7 @@
 .progressBar{
     height: 100%;
     width: 30%; /* bagian isi progress*/
-    background-color: rgb(31, 159, 142);
+    background-color: rgb(81, 121, 196);
     transition: width 0.3s ease-in-out;
     border-radius: 20px 0px 0px 20px;
 
