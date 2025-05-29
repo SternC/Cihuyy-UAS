@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './inventory.css'
+import InventoryPopup from './inventoryPopUp';
+
+function App(){
+  const [isOpened, setIsOpened] = React.useState(false);
+}
 
 const InventoryPage = () => {
   return (
@@ -9,7 +14,7 @@ const InventoryPage = () => {
         <Link to="/"><button className="quitButton"><div className="circle">X</div></button></Link>
         <h1>Inventory</h1> 
       </div>
-
+      <InventoryPopup isOpened={isOpened} onClose={() => setIsOpened(false)}>
       <div className="inventoryContainer w-[1000px] max-h-[700px]">   
         <div className="typeContainer">
           <div className="typeMenu">
@@ -43,6 +48,7 @@ const InventoryPage = () => {
                 <button className="itemButton"></button>
             </div> 
       </div>
+      </InventoryPopup>
         
     </div>
   );
