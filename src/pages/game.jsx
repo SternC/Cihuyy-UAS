@@ -10,7 +10,11 @@ const theGame = () => {
     ArrowUp: false,
     ArrowDown: false,
     ArrowLeft: false,
-    ArrowRight: false
+    ArrowRight: false,
+    w: false,
+    a: false,
+    s: false,
+    d: false
   });
 
   const handleMove = (dx, dy) => {
@@ -34,14 +38,16 @@ const theGame = () => {
   // Keyboard event handler for diagonal movement
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        setKeys(prev => ({ ...prev, [e.key]: true }));
+      const key = e.key.toLowerCase(); // Normalize to lowercase for WASD
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
+        setKeys(prev => ({ ...prev, [key]: true }));
       }
     };
 
     const handleKeyUp = (e) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        setKeys(prev => ({ ...prev, [e.key]: false }));
+      const key = e.key.toLowerCase(); // Normalize to lowercase for WASD
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key)) {
+        setKeys(prev => ({ ...prev, [key]: false }));
       }
     };
 
@@ -60,10 +66,11 @@ const theGame = () => {
       let dx = 0;
       let dy = 0;
 
-      if (keys.ArrowUp) dy -= moveAmount;
-      if (keys.ArrowDown) dy += moveAmount;
-      if (keys.ArrowLeft) dx -= moveAmount;
-      if (keys.ArrowRight) dx += moveAmount;
+      // Check both arrow keys and WASD
+      if (keys.ArrowUp || keys.w) dy -= moveAmount;
+      if (keys.ArrowDown || keys.s) dy += moveAmount;
+      if (keys.ArrowLeft || keys.a) dx -= moveAmount;
+      if (keys.ArrowRight || keys.d) dx += moveAmount;
 
       // Normalize diagonal movement speed
       if (dx !== 0 && dy !== 0) {
@@ -87,6 +94,10 @@ const theGame = () => {
         ArrowDown: false,
         ArrowLeft: false,
         ArrowRight: false,
+        w: false,
+        a: false,
+        s: false,
+        d: false
       });
     };
 
