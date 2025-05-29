@@ -4,8 +4,8 @@ import './game.css';
 
 const TheGame = () => {
   const navigate = useNavigate();
-  const [cameraPos, setCameraPos] = useState({ x: 0, y: 0 });
-  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const [cameraPos, setCameraPos] = useState({ x: 1350, y: -550 });
+  const [playerPos, setPlayerPos] = useState({ x: -1350, y: 550 });
   const [rotation, setRotation] = useState(0);
   const [keys, setKeys] = useState({
     ArrowUp: false,
