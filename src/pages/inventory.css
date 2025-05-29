@@ -114,3 +114,60 @@ body{
     box-shadow: 0 0 50px rgba(122, 254, 245, 0.5) inset;
     border: 2px solid rgb(122, 254, 245);
 }
+
+/* bagian popup */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.popup-content {
+  position: relative;
+  animation: popIn 0.3s ease-out forwards;
+  border-radius: 30px;
+  padding: 12px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  height: fit-content;
+  gap: 20px;
+  background-color: rgba(119, 119, 119, 0.327);
+  border: 5px solid rgb(158, 193, 187);
+}
+
+.popup-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.popup-close-btn:hover {
+  color: rgb(122, 254, 245);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

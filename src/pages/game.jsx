@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './game.css';
 import PreventArrowScroll from '../components/preventArrowScroll';
+import { InventoryPopup } from '../pages/inventoryPopup.jsx';
 
 const TheGame = () => {
   const navigate = useNavigate();
+  const [showInventory, setShowInventory] = useState(false);
+  const [inventoryType, setInventoryType] = useState('food');
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [cameraPos, setCameraPos] = useState({ x: 1350, y: -550 });
   const [playerPos, setPlayerPos] = useState({ x: -1350, y: 550 });
   const [rotation, setRotation] = useState(0);
@@ -208,7 +212,7 @@ const TheGame = () => {
     <div className='mainGameContainer'>
       <div className="titleContainer">
         <Link to="/"><button className="quitButton"><div className="circle">X</div></button></Link>
-        <h1>the game</h1> 
+        <h1>THE GAME</h1> 
       </div>
       <div className='gameContainer'>
         <div className="barContainer">
@@ -330,13 +334,15 @@ const TheGame = () => {
             </div>
 
             <div className='inventory-container'>
-              <button 
-                className="inventory-button" 
-                //onClick={() => navigate('/inventory')} 
-              >
-                Inventory
-              </button>
-            </div>
+        <button className="inventory-button" onClick={() => setIsInventoryOpen(true)}>
+          Inventory
+        </button>
+        
+        <InventoryPopup 
+          isOpened={isInventoryOpen} 
+          onClose={() => setIsInventoryOpen(false)} 
+        />
+      </div>
             <div className='eventcontainer flex justify-center items-center'>
               {currentEvent ? (
                 <button onClick={handleNavigate}>
