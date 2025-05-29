@@ -49,6 +49,7 @@
     display: flex;
     gap: 10px;
 }
+
 @media (max-width: 768px) {
     .divider{
         display: grid;
@@ -85,31 +86,11 @@
     overflow: hidden;
 }
 
-.mapContainer {
-    background: linear-gradient(135deg, #666, #ccc, #888);
-    width: 900px;
-    height: 530px;
-    position: relative;
-    overflow: hidden;
-    padding: 15px;
-    border-radius: 20px;
-}
-
-.spaceMap {
-    width: 100%;
-    height: 100%; 
-    object-fit: cover;
-    object-position: center;
-} 
-
 #charImage {
     width: 50px;
     height: auto;
     transition: transform 0.3s ease-in-out;
-}
-.charInfo{
-    top: 50%;
-    left: 50%;
+
 }
 
 .direction{
