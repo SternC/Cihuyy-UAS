@@ -41,6 +41,7 @@ const Temple = () => {
     keys,
     isFlipped,
     setKeys,
+    setIsFlipped,
   } = useMovement({ x: 0, y: 0 }, mapBoundaries);
 
   const cameraPos = { x: -playerPos.x, y: -playerPos.y };
@@ -154,7 +155,7 @@ const Temple = () => {
                   }`,
                   transition: "transform 0.15s ease-out",
                   position: "absolute",
-                  left: isFlipped ? "20px" : "0", // Adjust this value based on your character's width
+                  left: isFlipped ? "20px" : "0",
                   transformOrigin: "center",
                 }}
               />
@@ -172,7 +173,12 @@ const Temple = () => {
               />
             </div>
 
-            <DirectionalControls keys={keys} setKeys={setKeys} />
+            <DirectionalControls
+              keys={keys}
+              setKeys={setKeys}
+              isFlipped={isFlipped}
+              setIsFlipped={setIsFlipped}
+            />
 
             <div className="miniMapContainer">
               <img src="/map/BorobudurMap.png" className="miniMapImage" />
