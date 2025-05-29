@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 export const useMovement = (initialPosition, mapBoundaries) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [keys, setKeys] = useState({
     ArrowUp: false,
     ArrowDown: false,
@@ -38,9 +39,13 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     const handleKeyDown = (e) => {
       if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
         setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
+        if (e.key.toLowerCase() === 'a') setIsFlipped(true);
+        if (e.key.toLowerCase() === 'd') setIsFlipped(false);
       }
       else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         setKeys(prev => ({ ...prev, [e.key]: true }));
+        if (e.key === 'ArrowLeft') setIsFlipped(true);
+        if (e.key === 'ArrowRight') setIsFlipped(false);
       }
     };
 
@@ -59,7 +64,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, []); // Removed keys dependency
 
   // Movement logic
   useEffect(() => {
@@ -113,6 +118,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     setPosition,
     rotation,
     keys,
+    isFlipped,
     setKeys,
     handleMove
   };
