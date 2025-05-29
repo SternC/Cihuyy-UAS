@@ -65,7 +65,6 @@ const offsetY = clamp(
 
 const cameraPos = { x: offsetX, y: offsetY };
 
-
   const locations = [
     {
       id: "shrine",
