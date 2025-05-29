@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './game.css';
+import PreventArrowScroll from '../components/preventArrowScroll';
 
 const TheGame = () => {
   const navigate = useNavigate();
@@ -203,6 +204,7 @@ const TheGame = () => {
   }, []);
 
   return (
+  <PreventArrowScroll>
     <div className='mainGameContainer'>
       <div className="titleContainer">
         <Link to="/"><button className="quitButton"><div className="circle">X</div></button></Link>
@@ -348,6 +350,7 @@ const TheGame = () => {
         </div>
       </div>
     </div>
+  </PreventArrowScroll>
   );
 };
 
