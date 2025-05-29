@@ -49,7 +49,22 @@ const Temple = () => {
     setIsMoving 
   } = useMovement({ x: 0, y: 0 }, mapBoundaries);
 
-  const cameraPos = { x: -playerPos.x, y: -playerPos.y };
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const offsetX = clamp(
+  -playerPos.x + mapBoundaries.viewportWidth / 5/2,
+  -mapBoundaries.mapWidth + mapBoundaries.viewportWidth,
+  600  // batas kanan kamera
+);
+
+const offsetY = clamp(
+  -playerPos.y + mapBoundaries.viewportHeight / 5/2,
+  -mapBoundaries.mapHeight + mapBoundaries.viewportHeight,
+  470 // batas bawah kamera
+);
+
+const cameraPos = { x: offsetX, y: offsetY };
+
 
   const locations = [
     {
@@ -193,8 +208,8 @@ const Temple = () => {
               <div
                 className="miniMapMarker"
                 style={{
-                  left: `${(((playerPos.x * 1) - minX) / (maxX - minX)) * 100}%`,
-                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 75}%`,
+                  left: `${(((playerPos.x * 1) - minX) / (maxX - minX)) * 98}%`,
+                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 73}%`,
                   transform: "translate(-50%, -50%)",
                 }}
               ></div>
