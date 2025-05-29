@@ -35,11 +35,11 @@ const TheGame = () => {
       path: '/kitchen'
     },
     {
-      id: 'seremu',
-      name: 'Semeru',
+      id: 'penglipuran',
+      name: 'Penglipuran',
       position: { x: -590, y: -660 },
       radius: 100,
-      path: '/semeru'
+      path: '/penglipuran'
     },
     {
       id: 'pindul',
@@ -110,18 +110,17 @@ const TheGame = () => {
       setCameraPos({ x: -newX, y: -newY });
       
       // Update rotation based on custom angles
-      if (dx > 0 && dy === 0) setRotation(50);      // Kanan
-      else if (dx < 0 && dy === 0) setRotation(230); // Kiri
-      else if (dx === 0 && dy > 0) setRotation(140);  // Bawah
-      else if (dx === 0 && dy < 0) setRotation(-40); // Atas
+      if (dx > 0 && dy === 0) setRotation(52);      // Kanan
+      else if (dx < 0 && dy === 0) setRotation(232); // Kiri
+      else if (dx === 0 && dy > 0) setRotation(142);  // Bawah
+      else if (dx === 0 && dy < 0) setRotation(-38); // Atas
       // Diagonal movements
-      else if (dx > 0 && dy < 0) setRotation(20);    // Kanan atas
-      else if (dx > 0 && dy > 0) setRotation(80);    // Kanan bawah
-      else if (dx < 0 && dy < 0) setRotation(260);   // Kiri atas
-      else if (dx < 0 && dy > 0) setRotation(200);   // Kiri bawah
+      else if (dx > 0 && dy < 0) setRotation(8);    // Kanan atas
+      else if (dx > 0 && dy > 0) setRotation(93);    // Kanan bawah
+      else if (dx < 0 && dy < 0) setRotation(273);   // Kiri atas
+      else if (dx < 0 && dy > 0) setRotation(190);   // Kiri bawah
     }
   };
-
 
   // Keyboard event handler for diagonal movement
   useEffect(() => {
