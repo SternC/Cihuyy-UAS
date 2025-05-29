@@ -22,7 +22,7 @@ const TheGame = () => {
   const locations = [
     {
       id: 'home',
-      name: 'Rumah Utama',
+      name: 'Home',
       position: {x: -1300, y: 540  },
       radius: 100,
       path: '/home'
