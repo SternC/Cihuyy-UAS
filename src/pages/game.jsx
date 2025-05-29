@@ -336,7 +336,7 @@ const TheGame = () => {
                 Inventory
               </button>
             </div>
-            <div className='eventcontainer'>
+            <div className='eventcontainer flex justify-center items-center'>
               {currentEvent ? (
                 <button onClick={handleNavigate}>
                   Enter {currentEvent.name}
