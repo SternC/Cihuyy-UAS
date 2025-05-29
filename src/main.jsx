@@ -9,6 +9,9 @@ import InventoryFoodPage from './pages/inventoryfood.jsx';
 import TheGame from './pages/game.jsx';
 import Home from './pages/gameHome.jsx';
 import Temple from './pages/gameBorobudur.jsx';
+import Beach from './pages/gameKuta.jsx';
+import Cave from './pages/gamePindul.jsx';
+import Village from './pages/gamePenglipuran.jsx';
 import { CharacterProvider } from './components/characterContext.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -24,6 +27,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/credit" element={<Credit/>}/>
           <Route path="/home" element={<Home/>}/>
           <Route path="/temple" element={<Temple/>}/>
+          <Route path="/beach" element={<Beach/>}/>
+          <Route path="/cave" element={<Cave/>}/>
+          <Route path="/village" element={<Village/>}/>
         </Routes>
       </Router>
       </CharacterProvider>
