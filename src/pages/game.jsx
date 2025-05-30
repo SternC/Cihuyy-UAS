@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './game.css';
 import PreventArrowScroll from '../components/preventArrowScroll';
-import { InventoryPopup } from '../pages/inventoryPopup.jsx';
+import { InventoryPopup } from '../pages/inventoryPopUp.jsx';
 
 const TheGame = () => {
   const navigate = useNavigate();
@@ -334,15 +334,15 @@ const TheGame = () => {
             </div>
 
             <div className='inventory-container'>
-        <button className="inventory-button" onClick={() => setIsInventoryOpen(true)}>
-          Inventory
-        </button>
-        
-        <InventoryPopup 
-          isOpened={isInventoryOpen} 
-          onClose={() => setIsInventoryOpen(false)} 
-        />
-      </div>
+              <button className="inventory-button" onClick={() => setIsInventoryOpen(true)}>
+                Inventory
+              </button>
+              
+              <InventoryPopup 
+                isOpened={isInventoryOpen} 
+                onClose={() => setIsInventoryOpen(false)} 
+              />
+            </div>
             <div className='eventcontainer flex justify-center items-center'>
               {currentEvent ? (
                 <button onClick={handleNavigate}>

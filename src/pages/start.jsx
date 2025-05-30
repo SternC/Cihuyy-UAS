@@ -5,11 +5,7 @@ import './start.css';
 const MenuComponent = () => {
   useEffect(() => {
     const video = document.querySelector('.video-bg');
-    if (video) {
-      video.play().catch(error => {
-        console.log('Video play failed:', error);
-      });
-    }
+    if (video) video.play().catch(console.error);
   }, []);
 
   return (
@@ -22,15 +18,15 @@ const MenuComponent = () => {
         <div className="menuContainer lg:mr-[20px]">
           <div className="menu-frame">
             <Link to="/customChar"><button className="mirrorButton">PLAY</button></Link>
-            <Link to="/inventory"><button className="mirrorButton">INVENTORY</button></Link>
-            <Link to = "/credit"><button className="credit">CREDITS</button></Link>
+            <Link to="/inventory"><button className="mirrorButton">INVENTORY</button></Link>            
+            <Link to="/credit"><button className="credit">CREDITS</button></Link>
           </div>
         </div>
       </div>
       
-      <div className="videoContainer max-w-[460px] max-h-[263px] lg:max-w-[700px] lg:max-h-[400px]">
+      <div className="videoContainer">
         <div className="videoFrame">
-          <video autoPlay muted loop playsInline className="video-bg ">
+          <video autoPlay muted loop playsInline className="video-bg">
             <source src="Among Us ScreenSave.mp4" type="video/mp4" />
           </video>
         </div>
