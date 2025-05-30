@@ -4,7 +4,7 @@ import './inventory.css'
 import InventoryPopup from './inventoryPopUp';
 
 function App(){
-  const [isOpened, setIsOpened] = React.useState(false);
+  const [isOpened, setIsOpened] = useState(false);
 }
 
 const InventoryPage = () => {
