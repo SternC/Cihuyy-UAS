@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export const useMovement = (initialPosition, mapBoundaries) => {
+export const useMovement = (initialPosition, mapBoundaries, colBoundaries) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isMoving, setIsMoving] = useState(false); 
+  const [isMoving, setIsMoving] = useState(false);
   const [keys, setKeys] = useState({
     ArrowUp: false,
     ArrowDown: false,
@@ -22,19 +22,37 @@ export const useMovement = (initialPosition, mapBoundaries) => {
   const maxY = (mapHeight - viewportHeight) / 2;
   const minY = -maxY;
 
+  const checkCollision = (newX, newY) => {
+    const playerSize = 32; // Match your character size
+    const playerLeft = newX - playerSize / 2;
+    const playerRight = newX + playerSize / 2;
+    const playerTop = newY - playerSize / 2;
+    const playerBottom = newY + playerSize / 2;
+
+    return colBoundaries.some(boundary => {
+      return (
+        playerRight > boundary.position.x &&
+        playerLeft < boundary.position.x + boundary.width &&
+        playerBottom > boundary.position.y &&
+        playerTop < boundary.position.y + boundary.height
+      );
+    });
+  };
+
   const handleMove = useCallback((dx, dy) => {
     let newX = position.x + dx;
     let newY = position.y + dy;
-    
+
+    // Check map boundaries first
     newX = Math.max(minX, Math.min(maxX, newX));
     newY = Math.max(minY, Math.min(maxY, newY));
-    
-    if (newX !== position.x || newY !== position.y) {
+
+    // Then check collision with objects
+    if (!checkCollision(newX, newY)) {
       setPosition({ x: newX, y: newY });
     }
-  }, [position, minX, maxX, minY, maxY]);
+  }, [position, minX, maxX, minY, maxY, colBoundaries]);
 
-  // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
@@ -64,67 +82,38 @@ export const useMovement = (initialPosition, mapBoundaries) => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []); // Removed keys dependency
+  }, []);
 
-  // Movement logic
   useEffect(() => {
-  const moveInterval = setInterval(() => {
-    const moveAmount = 12;
-    let dx = 0;
-    let dy = 0;
+    const moveInterval = setInterval(() => {
+      const moveAmount = 3;
+      let dx = 0;
+      let dy = 0;
 
-    if (keys.ArrowUp || keys.w) dy -= moveAmount;
-    if (keys.ArrowDown || keys.s) dy += moveAmount;
-    if (keys.ArrowLeft || keys.a) dx -= moveAmount;
-    if (keys.ArrowRight || keys.d) dx += moveAmount;
+      if (keys.ArrowUp || keys.w) dy -= moveAmount;
+      if (keys.ArrowDown || keys.s) dy += moveAmount;
+      if (keys.ArrowLeft || keys.a) dx -= moveAmount;
+      if (keys.ArrowRight || keys.d) dx += moveAmount;
 
-    const moving = dx !== 0 || dy !== 0;
-    setIsMoving(moving);
+      const moving = dx !== 0 || dy !== 0;
+      setIsMoving(moving);
 
-    if (moving) {
-      if (dx !== 0 && dy !== 0) {
-        const diagonalAmount = moveAmount * 0.7071;
-        dx = dx > 0 ? diagonalAmount : -diagonalAmount;
-        dy = dy > 0 ? diagonalAmount : -diagonalAmount;
-      }
-      handleMove(dx, dy);
+      if (moving) {
+        handleMove(dx, dy);
       }
     }, 16);
 
     return () => clearInterval(moveInterval);
   }, [keys, handleMove]);
 
-  // Reset keys on mouse up
-  useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      setKeys({
-        ArrowUp: false,
-        ArrowDown: false,
-        ArrowLeft: false,
-        ArrowRight: false,
-        w: false,
-        a: false,
-        s: false,
-        d: false
-      });
-    };
-
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, []);
-
   return {
     position,
-    setPosition,
     rotation,
     keys,
     isFlipped,
     setKeys,
     setIsFlipped,
-    handleMove,
-    isMoving, 
-    setIsMoving 
+    isMoving,
+    setIsMoving
   };
 };
