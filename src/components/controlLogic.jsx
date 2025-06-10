@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export const useMovement = (initialPosition, mapBoundaries, colBoundaries) => {
+export const useMovement = (initialPosition, mapBoundaries) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -16,63 +16,45 @@ export const useMovement = (initialPosition, mapBoundaries, colBoundaries) => {
     d: false
   });
 
-  const { mapWidth, mapHeight, viewportWidth, viewportHeight } = mapBoundaries;
-  const maxX = (mapWidth - viewportWidth) / 2;
+  // Calculate movement boundaries based on map and viewport size
+  const maxX = (mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2;
   const minX = -maxX;
-  const maxY = (mapHeight - viewportHeight) / 2;
+  const maxY = (mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2;
   const minY = -maxY;
 
-  const checkCollision = (newX, newY) => {
-    const playerSize = 32; // Match your character size
-    const playerLeft = newX - playerSize / 2;
-    const playerRight = newX + playerSize / 2;
-    const playerTop = newY - playerSize / 2;
-    const playerBottom = newY + playerSize / 2;
-
-    return colBoundaries.some(boundary => {
-      return (
-        playerRight > boundary.position.x &&
-        playerLeft < boundary.position.x + boundary.width &&
-        playerBottom > boundary.position.y &&
-        playerTop < boundary.position.y + boundary.height
-      );
-    });
-  };
-
   const handleMove = useCallback((dx, dy) => {
-    let newX = position.x + dx;
-    let newY = position.y + dy;
+    setPosition(prevPos => {
+      // Calculate new position
+      let newX = prevPos.x + dx;
+      let newY = prevPos.y + dy;
+      
+      // Constrain to map boundaries
+      newX = Math.max(minX, Math.min(maxX, newX));
+      newY = Math.max(minY, Math.min(maxY, newY));
+      
+      return { x: newX, y: newY };
+    });
+  }, [minX, maxX, minY, maxY]);
 
-    // Check map boundaries first
-    newX = Math.max(minX, Math.min(maxX, newX));
-    newY = Math.max(minY, Math.min(maxY, newY));
-
-    // Then check collision with objects
-    if (!checkCollision(newX, newY)) {
-      setPosition({ x: newX, y: newY });
-    }
-  }, [position, minX, maxX, minY, maxY, colBoundaries]);
-
+  // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
-        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
-        if (e.key.toLowerCase() === 'a') setIsFlipped(true);
-        if (e.key.toLowerCase() === 'd') setIsFlipped(false);
-      }
-      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        setKeys(prev => ({ ...prev, [e.key]: true }));
-        if (e.key === 'ArrowLeft') setIsFlipped(true);
-        if (e.key === 'ArrowRight') setIsFlipped(false);
+      const key = e.key.toLowerCase();
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+        const keyName = key.length === 1 ? key : e.key;
+        setKeys(prev => ({ ...prev, [keyName]: true }));
+        
+        // Handle character flipping
+        if (key === 'a' || key === 'arrowleft') setIsFlipped(true);
+        if (key === 'd' || key === 'arrowright') setIsFlipped(false);
       }
     };
 
     const handleKeyUp = (e) => {
-      if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
-        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: false }));
-      }
-      else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        setKeys(prev => ({ ...prev, [e.key]: false }));
+      const key = e.key.toLowerCase();
+      if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+        const keyName = key.length === 1 ? key : e.key;
+        setKeys(prev => ({ ...prev, [keyName]: false }));
       }
     };
 
@@ -84,6 +66,7 @@ export const useMovement = (initialPosition, mapBoundaries, colBoundaries) => {
     };
   }, []);
 
+  // Movement handling
   useEffect(() => {
     const moveInterval = setInterval(() => {
       const moveAmount = 3;
