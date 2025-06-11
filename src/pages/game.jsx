@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import './game.css';
 import PreventArrowScroll from '../components/preventArrowScroll';
 import { InventoryPopup } from '../pages/inventoryPopUp.jsx';
 
 const TheGame = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showInventory, setShowInventory] = useState(false);
   const [inventoryType, setInventoryType] = useState('food');
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
@@ -61,6 +62,16 @@ const TheGame = () => {
       path: '/beach'
     }
   ];
+
+    useEffect(() => {
+    if (location.state?.spawnPoint) {
+      setPlayerPos(location.state.spawnPoint);
+      setCameraPos({ 
+        x: -location.state.spawnPoint.x, 
+        y: -location.state.spawnPoint.y 
+      });
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const checkLocationProximity = () => {

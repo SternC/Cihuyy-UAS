@@ -9,6 +9,7 @@ import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
 const Temple = () => {
   const navigate = useNavigate();
+  const spawnPoint = { x: -35, y: 40 };
   const [currentEvent, setCurrentEvent] = useState(null);
   const { character } = useCharacter();
 
@@ -73,6 +74,14 @@ const cameraPos = { x: offsetX, y: offsetY };
       radius: 50,
       path: "/shrine",
     },
+
+    {
+      id: "exit",
+      name: "Exit",
+      position: { x: 555, y: 700 },
+      radius: 70,
+      path: "/game",
+    }
   ];
 
   useEffect(() => {
@@ -95,16 +104,25 @@ const cameraPos = { x: offsetX, y: offsetY };
   }, [playerPos]);
 
   const handleNavigate = () => {
-    if (currentEvent) {
+ if (currentEvent) {
+    if (currentEvent.id === "exit") {
+      navigate(currentEvent.path, { 
+        state: { spawnPoint: { x: -35, y: 40 } } // Koordinat depan Borobudur
+      });
+    } else {
       navigate(currentEvent.path);
     }
+  }
   };
 
   return (
     <PreventArrowScroll>
     <div className="mainGameContainer">
       <div className="titleContainer">
-        <Link to="/game">
+        <Link 
+          to="/game"
+          state={{ spawnPoint }}
+        >
           <button className="quitButton">
             <div className="circle">X</div>
           </button>

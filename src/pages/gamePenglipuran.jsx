@@ -8,6 +8,7 @@ import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
 const Village = () => {
   const navigate = useNavigate();
+  const spawnPoint = { x: -1300, y: 540 };
   const [currentEvent, setCurrentEvent] = useState(null);
   const { character } = useCharacter();
 
@@ -89,7 +90,10 @@ const Village = () => {
     <PreventArrowScroll>
     <div className="mainGameContainer">
       <div className="titleContainer">
-        <Link to="/game">
+        <Link 
+          to="/game"
+          state={{ spawnPoint }}
+        >
           <button className="quitButton">
             <div className="circle">X</div>
           </button>
