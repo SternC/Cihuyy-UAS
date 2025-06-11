@@ -17,7 +17,7 @@ const Home = () => {
   // collision
   const tileSize = 32;
   const mapWidthInTiles = 34;
-  const offset = { x: -735, y: -650 };
+  const offset = { x: -0, y: -650 };
 
   const colBoundaries = [];
 
