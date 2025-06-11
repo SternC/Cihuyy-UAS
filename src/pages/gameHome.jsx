@@ -17,7 +17,7 @@ const Home = () => {
   // collision
   const tileSize = 32;
   const mapWidthInTiles = 34;
-  const offset = { x: -0, y: -650 };
+  const offset = { x: -735, y: -650 };
 
   const colBoundaries = [];
 
@@ -197,14 +197,22 @@ const Home = () => {
     <PreventArrowScroll>
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/">
+          <Link to="/game">
             <button className="quitButton">
               <div className="circle">X</div>
             </button>
           </Link>
-          <h1>Shrine</h1>
+          <h1>HOME</h1>
         </div>
         <div className="gameContainer">
+          <div className="timeMoney">
+          <div className="timeContainer">
+            <span className="timeText">Time: 12:00</span>
+          </div>
+          <div className="moneyContainer">
+            <span className="moneyText">Money: 100.000</span>
+          </div>
+        </div>
           <div className="barContainer">
             <div className="divider">
               <div className="Bar flex items-center w-full">
