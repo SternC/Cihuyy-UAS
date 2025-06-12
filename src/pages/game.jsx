@@ -17,11 +17,14 @@ const TheGame = () => {
   const viewWidth = 900;
   const viewHeight = 530;
 
-  // Player state
-  const [playerPos, setPlayerPos] = useState({
-    x: mapWidth / 2,
-    y: mapHeight / 2,
+  // Player state - updated initialization
+  const [playerPos, setPlayerPos] = useState(() => {
+    if (location.state?.fromHome) {
+      return { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 };
+    }
+    return { x: mapWidth / 2, y: mapHeight / 2 };
   });
+
   const [rotation, setRotation] = useState(0);
   const [keys, setKeys] = useState({
     ArrowUp: false,

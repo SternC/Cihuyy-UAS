@@ -6,7 +6,6 @@ import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 
-
 const Temple = () => {
   const navigate = useNavigate();
   const spawnPoint = { x: -35, y: 40 };
