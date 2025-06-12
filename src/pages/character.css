@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body{
-    background-image: url('space.jpg');
+    background-image: url('/space.jpg');
     width: auto;
     font-family: 'Courier New', Courier, monospace;
 }
