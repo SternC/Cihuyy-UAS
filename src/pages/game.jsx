@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
 import { InventoryPopup } from "../pages/inventoryPopUp.jsx";
+import DirectionalControls from "../components/directionalControlSpace";
 
 const TheGame = () => {
   const navigate = useNavigate();
@@ -90,49 +91,41 @@ const TheGame = () => {
   };
 
   // Player movement logic
-  // Player movement logic
-const updatePosition = useCallback(() => {
-  const speed = 10;
-  let dx = 0;
-  let dy = 0;
+  const updatePosition = useCallback(() => {
+    const speed = 5;
+    let dx = 0;
+    let dy = 0;
 
-  // Tidak ada perubahan di sini
-  if (keys.ArrowUp || keys.w) dy -= speed;
-  if (keys.ArrowDown || keys.s) dy += speed;
-  if (keys.ArrowLeft || keys.a) dx -= speed;
-  if (keys.ArrowRight || keys.d) dx += speed;
+    if (keys.ArrowUp || keys.w) dy -= speed;
+    if (keys.ArrowDown || keys.s) dy += speed;
+    if (keys.ArrowLeft || keys.a) dx -= speed;
+    if (keys.ArrowRight || keys.d) dx += speed;
 
-  if (dx !== 0 && dy !== 0) {
-    const diagonalSpeed = speed * 0.7071;
-    dx = dx > 0 ? diagonalSpeed : -diagonalSpeed;
-    dy = dy > 0 ? diagonalSpeed : -diagonalSpeed;
-  }
+    if (dx !== 0 && dy !== 0) {
+      const diagonalSpeed = speed * 0.7071;
+      dx = dx > 0 ? diagonalSpeed : -diagonalSpeed;
+      dy = dy > 0 ? diagonalSpeed : -diagonalSpeed;
+    }
 
-  if (dx !== 0 || dy !== 0) {
-    // --- PERUBAHAN UTAMA ADA DI SINI ---
-    // Gunakan functional update untuk setPlayerPos
-    setPlayerPos(prevPos => ({
-      x: Math.max(0, Math.min(mapWidth, prevPos.x + dx)),
-      y: Math.max(0, Math.min(mapHeight, prevPos.y + dy)),
-    }));
+    if (dx !== 0 || dy !== 0) {
+      setPlayerPos(prevPos => ({
+        x: Math.max(0, Math.min(mapWidth, prevPos.x + dx)),
+        y: Math.max(0, Math.min(mapHeight, prevPos.y + dy)),
+      }));
 
-    setIsMoving(true);
+      setIsMoving(true);
 
-    // Smooth rotation (tidak perlu diubah)
-    const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 51.2;
-    setRotation(prev => {
-      let diff = (targetAngle - prev + 540) % 360 - 180;
-      return prev + diff * 0.7;
-    });
-  } else {
-    setIsMoving(false);
-  }
+      const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 51.2;
+      setRotation(prev => {
+        let diff = (targetAngle - prev + 540) % 360 - 180;
+        return prev + diff * 0.7;
+      });
+    } else {
+      setIsMoving(false);
+    }
 
-  // Loop ini akan terus berjalan tanpa diinterupsi oleh render ulang
-  animationRef.current = requestAnimationFrame(updatePosition);
-
-  // --- Hapus playerPos dari dependensi ---
-}, [keys, mapWidth, mapHeight]); // Hanya bergantung pada 'keys' dan konstanta map
+    animationRef.current = requestAnimationFrame(updatePosition);
+  }, [keys, mapWidth, mapHeight]);
 
   // Check nearby locations
   const checkNearbyLocations = useCallback(() => {
@@ -325,81 +318,13 @@ const updatePosition = useCallback(() => {
                 </div>
               </div>
 
-              {/* Direction controls */}
-              <div className="direction">
-                <div className="divider">
-                  <button
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      setKeys(prev => ({ ...prev, ArrowUp: true }));
-                    }}
-                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
-                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{ 
-                      userSelect: "none", 
-                      touchAction: "none",
-                      WebkitUserSelect: "none"
-                    }}
-                    aria-label="Move up"
-                  >
-                    <img className="transform -rotate-90" src="direction.png" alt="Up" />
-                  </button>
-                </div>
-                <div className="divider">
-                  <button
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      setKeys(prev => ({ ...prev, ArrowLeft: true }));
-                    }}
-                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
-                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{ 
-                      userSelect: "none", 
-                      touchAction: "none",
-                      WebkitUserSelect: "none"
-                    }}
-                    aria-label="Move left"
-                  >
-                    <img className="transform rotate-180" src="direction.png" alt="Left" />
-                  </button>
-                  <button
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      setKeys(prev => ({ ...prev, ArrowDown: true }));
-                    }}
-                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
-                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{ 
-                      userSelect: "none", 
-                      touchAction: "none",
-                      WebkitUserSelect: "none"
-                    }}
-                    aria-label="Move down"
-                  >
-                    <img className="transform rotate-90" src="direction.png" alt="Down" />
-                  </button>
-                  <button
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      setKeys(prev => ({ ...prev, ArrowRight: true }));
-                    }}
-                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
-                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
-                    onContextMenu={(e) => e.preventDefault()}
-                    style={{ 
-                      userSelect: "none", 
-                      touchAction: "none",
-                      WebkitUserSelect: "none"
-                    }}
-                    aria-label="Move right"
-                  >
-                    <img src="direction.png" alt="Right" />
-                  </button>
-                </div>
-              </div>
+              {/* Direction controls - now using DirectionalControls component */}
+              <DirectionalControls 
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={false}
+                setIsFlipped={() => {}}
+              />
 
               {/* Mini map */}
               <div
