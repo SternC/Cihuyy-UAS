@@ -5,39 +5,23 @@ import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
+import { InventoryPopup } from "./inventoryPopUp.jsx";
 
 const Temple = () => {
   const navigate = useNavigate();
-  const spawnPoint = { x: -35, y: 40 };
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
 
-  const getCharacterImage = (color, isMoving) => {
-    const characterImages = {
-      red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
-      yellow: isMoving ? "charGIF3.gif" : "charGIFStatic3.gif",
-      purple: isMoving ? "charGIF1.gif" : "charGIFStatic.gif",
-      cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
-      brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
-    };
-    return (
-      characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif")
-    );
-  };
+  const mapWidth = 1152;
+  const mapHeight = 1152;
+  const viewWidth = 900;
+  const viewHeight = 530;
 
-  const mapBoundaries = {
-    mapWidth: 1728,
-    mapHeight: 1728,
-    viewportWidth: 400,
-    viewportHeight: 300,
-  };
+  const spawnPoint = { x: mapWidth/2 + 465, y: mapHeight/2 + 450 };  // Spawn point saat masuk ke Borobudur
 
-  const { minX, maxX, minY, maxY } = {
-    minX: -(mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2,
-    maxX: (mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2,
-    minY: -(mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2,
-    maxY: (mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2,
-  };
+  // Exit point saat keluar dari Borobudur (harus sama dengan posisi Borobudur di game world)
+  const exitPoint = { x: 1835, y: 1150 }; // Koordinat Borobudur di game world
 
   const {
     position: playerPos,
@@ -46,43 +30,45 @@ const Temple = () => {
     isFlipped,
     setKeys,
     setIsFlipped,
-    isMoving, 
-    setIsMoving 
-  } = useMovement({ x: 0, y: 0 }, mapBoundaries);
+    isMoving,
+    setIsMoving,
+  } = useMovement(spawnPoint, mapWidth, mapHeight);
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+  const cameraClamp = {
+    left: viewWidth / 2,
+    right: Math.max(viewWidth / 2, mapWidth - viewWidth / 2),
+    top: viewHeight / 2,
+    bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
+  };
 
-const offsetX = clamp(
-  -playerPos.x + mapBoundaries.viewportWidth / 5/2,
-  -mapBoundaries.mapWidth + mapBoundaries.viewportWidth,
-  600  // batas kanan kamera
-);
+  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
+  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
 
-const offsetY = clamp(
-  -playerPos.y + mapBoundaries.viewportHeight / 5/2,
-  -mapBoundaries.mapHeight + mapBoundaries.viewportHeight,
-  470 // batas bawah kamera
-);
-
-const cameraPos = { x: offsetX, y: offsetY };
-
+  const cameraPos = {
+    x: -(cameraX - viewWidth / 2),
+    y: -(cameraY - viewHeight / 2),
+  };
+  
   const locations = [
     {
-      id: "shrine",
-      name: "Shrine",
-      position: { x: 200, y: 200 },
+      id: "game",
+      name: "Go Outside",
+      position: spawnPoint, // Gunakan spawnPoint sebagai titik exit
       radius: 50,
-      path: "/shrine",
-    },
-
-    {
-      id: "exit",
-      name: "Exit",
-      position: { x: 555, y: 700 },
-      radius: 70,
       path: "/game",
-    }
+    },
   ];
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'i' || e.key === 'I') {
+        setIsInventoryOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const checkLocationProximity = () => {
@@ -104,32 +90,41 @@ const cameraPos = { x: offsetX, y: offsetY };
   }, [playerPos]);
 
   const handleNavigate = () => {
- if (currentEvent) {
-    if (currentEvent.id === "exit") {
-      navigate(currentEvent.path, { 
-        state: { spawnPoint: { x: -35, y: 40 } } // Koordinat depan Borobudur
+    if (currentEvent) {
+      navigate(currentEvent.path, {
+        state: { 
+          spawnPoint: exitPoint, // Titik spawn di scene tujuan
+          returnPoint: playerPos // Titik kembali di scene ini
+        }
       });
-    } else {
-      navigate(currentEvent.path);
     }
-  }
+  };
+
+  const getCharacterImage = (color, isMoving) => {
+    const characterImages = {
+      red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
+      yellow: isMoving ? "charGIF3.gif" : "charGIFStatic3.gif",
+      purple: isMoving ? "charGIF1.gif" : "charGIFStatic.gif",
+      cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
+      brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
+    };
+    return (
+      characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif")
+    );
   };
 
   return (
     <PreventArrowScroll>
-    <div className="mainGameContainer">
-      <div className="titleContainer">
-        <Link 
-          to="/game"
-          state={{ spawnPoint }}
-        >
-          <button className="quitButton">
-            <div className="circle">X</div>
-          </button>
-        </Link>
-        <h1>BOROBUDUR TEMPLE</h1>
-      </div>
-      <div className="gameContainer">
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/game" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>BOROBUDUR TEMPLE</h1>
+        </div>
+        <div className="gameContainer">
         <div className="timeMoney">
           <div className="timeContainer">
             <span className="timeText">Time: 12:00</span>
@@ -181,27 +176,44 @@ const cameraPos = { x: offsetX, y: offsetY };
             </div>
           </div>
         </div>
-
-        <div className="mapStatusContainer">
+       
+        <div className="mapStatusContainer relative">
+          <div className="absolute w-[900px] h-[530px] z-5">
+            <DirectionalControls
+              keys={keys}
+              setKeys={setKeys}
+              isFlipped={isFlipped}
+              setIsFlipped={setIsFlipped}
+            />
+          </div>
           <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-            <div className="top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 absolute text-center justify-center z-10">
+            <div
+              className="absolute z-4"
+              style={{
+                left: `${playerPos.x + cameraPos.x}px`,
+                top: `${playerPos.y + cameraPos.y}px`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
               <div className="flex flex-col items-center relative">
-                <div className="nameBackground mb-4 ">
-                  <h2 className="text-xl font-bold text-white px-4 py-2 rounded-lg">
+                <div className="nameBackground mb-0">
+                  <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
                     {character.name || "Your Character"}
                   </h2>
                 </div>
 
                 <img
                   id="charImage"
-                  src={`/characters/${getCharacterImage(character.color, isMoving)}`}
+                  src={`/characters/${getCharacterImage(
+                    character.color,
+                    isMoving
+                  )}`}
                   alt="Character"
                   style={{
-                    transform: `rotate(${rotation}deg) scale(2.5) ${
+                    transform: `rotate(${rotation}deg) scale(1.5) ${
                       isFlipped ? "scaleX(-1)" : "scaleX(1)"
                     }`,
                     transition: "none",
-                    left: isFlipped ? "20px" : "0",
                     transformOrigin: "center",
                   }}
                 />
@@ -209,56 +221,63 @@ const cameraPos = { x: offsetX, y: offsetY };
             </div>
 
             <div className="w-full h-full overflow-hidden relative">
-              <div style={{ backgroundColor: '#1A3133' }}>
+              <div
+                className="absolute top-0 left-0"
+                style={{
+                  width: `${mapWidth}px`,
+                  height: `${mapHeight}px`,
+                  transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
+                  transition: "transform 0.3s ease",
+                }}
+              >
                 <img
                   src="/map/BorobudurMap.png"
-                  className="w-100% h-100% object-cover object-center"
+                  alt="map"
                   style={{
-                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(1.5)`,
-                    transformOrigin: "center",
-                    transition: "transform 0.3s ease",
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
                   }}
                 />
               </div>
             </div>
-
-            <DirectionalControls
-              keys={keys}
-              setKeys={setKeys}
-              isFlipped={isFlipped}
-              setIsFlipped={setIsFlipped}
-            />
 
             <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
               <img src="/map/BorobudurMap.png" className="miniMapImage" style={{ width: "100%", height: "150px" }}/>
               <div
                 className="miniMapMarker"
                 style={{
-                  left: `${(((playerPos.x * 1) - minX) / (maxX - minX)) * 98}%`,
-                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 73}%`,
+                  left: `${(playerPos.x / mapWidth) * 150}px`,
+                  top: `${(playerPos.y / mapHeight) * 150}px`,
                   transform: "translate(-50%, -50%)",
                 }}
               ></div>
             </div>
 
             <div className="inventory-container">
-              <button className="inventory-button">Inventory</button>
+              <button 
+                className="inventory-button"
+                onClick={() => setIsInventoryOpen(true)}
+              >
+                Inventory
+              </button>
+              <InventoryPopup 
+                isOpened={isInventoryOpen}
+                onClose={() => setIsInventoryOpen(false)}
+              />
             </div>
-
-            {currentEvent && (
-              <div className="eventcontainer flex justify-center items-center">
-                <button
-                  onClick={handleNavigate}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Masuk {currentEvent.name}
-                </button>
-              </div>
-            )}
+            
+              {currentEvent ? (
+                  <div className="eventcontainer flex justify-center items-center ">
+                    <button onClick={handleNavigate}>{currentEvent.name}</button>
+                  </div>   
+              ) : (
+                null
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </PreventArrowScroll>
   );
 };

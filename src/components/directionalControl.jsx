@@ -33,7 +33,6 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
     }
   };
 
-
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -46,6 +45,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
     <div className="direction">
       <div className="divider">
         <button
+          className='z-10'
           onMouseDown={() => startMovement('ArrowUp')}
           onMouseUp={stopMovement}
           onMouseLeave={stopMovement}
@@ -56,6 +56,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
       </div>
       <div className="divider">
         <button 
+          className='z-10'
           onMouseDown={() => {
             setKeys(prev => ({ ...prev, ArrowLeft: true }));
             setIsFlipped(true);  
@@ -69,6 +70,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
           <img className="transform rotate-180" src="direction.png" alt="Left"/>
         </button>
         <button 
+          className='z-10'
           onMouseDown={() => startMovement('ArrowDown')}
           onMouseUp={stopMovement}
           onMouseLeave={stopMovement}
@@ -77,6 +79,7 @@ const DirectionalControls = ({ keys, setKeys, isFlipped, setIsFlipped }) => {
           <img className="transform rotate-90" src="direction.png" alt="Down"/>
         </button>
         <button 
+          className='z-10'
           onMouseDown={() => {
             setKeys(prev => ({ ...prev, ArrowRight: true }));
             setIsFlipped(false); 

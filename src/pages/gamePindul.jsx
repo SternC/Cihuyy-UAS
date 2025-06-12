@@ -5,38 +5,23 @@ import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
-
+import { InventoryPopup } from "./inventoryPopUp.jsx";
 
 const Cave = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
 
-  const getCharacterImage = (color, isMoving) => {
-    const characterImages = {
-      red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
-      yellow: isMoving ? "charGIF3.gif" : "charGIFStatic3.gif",
-      purple: isMoving ? "charGIF1.gif" : "charGIFStatic.gif",
-      cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
-      brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
-    };
-    return characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif");
-  };
+  const mapWidth = 1600;
+  const mapHeight = 1120;
+  const viewWidth = 900;
+  const viewHeight = 530;
 
+  const spawnPoint = { x: mapWidth/2 - 530, y: mapHeight/2 + 375}; // Spawn point saat masuk ke Pindul
 
-  const mapBoundaries = {
-    mapWidth: 1728,
-    mapHeight: 1728,
-    viewportWidth: 400,
-    viewportHeight: 300,
-  };
-
-  const { minX, maxX, minY, maxY } = {
-    minX: -(mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2,
-    maxX: (mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2,
-    minY: -(mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2,
-    maxY: (mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2,
-  };
+  // Exit point saat keluar dari Pindul (harus sama dengan posisi Pindul di game world)
+  const exitPoint = { x: 3840 / 2 + 1365, y: 2160 / 2 - 110 }; // Koordinat Pindul di game world
 
   const {
     position: playerPos,
@@ -45,21 +30,45 @@ const Cave = () => {
     isFlipped,
     setKeys,
     setIsFlipped,
-    isMoving, 
-    setIsMoving 
-  } = useMovement({ x: 0, y: 0 }, mapBoundaries);
+    isMoving,
+    setIsMoving,
+  } = useMovement(spawnPoint, mapWidth, mapHeight);
 
-  const cameraPos = { x: -playerPos.x, y: -playerPos.y };
+  const cameraClamp = {
+    left: viewWidth / 2,
+    right: Math.max(viewWidth / 2, mapWidth - viewWidth / 2),
+    top: viewHeight / 2,
+    bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
+  };
 
+  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
+  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
+
+  const cameraPos = {
+    x: -(cameraX - viewWidth / 2),
+    y: -(cameraY - viewHeight / 2),
+  };
+  
   const locations = [
     {
-      id: "shrine",
-      name: "Shrine",
-      position: { x: 200, y: 200 },
+      id: "game",
+      name: "Go Outside",
+      position: spawnPoint, // Gunakan spawnPoint sebagai titik exit
       radius: 50,
-      path: "/shrine",
+      path: "/game",
     },
   ];
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'i' || e.key === 'I') {
+        setIsInventoryOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const checkLocationProximity = () => {
@@ -82,150 +91,195 @@ const Cave = () => {
 
   const handleNavigate = () => {
     if (currentEvent) {
-      navigate(currentEvent.path);
+      navigate(currentEvent.path, {
+        state: { 
+          spawnPoint: exitPoint, // Titik spawn di scene tujuan
+          returnPoint: playerPos // Titik kembali di scene ini
+        }
+      });
     }
+  };
+
+  const getCharacterImage = (color, isMoving) => {
+    const characterImages = {
+      red: isMoving ? "charGIF6.gif" : "charGIFStatic6.gif",
+      yellow: isMoving ? "charGIF3.gif" : "charGIFStatic3.gif",
+      purple: isMoving ? "charGIF1.gif" : "charGIFStatic.gif",
+      cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
+      brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
+    };
+    return (
+      characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif")
+    );
   };
 
   return (
     <PreventArrowScroll>
-    <div className="mainGameContainer">
-      <div className="titleContainer">
-        <Link to="/game">
-          <button className="quitButton">
-            <div className="circle">X</div>
-          </button>
-        </Link>
-        <h1>PINDUL CAVE</h1>
-      </div>
-      <div className="gameContainer">
-        <div className="timeMoney">
-          <div className="timeContainer">
-            <span className="timeText">Time: 12:00</span>
-          </div>
-          <div className="moneyContainer">
-            <span className="moneyText">Money: 100.000</span>
-          </div>
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/game" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>PINDUL CAVE</h1>
         </div>
-        <div className="barContainer">
-          <div className="divider">
-            <div className="Bar flex items-center w-full">
-              <img src="symbol/mealSymbol.png" className="w-6 h-6" />
-              <div className="progressContain h-4">
-                <div
-                  className="progressBar h-4 w-1/2 "
-                  data-status="meal"
-                ></div>
-              </div>
+        <div className="gameContainer">
+          <div className="timeMoney">
+            <div className="timeContainer">
+              <span className="timeText">Time: 12:00</span>
             </div>
-            <div className="Bar flex items-center gap-2 w-full">
-              <img src="symbol/sleepSymbol.png" className="w-6 h-6" />
-              <div className="progressContain h-4">
-                <div
-                  className="progressBar h-4 w-1/2"
-                  data-status="sleep"
-                ></div>
-              </div>
+            <div className="moneyContainer">
+              <span className="moneyText">Money: 100.000</span>
             </div>
           </div>
-          <div className="divider">
-            <div className="Bar flex items-center gap-2 w-full">
-              <img src="symbol/cleanSymbol.png" className="w-6 h-6" />
-              <div className="progressContain h-4">
-                <div
-                  className="progressBar h-4 w-1/2"
-                  data-status="hygiene"
-                ></div>
-              </div>
-            </div>
-            <div className="Bar flex items-center gap-2 w-full">
-              <img src="symbol/happySymbol.png" className="w-6 h-6" />
-              <div className="progressContain h-4">
-                <div
-                  className="progressBar h-4 w-1/2"
-                  data-status="happy"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mapStatusContainer">
-          <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-            <div className="top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 absolute text-center justify-center z-10">
-              <div className="flex flex-col items-center relative">
-                <div className="nameBackground mb-4 ">
-                  <h2 className="text-xl font-bold text-white px-4 py-2 rounded-lg">
-                    {character.name || "Your Character"}
-                  </h2>
+          <div className="barContainer">
+            <div className="divider">
+              <div className="Bar flex items-center w-full">
+                <img src="symbol/mealSymbol.png" className="w-6 h-6" />
+                <div className="progressContain h-4">
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="meal"
+                  ></div>
                 </div>
-
-                <img
-                  id="charImage"
-                  src={`/characters/${getCharacterImage(character.color, isMoving)}`}
-                  alt="Character"
-                  style={{
-                    transform: `rotate(${rotation}deg) scale(2.5) ${
-                      isFlipped ? "scaleX(-1)" : "scaleX(1)"
-                    }`,
-                    transition: "none",
-                    left: isFlipped ? "20px" : "0",
-                    transformOrigin: "center",
-                  }}
-                />
+              </div>
+              <div className="Bar flex items-center gap-2 w-full">
+                <img src="symbol/sleepSymbol.png" className="w-6 h-6" />
+                <div className="progressContain h-4">
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="sleep"
+                  ></div>
+                </div>
               </div>
             </div>
-
-            <div className="w-full h-full overflow-hidden relative">
-              <div style={{ backgroundColor: '#1A3133' }}>
-                <img
-                  src="/map/caveMap.png"
-                  className="w-100% h-100% object-cover object-center"
-                  style={{
-                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px) scale(2.5)`,
-                    transformOrigin: "center",
-                    transition: "transform 0.3s ease",
-                  }}
-                />
+            <div className="divider">
+              <div className="Bar flex items-center gap-2 w-full">
+                <img src="symbol/cleanSymbol.png" className="w-6 h-6" />
+                <div className="progressContain h-4">
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="hygiene"
+                  ></div>
+                </div>
+              </div>
+              <div className="Bar flex items-center gap-2 w-full">
+                <img src="symbol/happySymbol.png" className="w-6 h-6" />
+                <div className="progressContain h-4">
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="happy"
+                  ></div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <DirectionalControls
-              keys={keys}
-              setKeys={setKeys}
-              isFlipped={isFlipped}
-              setIsFlipped={setIsFlipped}
-            />
-
-            <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-              <img src="/map/caveMap.png" className="miniMapImage" style={{ width: "100%", height: "150px" }}/>
+          <div className="mapStatusContainer">
+            <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               <div
-                className="miniMapMarker"
+                className="absolute z-10"
                 style={{
-                  left: `${(((playerPos.x * 3/2) - minX) / (maxX - minX)) * 100}%`,
-                  top: `${(((playerPos.y * 3/2) - minY) / (maxY - minY)) * 100}%`,
+                  left: `${playerPos.x + cameraPos.x}px`,
+                  top: `${playerPos.y + cameraPos.y}px`,
                   transform: "translate(-50%, -50%)",
                 }}
-              ></div>
-            </div>
+              >
+                <div className="flex flex-col items-center relative">
+                  <div className="nameBackground mb-0">
+                    <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
+                      {character.name || "Your Character"}
+                    </h2>
+                  </div>
 
-            <div className="inventory-container">
-              <button className="inventory-button">Inventory</button>
-            </div>
-
-            {currentEvent && (
-              <div className="eventcontainer flex justify-center items-center">
-                <button
-                  onClick={handleNavigate}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Masuk {currentEvent.name}
-                </button>
+                  <img
+                    id="charImage"
+                    src={`/characters/${getCharacterImage(
+                      character.color,
+                      isMoving
+                    )}`}
+                    alt="Character"
+                    style={{
+                      transform: `rotate(${rotation}deg) scale(1.5) ${
+                        isFlipped ? "scaleX(-1)" : "scaleX(1)"
+                      }`,
+                      transition: "none",
+                      transformOrigin: "center",
+                    }}
+                  />
+                </div>
               </div>
-            )}
+
+              <div className="w-full h-full overflow-hidden relative">
+                <div
+                  className="absolute top-0 left-0"
+                  style={{
+                    width: `${mapWidth}px`,
+                    height: `${mapHeight}px`,
+                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
+                    transition: "transform 0.3s ease",
+                  }}
+                >
+                  <img
+                    src="/map/caveMap.png"
+                    alt="map"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+
+              <div className="absolute bottom-[360px] right-10 w-[214.3px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                <img
+                  src="/map/caveMap.png"
+                  className="miniMapImage"
+                  style={{ width: "214.3", height: "150px" }}
+                />
+                <div
+                  className="miniMapMarker"
+                  style={{
+                    left: `${(playerPos.x / mapWidth) * 150}px`,
+                    top: `${(playerPos.y / mapHeight) * 150}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                ></div>
+              </div>
+
+              <div className="inventory-container">
+                <button 
+                  className="inventory-button"
+                  onClick={() => setIsInventoryOpen(true)}
+                >
+                  Inventory
+                </button>
+                <InventoryPopup 
+                  isOpened={isInventoryOpen}
+                  onClose={() => setIsInventoryOpen(false)}
+                />
+              </div>
+              
+              {currentEvent ? (
+                <div className="eventcontainer flex justify-center items-center">
+                  <button onClick={handleNavigate}>{currentEvent.name}</button>
+                </div>
+              ) : (
+                null
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </PreventArrowScroll>
   );
 };

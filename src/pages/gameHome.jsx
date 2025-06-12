@@ -5,16 +5,23 @@ import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
+import { InventoryPopup } from "./inventoryPopUp.jsx";
 
 const Home = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
 
   const mapWidth = 1650;
   const mapHeight = 1650;
   const viewWidth = 900;
   const viewHeight = 530;
+
+  const spawnPoint = { x: mapWidth/2 - 170, y: mapHeight/2 + 610 };
+
+  // Exit point saat keluar dari Home (harus sama dengan posisi Home di game world)
+  const exitPoint = { x: 3840 / 2 - 1510, y: 2160 / 2 + 575 };
 
   const {
     position: playerPos,
@@ -25,7 +32,7 @@ const Home = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement({ x: mapWidth/2 - 170, y: mapHeight/2 + 610 }, mapWidth, mapHeight);
+  } = useMovement(spawnPoint, mapWidth, mapHeight);
 
   const cameraClamp = {
     left: viewWidth / 2,
@@ -46,11 +53,22 @@ const Home = () => {
     {
       id: "game",
       name: "Go Outside",
-      position: { x: mapWidth/2 - 170, y: mapHeight/2 + 610 },
+      position: spawnPoint,
       radius: 50,
       path: "/game",
     },
   ];
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'i' || e.key === 'I') {
+        setIsInventoryOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const checkLocationProximity = () => {
@@ -71,10 +89,13 @@ const Home = () => {
     checkLocationProximity();
   }, [playerPos]);
 
-   const handleNavigate = () => {
+  const handleNavigate = () => {
     if (currentEvent) {
       navigate(currentEvent.path, {
-        state: { fromHome: true }
+        state: { 
+          spawnPoint: exitPoint, // Titik spawn di scene tujuan
+          returnPoint: playerPos // Titik kembali di scene ini
+        }
       });
     }
   };
@@ -92,11 +113,11 @@ const Home = () => {
     );
   };
 
-  return (
+   return (
     <PreventArrowScroll>
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/game">
+          <Link to="/game" state={{ spawnPoint: exitPoint }}>
             <button className="quitButton">
               <div className="circle">X</div>
             </button>
@@ -236,12 +257,21 @@ const Home = () => {
               </div>
 
               <div className="inventory-container">
-                <button className="inventory-button">Inventory</button>
+                <button 
+                  className="inventory-button"
+                  onClick={() => setIsInventoryOpen(true)}
+                >
+                  Inventory
+                </button>
+                <InventoryPopup 
+                  isOpened={isInventoryOpen}
+                  onClose={() => setIsInventoryOpen(false)}
+                />
               </div>
               
               {currentEvent ? (
                 <div className="eventcontainer flex justify-center items-center">
-                  <button onClick={handleNavigate}>Enter {currentEvent.name}</button>
+                  <button onClick={handleNavigate}>{currentEvent.name}</button>
                 </div>
                 
               ) : (
