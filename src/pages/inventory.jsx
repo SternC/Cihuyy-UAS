@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './inventoryfood'
 import './inventory.css';
-import InventoryPopup from './inventoryPopUp';
+import InventoryPopup from '../pages/inventoryPopUp.jsx"';
 
 const InventoryPage = () => {
   const [isOpened, setIsOpened] = useState(false); // if you're using popup
