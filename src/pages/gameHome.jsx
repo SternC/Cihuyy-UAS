@@ -245,7 +245,7 @@ const Home = () => {
                 </div>
                 
               ) : (
-                <span>No nearby locations</span>
+                null
               )}
 
             </div>

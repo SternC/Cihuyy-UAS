@@ -20,9 +20,10 @@ const Temple = () => {
       cyan: isMoving ? "charGIF2.gif" : "charGIFStatic2.gif",
       brown: isMoving ? "charGIF5.gif" : "charGIFStatic5.gif",
     };
-    return characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif");
+    return (
+      characterImages[color] || (isMoving ? "charGIF.gif" : "charGIFStatic.gif")
+    );
   };
-
 
   const mapBoundaries = {
     mapWidth: 1728,
