@@ -11,6 +11,11 @@ const Home = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const { character } = useCharacter();
 
+  const mapWidth = 1650;
+  const mapHeight = 1650;
+  const viewWidth = 900;
+  const viewHeight = 530;
+
   const {
     position: playerPos,
     rotation,
@@ -20,28 +25,17 @@ const Home = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement({ x: 1000, y: 1000 });
-
-  const mapWidth = 1650;
-  const mapHeight = 1650;
-  const viewWidth = 900;
-  const viewHeight = 530;
+  } = useMovement({ x: 0, y: 0 }, mapWidth, mapHeight);
 
   const cameraClamp = {
     left: viewWidth / 2,
-    right: mapWidth - viewWidth / 2,
+    right: Math.max(viewWidth / 2, mapWidth - viewWidth / 2),
     top: viewHeight / 2,
-    bottom: mapHeight - viewHeight / 2,
+    bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
   };
 
-  const cameraX = Math.min(
-    cameraClamp.right,
-    Math.max(playerPos.x, cameraClamp.left)
-  );
-  const cameraY = Math.min(
-    cameraClamp.bottom,
-    Math.max(playerPos.y, cameraClamp.top)
-  );
+  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
+  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
 
   const cameraPos = {
     x: -(cameraX - viewWidth / 2),

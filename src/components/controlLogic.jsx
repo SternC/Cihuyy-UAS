@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export const useMovement = (initialPosition) => {
+export const useMovement = (initialPosition, mapWidth, mapHeight) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -13,24 +13,20 @@ export const useMovement = (initialPosition) => {
     w: false,
     a: false,
     s: false,
-    d: false
+    d: false,
   });
 
-  const mapWidth = 2000;
-  const mapHeight = 2000;
-
   const handleMove = useCallback((dx, dy) => {
-    setPosition(prevPos => {
+    setPosition((prevPos) => {
       let newX = prevPos.x + dx;
       let newY = prevPos.y + dy;
 
-      // Clamp within map bounds
       newX = Math.max(0, Math.min(newX, mapWidth));
       newY = Math.max(0, Math.min(newY, mapHeight));
 
       return { x: newX, y: newY };
     });
-  }, []);
+  }, [mapWidth, mapHeight]);
 
   // Keyboard event handlers
   useEffect(() => {
