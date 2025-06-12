@@ -3,14 +3,14 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
 import { InventoryPopup } from "../pages/inventoryPopUp.jsx";
-import DirectionalControls from "../components/directionalControlSpace";
+import DirectionalControls from "../components/directionalControl"; // Pastikan path konsisten
 
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const animationRef = useRef();
-
+  
   // Game map dimensions
   const mapWidth = 3840;
   const mapHeight = 2160;
@@ -19,8 +19,8 @@ const TheGame = () => {
 
   // Player state - updated initialization
   const [playerPos, setPlayerPos] = useState(() => {
-    if (location.state?.fromHome) {
-      return { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 };
+    if (location.state?.spawnPoint) {
+      return location.state.spawnPoint;
     }
     return { x: mapWidth / 2, y: mapHeight / 2 };
   });
@@ -51,7 +51,7 @@ const TheGame = () => {
     {
       id: "borobudur",
       name: "Temple",
-      position: { x: mapWidth / 2 - 25, y: mapHeight / 2 + 100 },
+      position: { x: 1915, y: 1180 },
       radius: 100,
       path: "/temple",
     },
@@ -65,7 +65,7 @@ const TheGame = () => {
     {
       id: "cave",
       name: "Pindul",
-      position: { x: mapWidth / 2 + 1400, y: mapHeight / 2 - 55 },
+      position: { x: mapWidth / 2 + 1370, y: mapHeight / 2 - 90 },
       radius: 100,
       path: "/cave",
     },
@@ -218,7 +218,9 @@ const TheGame = () => {
 
   const handleNavigate = () => {
     if (currentEvent) {
-      navigate(currentEvent.path);
+      navigate(currentEvent.path, {
+        state: { spawnPoint: playerPos } // Simpan posisi saat ini untuk kembali
+      });
     }
   };
 
