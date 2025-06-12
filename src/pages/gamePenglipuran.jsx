@@ -5,7 +5,7 @@ import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
-import { InventoryPopup } from "./inventoryPopUp.jsx";
+import { InventoryPopup } from "./inventoryPopup.jsx";
 
 const Village = () => {
   const navigate = useNavigate();

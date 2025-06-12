@@ -71,7 +71,7 @@ const CustomizationPage = () => {
         </div>
       </div>
 
-      <button className="nextButton" onClick={() => navigate('/game')}>
+      <button className="nextButton" onClick={() => navigate('/home')}>
           NEXT
       </button>
     </div>
