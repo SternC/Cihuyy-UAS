@@ -41,35 +41,35 @@ const TheGame = () => {
     {
       id: "home",
       name: "Home",
-      position: { x: mapWidth / 2 -1460, y: mapHeight / 2 + 625 },
+      position: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 },
       radius: 100,
       path: "/home",
     },
     {
       id: "borobudur",
       name: "Temple",
-      position: { x: mapWidth / 2 -25, y: mapHeight / 2 + 100},
+      position: { x: mapWidth / 2 - 25, y: mapHeight / 2 + 100 },
       radius: 100,
       path: "/temple",
     },
     {
       id: "village",
       name: "Penglipuran",
-      position: { x: mapWidth / 2 -645, y: mapHeight / 2 - 715},
+      position: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 715 },
       radius: 100,
       path: "/village",
     },
     {
       id: "cave",
       name: "Pindul",
-      position: { x: mapWidth / 2 +1400, y: mapHeight / 2 -55},
+      position: { x: mapWidth / 2 + 1400, y: mapHeight / 2 - 55 },
       radius: 100,
       path: "/cave",
     },
     {
       id: "beach",
       name: "Kuta",
-      position: { x: mapWidth / 2 +900, y: mapHeight / 2 +780},
+      position: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 780 },
       radius: 100,
       path: "/beach",
     },
@@ -108,16 +108,20 @@ const TheGame = () => {
     }
 
     if (dx !== 0 || dy !== 0) {
-      setPlayerPos(prevPos => ({
-        x: Math.max(0, Math.min(mapWidth, prevPos.x + dx)),
-        y: Math.max(0, Math.min(mapHeight, prevPos.y + dy)),
+      const leftBound = 10;
+      const rightBound = mapWidth - 100;
+      const topBound = 10;
+      const bottomBound = mapHeight - 100;
+      setPlayerPos((prevPos) => ({
+        x: Math.max(leftBound, Math.min(rightBound, prevPos.x + dx)),
+        y: Math.max(topBound, Math.min(bottomBound, prevPos.y + dy)),
       }));
 
       setIsMoving(true);
 
       const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 51.2;
-      setRotation(prev => {
-        let diff = (targetAngle - prev + 540) % 360 - 180;
+      setRotation((prev) => {
+        let diff = ((targetAngle - prev + 540) % 360) - 180;
         return prev + diff * 0.7;
       });
     } else {
@@ -130,11 +134,11 @@ const TheGame = () => {
   // Check nearby locations
   const checkNearbyLocations = useCallback(() => {
     const detectionRadius = 100;
-    
-    const nearbyLocation = locations.find(loc => {
+
+    const nearbyLocation = locations.find((loc) => {
       const distance = Math.sqrt(
-        Math.pow(playerPos.x - loc.position.x, 2) + 
-        Math.pow(playerPos.y - loc.position.y, 2)
+        Math.pow(playerPos.x - loc.position.x, 2) +
+          Math.pow(playerPos.y - loc.position.y, 2)
       );
       return distance <= detectionRadius;
     });
@@ -146,23 +150,23 @@ const TheGame = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (["w", "a", "s", "d"].includes(e.key.toLowerCase())) {
-        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
+        setKeys((prev) => ({ ...prev, [e.key.toLowerCase()]: true }));
       } else if (
         ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
       ) {
-        setKeys(prev => ({ ...prev, [e.key]: true }));
+        setKeys((prev) => ({ ...prev, [e.key]: true }));
       } else if (e.key === "i" || e.key === "I") {
-        setIsInventoryOpen(prev => !prev);
+        setIsInventoryOpen((prev) => !prev);
       }
     };
 
     const handleKeyUp = (e) => {
       if (["w", "a", "s", "d"].includes(e.key.toLowerCase())) {
-        setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: false }));
+        setKeys((prev) => ({ ...prev, [e.key.toLowerCase()]: false }));
       } else if (
         ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
       ) {
-        setKeys(prev => ({ ...prev, [e.key]: false }));
+        setKeys((prev) => ({ ...prev, [e.key]: false }));
       }
     };
 
@@ -189,7 +193,7 @@ const TheGame = () => {
         d: false,
       });
     };
-    
+
     window.addEventListener("mouseup", handleGlobalMouseUp);
     return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
   }, []);
@@ -226,7 +230,7 @@ const TheGame = () => {
           </Link>
           <h1>SPACE</h1>
         </div>
-        
+
         <div className="gameContainer">
           {/* Status bars */}
           <div className="timeMoney">
@@ -237,34 +241,62 @@ const TheGame = () => {
               <span className="moneyText">Money: 100.000</span>
             </div>
           </div>
-          
+
           <div className="barContainer">
             <div className="divider">
               <div className="Bar flex items-center w-full">
-                <img src="symbol/mealSymbol.png" className="w-6 h-6" alt="Meal" />
+                <img
+                  src="symbol/mealSymbol.png"
+                  className="w-6 h-6"
+                  alt="Meal"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="meal"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="meal"
+                  ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/sleepSymbol.png" className="w-6 h-6" alt="Sleep" />
+                <img
+                  src="symbol/sleepSymbol.png"
+                  className="w-6 h-6"
+                  alt="Sleep"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="sleep"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="sleep"
+                  ></div>
                 </div>
               </div>
             </div>
 
             <div className="divider">
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/cleanSymbol.png" className="w-6 h-6" alt="Clean" />
+                <img
+                  src="symbol/cleanSymbol.png"
+                  className="w-6 h-6"
+                  alt="Clean"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="hygiene"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="hygiene"
+                  ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/happySymbol.png" className="w-6 h-6" alt="Happy" />
+                <img
+                  src="symbol/happySymbol.png"
+                  className="w-6 h-6"
+                  alt="Happy"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="happy"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="happy"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -277,18 +309,16 @@ const TheGame = () => {
               <div
                 className="absolute z-10"
                 style={{
-                  left: `${playerPos.x + cameraPos.x}px`,
-                  top: `${playerPos.y + cameraPos.y}px`,
-                  transform: "translate(-50%, -50%)",
-                  transition: "left 0.1s linear, top 0.1s linear",
+                  transform: `translate(${playerPos.x + cameraPos.x}px, ${
+                    playerPos.y + cameraPos.y
+                  }px) rotate(${rotation}deg)`,
+                  transition: "transform 0.1s linear",
                 }}
               >
                 <img
                   src="rocket.png"
                   alt="Player"
-                  className="transition-transform duration-100"
                   style={{
-                    transform: `rotate(${rotation}deg)`,
                     width: "50px",
                     height: "auto",
                   }}
@@ -303,7 +333,6 @@ const TheGame = () => {
                     width: `${mapWidth}px`,
                     height: `${mapHeight}px`,
                     transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
-                    transition: "transform 0.3s ease",
                   }}
                 >
                   <img
@@ -319,7 +348,7 @@ const TheGame = () => {
               </div>
 
               {/* Direction controls - now using DirectionalControls component */}
-              <DirectionalControls 
+              <DirectionalControls
                 keys={keys}
                 setKeys={setKeys}
                 isFlipped={false}
@@ -385,7 +414,9 @@ const TheGame = () => {
               {/* Location event */}
               <div className="eventcontainer flex justify-center items-center">
                 {currentEvent ? (
-                  <button onClick={handleNavigate}>Enter {currentEvent.name}</button>
+                  <button onClick={handleNavigate}>
+                    Enter {currentEvent.name}
+                  </button>
                 ) : (
                   <span>No nearby locations</span>
                 )}
