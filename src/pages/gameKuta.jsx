@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
+import { useMoneyTime } from '../components/timeMoneyContext.jsx';
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
@@ -12,6 +13,7 @@ const Beach = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
+  const { time, money } = useMoneyTime();
 
   const mapWidth = 1120;
   const mapHeight = 1120;
@@ -122,10 +124,10 @@ const Beach = () => {
         <div className="gameContainer">
           <div className="timeMoney">
             <div className="timeContainer">
-              <span className="timeText">Time: 12:00</span>
+              <span className="timeText">Time: {time}</span>
             </div>
             <div className="moneyContainer">
-              <span className="moneyText">Money: 100.000</span>
+              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
             </div>
           </div>
 

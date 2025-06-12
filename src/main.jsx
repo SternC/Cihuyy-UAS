@@ -13,26 +13,29 @@ import Beach from './pages/gameKuta.jsx';
 import Cave from './pages/gamePindul.jsx';
 import Village from './pages/gamePenglipuran.jsx';
 import { CharacterProvider } from './components/characterContext.jsx'
+import { TimeMoneyProvider } from './components/timeMoneyContext.jsx';
 
 function Root() {
   return (
-    <Router>
-      <CharacterProvider>
-        <Routes>
-          <Route path="/" element={<App key="app" />} />
-          <Route path="/customChar" element={<CustomizationPage key="custom" />} />
-          <Route path="/inventory" element={<InventoryPage key="inventory" />} />
-          <Route path="/inventoryfood" element={<InventoryFoodPage key="food" />} />
-          <Route path="/game" element={<TheGame key="game" />} />
-          <Route path="/credit" element={<Credit key="credit" />} />
-          <Route path="/home" element={<Home key="home" />} />
-          <Route path="/temple" element={<Temple key="temple" />} />
-          <Route path="/beach" element={<Beach key="beach" />} />
-          <Route path="/cave" element={<Cave key="cave" />} />
-          <Route path="/village" element={<Village key="village" />} />
-        </Routes>
-      </CharacterProvider>
-    </Router>
+    <TimeMoneyProvider>
+      <Router>
+        <CharacterProvider>
+          <Routes>
+            <Route path="/" element={<App key="app" />} />
+            <Route path="/customChar" element={<CustomizationPage key="custom" />} />
+            <Route path="/inventory" element={<InventoryPage key="inventory" />} />
+            <Route path="/inventoryfood" element={<InventoryFoodPage key="food" />} />
+            <Route path="/game" element={<TheGame key="game" />} />
+            <Route path="/credit" element={<Credit key="credit" />} />
+            <Route path="/home" element={<Home key="home" />} />
+            <Route path="/temple" element={<Temple key="temple" />} />
+            <Route path="/beach" element={<Beach key="beach" />} />
+            <Route path="/cave" element={<Cave key="cave" />} />
+            <Route path="/village" element={<Village key="village" />} />
+          </Routes>
+        </CharacterProvider>
+      </Router>
+    </TimeMoneyProvider>
   );
 }
 

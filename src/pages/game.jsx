@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
-
+import { useMoneyTime } from '../components/timeMoneyContext.jsx';
 import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
 
@@ -11,6 +11,7 @@ const TheGame = () => {
   const location = useLocation();
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const animationRef = useRef();
+  const { time, money } = useMoneyTime();
   
   // Game map dimensions
   const mapWidth = 3840;
@@ -241,10 +242,10 @@ const TheGame = () => {
           {/* Status bars */}
           <div className="timeMoney">
             <div className="timeContainer">
-              <span className="timeText">Time: 12:00</span>
+              <span className="timeText">Time: {time}</span>
             </div>
             <div className="moneyContainer">
-              <span className="moneyText">Money: 100.000</span>
+              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
             </div>
           </div>
 
