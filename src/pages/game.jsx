@@ -90,8 +90,48 @@ const TheGame = () => {
   };
 
   // Simple movement without velocity
+  // const updatePosition = () => {
+  //   const speed = 8;
+  //   let dx = 0;
+  //   let dy = 0;
+
+  //   if (keys.ArrowUp || keys.w) dy -= speed;
+  //   if (keys.ArrowDown || keys.s) dy += speed;
+  //   if (keys.ArrowLeft || keys.a) dx -= speed;
+  //   if (keys.ArrowRight || keys.d) dx += speed;
+
+  //   // Diagonal movement (normalize to same speed)
+  //   if (dx !== 0 && dy !== 0) {
+  //     const diagonalSpeed = speed * 0.7071; // 1/sqrt(2)
+  //     dx = dx > 0 ? diagonalSpeed : -diagonalSpeed;
+  //     dy = dy > 0 ? diagonalSpeed : -diagonalSpeed;
+  //   }
+
+  //   if (dx !== 0 || dy !== 0) {
+  //     let newX = playerPos.x + dx;
+  //     let newY = playerPos.y + dy;
+
+  //     // Boundary checks
+  //     newX = Math.max(0, Math.min(mapWidth, newX));
+  //     newY = Math.max(0, Math.min(mapHeight, newY));
+
+  //     setPlayerPos({ x: newX, y: newY });
+  //     setIsMoving(true);
+
+  //     // Update rotation based on movement direction
+  //     if (dx !== 0 || dy !== 0) {
+  //       const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  //       setRotation(angle + 52); // +90 because rocket image points up by default
+  //     }
+  //   } else {
+  //     setIsMoving(false);
+  //   }
+
+  //   animationRef.current = requestAnimationFrame(updatePosition);
+  // };
+
   const updatePosition = () => {
-    const speed = 8;
+    const speed = 20;
     let dx = 0;
     let dy = 0;
 
@@ -100,29 +140,28 @@ const TheGame = () => {
     if (keys.ArrowLeft || keys.a) dx -= speed;
     if (keys.ArrowRight || keys.d) dx += speed;
 
-    // Diagonal movement (normalize to same speed)
+    // Diagonal movement normalization
     if (dx !== 0 && dy !== 0) {
-      const diagonalSpeed = speed * 0.7071; // 1/sqrt(2)
+      const diagonalSpeed = speed * 0.7071;
       dx = dx > 0 ? diagonalSpeed : -diagonalSpeed;
       dy = dy > 0 ? diagonalSpeed : -diagonalSpeed;
     }
 
     if (dx !== 0 || dy !== 0) {
-      let newX = playerPos.x + dx;
-      let newY = playerPos.y + dy;
-
       // Boundary checks
-      newX = Math.max(0, Math.min(mapWidth, newX));
-      newY = Math.max(0, Math.min(mapHeight, newY));
+      const newX = Math.max(0, Math.min(mapWidth, playerPos.x + dx));
+      const newY = Math.max(0, Math.min(mapHeight, playerPos.y + dy));
 
       setPlayerPos({ x: newX, y: newY });
       setIsMoving(true);
 
-      // Update rotation based on movement direction
-      if (dx !== 0 || dy !== 0) {
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-        setRotation(angle + 90); // +90 because rocket image points up by default
-      }
+      // New rotation logic (clockwise)
+      const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 51.2;
+      setRotation(prev => {
+        // Smooth transition between angles
+        let diff = (targetAngle - prev + 540) % 360 - 180;
+        return prev + diff * 1; // Adjust rotation speed with multiplier
+      });
     } else {
       setIsMoving(false);
     }
@@ -263,8 +302,6 @@ const TheGame = () => {
                   className="transition-transform duration-100"
                   style={{
                     transform: `rotate(${rotation}deg)`,
-                    width: "60px",
-                    height: "60px",
                   }}
                 />
               </div>
@@ -294,66 +331,70 @@ const TheGame = () => {
               <div className="direction">
                 <div className="divider">
                   <button
-                    onMouseDown={() =>
-                      setKeys((prev) => ({ ...prev, ArrowUp: true }))
-                    }
-                    onMouseUp={() =>
-                      setKeys((prev) => ({ ...prev, ArrowUp: false }))
-                    }
-                    onMouseLeave={() => {
-                      if (keys.ArrowUp)
-                        setKeys((prev) => ({ ...prev, ArrowUp: false }));
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      setKeys(prev => ({ ...prev, ArrowUp: true }));
                     }}
-                    style={{ userSelect: "none" }}
+                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
+                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowUp: false }))}
+                    onContextMenu={(e) => e.preventDefault()}
+                    style={{ 
+                      userSelect: "none", 
+                      touchAction: "none",
+                      WebkitUserSelect: "none"
+                    }}
                   >
-                    <img className="transform -rotate-90" src="direction.png" />
+                    <img className="transform -rotate-90" src="direction.png" alt="Up" />
                   </button>
                 </div>
                 <div className="divider">
                   <button
-                    onMouseDown={() =>
-                      setKeys((prev) => ({ ...prev, ArrowLeft: true }))
-                    }
-                    onMouseUp={() =>
-                      setKeys((prev) => ({ ...prev, ArrowLeft: false }))
-                    }
-                    onMouseLeave={() => {
-                      if (keys.ArrowLeft)
-                        setKeys((prev) => ({ ...prev, ArrowLeft: false }));
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      setKeys(prev => ({ ...prev, ArrowLeft: true }));
                     }}
-                    style={{ userSelect: "none" }}
+                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
+                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowLeft: false }))}
+                    onContextMenu={(e) => e.preventDefault()}
+                    style={{ 
+                      userSelect: "none", 
+                      touchAction: "none",
+                      WebkitUserSelect: "none"
+                    }}
                   >
-                    <img className="transform rotate-180" src="direction.png" />
+                    <img className="transform rotate-180" src="direction.png" alt="Left" />
                   </button>
                   <button
-                    onMouseDown={() =>
-                      setKeys((prev) => ({ ...prev, ArrowDown: true }))
-                    }
-                    onMouseUp={() =>
-                      setKeys((prev) => ({ ...prev, ArrowDown: false }))
-                    }
-                    onMouseLeave={() => {
-                      if (keys.ArrowDown)
-                        setKeys((prev) => ({ ...prev, ArrowDown: false }));
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      setKeys(prev => ({ ...prev, ArrowDown: true }));
                     }}
-                    style={{ userSelect: "none" }}
+                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
+                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowDown: false }))}
+                    onContextMenu={(e) => e.preventDefault()}
+                    style={{ 
+                      userSelect: "none", 
+                      touchAction: "none",
+                      WebkitUserSelect: "none"
+                    }}
                   >
-                    <img className="transform rotate-90" src="direction.png" />
+                    <img className="transform rotate-90" src="direction.png" alt="Down" />
                   </button>
                   <button
-                    onMouseDown={() =>
-                      setKeys((prev) => ({ ...prev, ArrowRight: true }))
-                    }
-                    onMouseUp={() =>
-                      setKeys((prev) => ({ ...prev, ArrowRight: false }))
-                    }
-                    onMouseLeave={() => {
-                      if (keys.ArrowRight)
-                        setKeys((prev) => ({ ...prev, ArrowRight: false }));
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      setKeys(prev => ({ ...prev, ArrowRight: true }));
                     }}
-                    style={{ userSelect: "none" }}
+                    onPointerUp={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
+                    onPointerLeave={() => setKeys(prev => ({ ...prev, ArrowRight: false }))}
+                    onContextMenu={(e) => e.preventDefault()}
+                    style={{ 
+                      userSelect: "none", 
+                      touchAction: "none",
+                      WebkitUserSelect: "none"
+                    }}
                   >
-                    <img src="direction.png" />
+                    <img src="direction.png" alt="Right" />
                   </button>
                 </div>
               </div>
