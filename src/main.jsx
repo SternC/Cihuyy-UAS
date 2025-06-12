@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HashRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import App from './pages/start.jsx'
 import CustomizationPage from './pages/character.jsx';
 import Credit from './pages/credit.jsx'
@@ -14,24 +14,30 @@ import Cave from './pages/gamePindul.jsx';
 import Village from './pages/gamePenglipuran.jsx';
 import { CharacterProvider } from './components/characterContext.jsx'
 
+function Root() {
+  return (
+    <Router>
+      <CharacterProvider>
+        <Routes>
+          <Route path="/" element={<App key="app" />} />
+          <Route path="/customChar" element={<CustomizationPage key="custom" />} />
+          <Route path="/inventory" element={<InventoryPage key="inventory" />} />
+          <Route path="/inventoryfood" element={<InventoryFoodPage key="food" />} />
+          <Route path="/game" element={<TheGame key="game" />} />
+          <Route path="/credit" element={<Credit key="credit" />} />
+          <Route path="/home" element={<Home key="home" />} />
+          <Route path="/temple" element={<Temple key="temple" />} />
+          <Route path="/beach" element={<Beach key="beach" />} />
+          <Route path="/cave" element={<Cave key="cave" />} />
+          <Route path="/village" element={<Village key="village" />} />
+        </Routes>
+      </CharacterProvider>
+    </Router>
+  );
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <CharacterProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<App/>}/>
-          <Route path="/customChar" element={<CustomizationPage/>}/>  
-          <Route path="/inventory" element={<InventoryPage/>}/>
-          <Route path="/inventoryfood" element={<InventoryFoodPage/>}/>
-          <Route path="/game" element={<TheGame/>}/>
-          <Route path="/credit" element={<Credit/>}/>
-          <Route path="/home" element={<Home/>}/>
-          <Route path="/temple" element={<Temple/>}/>
-          <Route path="/beach" element={<Beach/>}/>
-          <Route path="/cave" element={<Cave/>}/>
-          <Route path="/village" element={<Village/>}/>
-        </Routes>
-      </Router>
-      </CharacterProvider>
+    <Root />
   </StrictMode>
 )
