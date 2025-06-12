@@ -25,7 +25,7 @@ const Home = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement({ x: 0, y: 0 }, mapWidth, mapHeight);
+  } = useMovement({ x: mapWidth/2 - 170, y: mapHeight/2 + 610 }, mapWidth, mapHeight);
 
   const cameraClamp = {
     left: viewWidth / 2,
@@ -41,14 +41,14 @@ const Home = () => {
     x: -(cameraX - viewWidth / 2),
     y: -(cameraY - viewHeight / 2),
   };
-
+  
   const locations = [
     {
-      id: "shrine",
-      name: "Shrine",
-      position: { x: 200, y: 200 },
+      id: "game",
+      name: "Go Outside",
+      position: { x: mapWidth/2 - 170, y: mapHeight/2 + 610 },
       radius: 50,
-      path: "/shrine",
+      path: "/game",
     },
   ];
 
@@ -71,9 +71,11 @@ const Home = () => {
     checkLocationProximity();
   }, [playerPos]);
 
-  const handleNavigate = () => {
+   const handleNavigate = () => {
     if (currentEvent) {
-      navigate(currentEvent.path);
+      navigate(currentEvent.path, {
+        state: { fromHome: true }
+      });
     }
   };
 
@@ -236,17 +238,16 @@ const Home = () => {
               <div className="inventory-container">
                 <button className="inventory-button">Inventory</button>
               </div>
-
-              {currentEvent && (
+              
+              {currentEvent ? (
                 <div className="eventcontainer flex justify-center items-center">
-                  <button
-                    onClick={handleNavigate}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                  >
-                    Masuk {currentEvent.name}
-                  </button>
+                  <button onClick={handleNavigate}>Enter {currentEvent.name}</button>
                 </div>
+                
+              ) : (
+                <span>No nearby locations</span>
               )}
+
             </div>
           </div>
         </div>
