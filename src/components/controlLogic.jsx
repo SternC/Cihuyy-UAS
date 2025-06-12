@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export const useMovement = (initialPosition, mapBoundaries) => {
+export const useMovement = (initialPosition) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -16,25 +16,21 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     d: false
   });
 
-  // Calculate movement boundaries based on map and viewport size
-  const maxX = (mapBoundaries.mapWidth - mapBoundaries.viewportWidth) / 2;
-  const minX = -maxX;
-  const maxY = (mapBoundaries.mapHeight - mapBoundaries.viewportHeight) / 2;
-  const minY = -maxY;
+  const mapWidth = 2000;
+  const mapHeight = 2000;
 
   const handleMove = useCallback((dx, dy) => {
     setPosition(prevPos => {
-      // Calculate new position
       let newX = prevPos.x + dx;
       let newY = prevPos.y + dy;
-      
-      // Constrain to map boundaries
-      newX = Math.max(minX, Math.min(maxX, newX));
-      newY = Math.max(minY, Math.min(maxY, newY));
-      
+
+      // Clamp within map bounds
+      newX = Math.max(0, Math.min(newX, mapWidth));
+      newY = Math.max(0, Math.min(newY, mapHeight));
+
       return { x: newX, y: newY };
     });
-  }, [minX, maxX, minY, maxY]);
+  }, []);
 
   // Keyboard event handlers
   useEffect(() => {
@@ -43,8 +39,7 @@ export const useMovement = (initialPosition, mapBoundaries) => {
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
         const keyName = key.length === 1 ? key : e.key;
         setKeys(prev => ({ ...prev, [keyName]: true }));
-        
-        // Handle character flipping
+
         if (key === 'a' || key === 'arrowleft') setIsFlipped(true);
         if (key === 'd' || key === 'arrowright') setIsFlipped(false);
       }
@@ -66,7 +61,6 @@ export const useMovement = (initialPosition, mapBoundaries) => {
     };
   }, []);
 
-  // Movement handling
   useEffect(() => {
     const moveInterval = setInterval(() => {
       const moveAmount = 3;
