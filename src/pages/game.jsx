@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
-import { InventoryPopup } from "../pages/inventoryPopUp.jsx";
+import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
 
 const TheGame = () => {
