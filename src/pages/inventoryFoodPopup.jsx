@@ -1,7 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './inventory.css';
 
-export const InventoryPopup = ({ isOpened, onClose, onSwitchToFood }) => {
+export const InventoryFoodPopup = ({ isOpened, onClose, onSwitchToTools }) => {
   if (!isOpened) return null;
 
   return (
@@ -9,10 +10,10 @@ export const InventoryPopup = ({ isOpened, onClose, onSwitchToFood }) => {
       <div className="popup-content" onClick={e => e.stopPropagation()}>
         <div className="typeContainer">
           <div className="typeMenu">
-            <button className="typeButton">
+            <button className="typeButton" onClick={onSwitchToTools}>
               <img src='toolSymboll.png' className='Symbol' alt="Tools"/>
             </button>
-            <button className="typeButton" onClick={onSwitchToFood}>
+            <button className="typeButton active">
               <img src='foodSymbol.png' className='Symbol' alt="Food"/>
             </button>
           </div>
@@ -20,7 +21,7 @@ export const InventoryPopup = ({ isOpened, onClose, onSwitchToFood }) => {
             
         <div className="itemContainer">
           <button className="itemButton">
-            <img src='flashLight.png' className='item' alt="Flashlight"/>
+            <img src='foodItem.png' className='item' alt="Food Item"/>
           </button>
           {[...Array(19)].map((_, i) => (
             <button key={i} className="itemButton"></button>
@@ -31,4 +32,4 @@ export const InventoryPopup = ({ isOpened, onClose, onSwitchToFood }) => {
   );
 };
 
-export default InventoryPopup;
+export default InventoryFoodPopup;

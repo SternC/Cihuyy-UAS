@@ -160,7 +160,7 @@ const Temple = () => {
 
   return (
     <PreventArrowScroll>
-      {isGameOver ? (
+    {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -172,25 +172,25 @@ const Temple = () => {
           }}
         />
       ) : (
-        <div className="mainGameContainer">
-          <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
-            <h1>BOROBUDUR TEMPLE</h1>
-          </div>
-          <div className="gameContainer">
-            <div className="timeMoney">
-              <div className="timeContainer">
-                <span className="timeText">Time: {time}</span>
-              </div>
-              <div className="moneyContainer">
-                <span className="moneyText">
-                  Money: {new Intl.NumberFormat("id-ID").format(money)}
-                </span>
-              </div>
+
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>BOROBUDUR TEMPLE</h1>
+        </div>
+        <div className="gameContainer">
+          <div className="timeMoney">
+            <div className="timeContainer">
+              <span className="timeText">Time: {time}</span>
+            </div>
+            <div className="moneyContainer">
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
             </div>
 
             <div className="barContainer">

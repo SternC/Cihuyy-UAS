@@ -158,7 +158,7 @@ const Village = () => {
 
   return (
     <PreventArrowScroll>
-      {isGameOver ? (
+    {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -170,14 +170,14 @@ const Village = () => {
           }}
         />
       ) : (
-        <div className="mainGameContainer">
-          <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
-            <h1>PENGLIPURAN VILLAGE</h1>
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>PENGLIPURAN VILLAGE</h1>
           </div>
           <div className="gameContainer">
             <div className="timeMoney">
