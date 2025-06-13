@@ -44,6 +44,7 @@ const Temple = () => {
     updateMoney,
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1152;
@@ -460,8 +461,9 @@ const Temple = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
-            resetGame();
-            navigate("/");
+            stopGame(); // Stop the game mechanics
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
           }}
           onCancel={() => setShowQuitModule(false)}
         />

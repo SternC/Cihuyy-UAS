@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCharacter } from '../components/characterContext.jsx';
 import './character.css';
+import { useMoneyTime } from '../components/timeMoneyContext.jsx';
 
 const CustomizationPage = () => {
   const { character, setCharacter } = useCharacter();
   const navigate = useNavigate();
   const [showAlert, setShowAlert] = useState(false);
+  const { startGame } = useMoneyTime();
 
   const characterSkins = {
     red: 'characters/charGIF6.gif',
@@ -33,6 +35,7 @@ const CustomizationPage = () => {
       setShowAlert(true);
       return;
     }
+    startGame(); // Call this to start the game mechanics
     navigate('/home');
   };
 

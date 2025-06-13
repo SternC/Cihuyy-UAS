@@ -8,6 +8,7 @@ import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
+import QuitModule from "../components/quitModule";
 
 const Beach = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Beach = () => {
   const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
   const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
   const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   const {
     time,
@@ -29,6 +31,7 @@ const Beach = () => {
     updateMoney, // ADDED: To update money
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1120;
@@ -234,11 +237,12 @@ const Beach = () => {
       ) : (
         <div className="mainGameContainer">
           <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
+            <button
+              className="quitButton"
+              onClick={() => setShowQuitModule(true)}
+            >
+              <div className="circle">X</div>
+            </button>
             <h1>KUTA BEACH</h1>
           </div>
 
@@ -449,6 +453,16 @@ const Beach = () => {
             </div>
           </div>
         </div>
+      )}
+      {showQuitModule && (
+        <QuitModule
+          onConfirm={() => {
+            stopGame();
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
+          }}
+          onCancel={() => setShowQuitModule(false)}
+        />
       )}
     </PreventArrowScroll>
   );

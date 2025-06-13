@@ -31,6 +31,7 @@ const Cave = () => {
     updateMoney, // <--- ADDED: To update money
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1600;
@@ -460,6 +461,7 @@ const Cave = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
+            stopGame();
             resetGame(); // Reset all stats
             navigate("/"); // Then navigate home
           }}

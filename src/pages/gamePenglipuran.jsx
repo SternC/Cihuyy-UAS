@@ -31,6 +31,7 @@ const Village = () => {
     updateMoney, // <--- ADDED: To update money
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1100;
@@ -452,6 +453,7 @@ const Village = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
+            stopGame();
             resetGame(); // Reset all stats
             navigate("/"); // Then navigate home
           }}
