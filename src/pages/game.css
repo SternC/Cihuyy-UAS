@@ -52,10 +52,9 @@
 }
 .progressBar{
     height: 100%;
-    width: 30%; /* bagian isi progress*/
     background-color: rgb(30, 200, 194);
     transition: width 0.3s ease-in-out;
-    border-radius: 20px 0px 0px 20px;
+    border-radius: 20px 20px 20px 20px;
 
 }
 .divider{
