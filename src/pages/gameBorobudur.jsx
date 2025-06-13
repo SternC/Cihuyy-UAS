@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from "../components/timeMoneyContext.jsx";
-import "./game.css";
+import { useMoneyTime } from "../components/timeMoneyContext.jsx"; // Pastikan ini diimpor
+import "./game.css"; // Pastikan game.css berisi styling progress bar
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
@@ -20,13 +20,13 @@ const Temple = () => {
 
   const {
     time,
-    money,
+    money, // Pastikan 'money' di-destrukturisasi di sini
     hunger,
     sleep,
     hygiene,
     happiness,
     updateStatus,
-    updateMoney,
+    updateMoney, // <--- TAMBAHKAN INI
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -37,6 +37,7 @@ const Temple = () => {
   const viewHeight = 530;
 
   const spawnPoint = { x: mapWidth / 2 + 465, y: mapHeight / 2 + 450 };
+
   const exitPoint = { x: 1835, y: 1150 };
 
   const manualBoundaries = {
@@ -94,8 +95,8 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 10 },
       radius: 30,
       effect: () => {
-        updateStatus("sleep", 5); // Changed to positive value
-        updateStatus("hunger", -10);
+        updateStatus("sleep", -5); // Mengurangi sleep (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("hunger", -10); // Mengurangi hunger (ini mungkin efek negatif yang tidak diinginkan?)
         updateStatus("happiness", 20);
       },
       interactionTime: 3000,
@@ -106,7 +107,7 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 - 200 },
       radius: 30,
       effect: () => {
-        updateStatus("hygiene", -5);
+        updateStatus("hygiene", -5); // Mengurangi hygiene (ini mungkin efek negatif yang tidak diinginkan?)
         updateStatus("happiness", 25);
       },
       interactionTime: 4000,
@@ -117,7 +118,7 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 300 },
       radius: 30,
       effect: () => {
-        updateMoney(-5000);
+        updateMoney(-5000); // <--- GUNAKAN updateMoney DI SINI
         updateStatus("happiness", 30);
       },
       interactionTime: 2000,
@@ -156,51 +157,51 @@ const Temple = () => {
     checkLocationProximity();
   }, [playerPos, isProgressBarActive]);
 
-  useEffect(() => {
-    let interval;
-    if (isProgressBarActive && activeInteraction) {
-      setProgressBarValue(0);
-      let currentProgress = 0;
-      const step = activeInteraction.interactionTime > 0 ? 
-        100 / (activeInteraction.interactionTime / 100) : 
-        100;
+useEffect(() => {
+  let interval;
+  if (isProgressBarActive && activeInteraction) {
+    setProgressBarValue(0);
+    let currentProgress = 0;
+    const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
 
-      interval = setInterval(() => {
-        currentProgress += step;
-        if (currentProgress >= 100) {
-          currentProgress = 100;
-          clearInterval(interval);
-          activeInteraction.effect();
-          setIsProgressBarActive(false);
-          setProgressBarValue(0);
-          setActiveInteraction(null);
-        }
-        setProgressBarValue(currentProgress);
-      }, 100);
-    } else {
-      clearInterval(interval);
-    }
-
-    return () => clearInterval(interval);
-  }, [isProgressBarActive, activeInteraction]);
-
-  const handleInteraction = () => {
-    if (currentEvent) {
-      if (currentEvent.path) {
-        navigate(currentEvent.path, {
-          state: {
-            spawnPoint: exitPoint,
-            returnPoint: playerPos,
-          },
-        });
-      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
-        setIsProgressBarActive(true);
-        setActiveInteraction(currentEvent);
-      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
-        currentEvent.effect();
+    interval = setInterval(() => {
+      currentProgress += step;
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(interval);
+        activeInteraction.effect(); // Apply the effect when progress is 100%
+        setIsProgressBarActive(false);
+        setProgressBarValue(0);
+        setActiveInteraction(null);
       }
+      setProgressBarValue(currentProgress);
+    }, 100); // Update every 100ms
+  } else {
+    clearInterval(interval);
+  }
+
+  return () => clearInterval(interval);
+}, [isProgressBarActive, activeInteraction]);
+
+const handleInteraction = () => {
+  if (currentEvent) {
+    if (currentEvent.path) {
+      navigate(currentEvent.path, {
+        state: {
+          spawnPoint: exitPoint,
+          returnPoint: playerPos,
+        },
+      });
+    } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+      // If it's an interaction with a progress bar
+      setIsProgressBarActive(true);
+      setActiveInteraction(currentEvent);
+    } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+      // If it's an instant interaction
+      currentEvent.effect();
     }
-  };
+  }
+};
 
   const getCharacterImage = (color, isMoving) => {
     const characterImages = {
@@ -231,7 +232,6 @@ const Temple = () => {
       ) : (
         <div className="mainGameContainer">
           <div className="titleContainer">
-
             <Link to="/game" state={{ spawnPoint: exitPoint }}>
               <button className="quitButton">
                 <div className="circle">X</div>
@@ -283,172 +283,154 @@ const Temple = () => {
                   </div>
                 </div>
               </div>
-              <div className="moneyContainer">
-                <span className="moneyText">
-                  Money: {new Intl.NumberFormat("id-ID").format(money)}
-                </span>
-              </div>
 
-              <div className="barContainer">
-                <div className="divider">
-                  <div className="Bar flex items-center w-full">
-                    <img
-                      src="symbol/mealSymbol.png"
-                      className="w-6 h-6"
-                      alt="Meal"
-                    />
-                    <div className="progressContain h-4">
-                      <div
-                        key={`hunger-${hunger}`}
-                        className="progressBar h-4"
-                        style={{ width: `${hunger}%` }}
-                        data-status="meal"
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="Bar flex items-center gap-2 w-full">
-                    <img
-                      src="symbol/sleepSymbol.png"
-                      className="w-6 h-6"
-                      alt="Sleep"
-                    />
-                    <div className="progressContain h-4">
-                      <div
-                        className="progressBar h-4"
-                        style={{ width: `${sleep}%` }}
-                        data-status="sleep"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="divider">
-                  <div className="Bar flex items-center gap-2 w-full">
-                    <img
-                      src="symbol/cleanSymbol.png"
-                      className="w-6 h-6"
-                      alt="Clean"
-                    />
-                    <div className="progressContain h-4">
-                      <div
-                        className="progressBar h-4"
-                        style={{ width: `${hygiene}%` }}
-                        data-status="hygiene"
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="Bar flex items-center gap-2 w-full">
-                    <img
-                      src="symbol/happySymbol.png"
-                      className="w-6 h-6"
-                      alt="Happy"
-                    />
-                    <div className="progressContain h-4">
-                      <div
-                        className="progressBar h-4"
-                        style={{ width: `${happiness}%` }}
-                        data-status="happy"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mapStatusContainer relative">
-                <div className="absolute w-[900px] h-[530px] z-5">
-                  <DirectionalControls
-                    keys={keys}
-                    setKeys={setKeys}
-                    isFlipped={isFlipped}
-                    setIsFlipped={setIsFlipped}
+              <div className="divider">
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/cleanSymbol.png"
+                    className="w-6 h-6"
+                    alt="Clean"
                   />
-                </div>
-                <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-                  <div
-                    className="absolute z-4"
-                    style={{
-                      left: `${playerPos.x + cameraPos.x}px`,
-                      top: `${playerPos.y + cameraPos.y}px`,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    <div className="flex flex-col items-center relative">
-                      <div className="nameBackground mb-0">
-                        <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
-                          {character.name || "Your Character"}
-                        </h2>
-                      </div>
-
-                      <img
-                        id="charImage"
-                        src={`/characters/${getCharacterImage(
-                          character.color,
-                          isMoving
-                        )}`}
-                        alt="Character"
-                        style={{
-                          transform: `rotate(${rotation}deg) scale(1.5) ${
-                            isFlipped ? "scaleX(-1)" : "scaleX(1)"
-                          }`,
-                          transition: "none",
-                          transformOrigin: "center",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="w-full h-full overflow-hidden relative">
+                  <div className="progressContain h-4">
                     <div
-                      className="absolute top-0 left-0"
-                      style={{
-                        width: `${mapWidth}px`,
-                        height: `${mapHeight}px`,
-                        transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
-                        transition: "transform 0.3s ease",
-                      }}
-                    >
-                      <img
-                        src="/map/BorobudurMap.png"
-                        alt="map"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "block",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-                    <img
-                      src="/map/BorobudurMap.png"
-                      className="miniMapImage"
-                      style={{ width: "100%", height: "150px" }}
-                    />
-                    <div
-                      className="miniMapMarker"
-                      style={{
-                        left: `${(playerPos.x / mapWidth) * 150}px`,
-                        top: `${(playerPos.y / mapHeight) * 150}px`,
-                        transform: "translate(-50%, -50%)",
-                      }}
+                      className="progressBar h-4"
+                      style={{ width: `${hygiene}%` }}
+                      data-status="hygiene"
                     ></div>
                   </div>
+                </div>
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/happySymbol.png"
+                    className="w-6 h-6"
+                    alt="Happy"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      className="progressBar h-4"
+                      style={{ width: `${happiness}%` }}
+                      data-status="happy"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                  <div className="inventory-container">
-                    <button
-                      className="inventory-button"
-                      onClick={() => setIsInventoryOpen(true)}
-                    >
-                      Inventory
-                    </button>
-                    <InventoryPopup
-                      isOpened={isInventoryOpen}
-                      onClose={() => setIsInventoryOpen(false)}
+            <div className="mapStatusContainer relative">
+              <div className="absolute w-[900px] h-[530px] z-5">
+                <DirectionalControls
+                  keys={keys}
+                  setKeys={setKeys}
+                  isFlipped={isFlipped}
+                  setIsFlipped={setIsFlipped}
+                />
+              </div>
+              <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
+                <div
+                  className="absolute z-4"
+                  style={{
+                    left: `${playerPos.x + cameraPos.x}px`,
+                    top: `${playerPos.y + cameraPos.y}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <div className="flex flex-col items-center relative">
+                    <div className="nameBackground mb-0">
+                      <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
+                        {character.name || "Your Character"}
+                      </h2>
+                    </div>
+
+                    <img
+                      id="charImage"
+                      src={`/characters/${getCharacterImage(
+                        character.color,
+                        isMoving
+                      )}`}
+                      alt="Character"
+                      style={{
+                        transform: `rotate(${rotation}deg) scale(1.5) ${
+                          isFlipped ? "scaleX(-1)" : "scaleX(1)"
+                        }`,
+                        transition: "none",
+                        transformOrigin: "center",
+                      }}
                     />
+                  </div>
+                </div>
+
+                <div className="w-full h-full overflow-hidden relative">
+                  <div
+                    className="absolute top-0 left-0"
+                    style={{
+                      width: `${mapWidth}px`,
+                      height: `${mapHeight}px`,
+                      transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
+                      transition: "transform 0.3s ease",
+                    }}
+                  >
+                    <img
+                      src="/map/BorobudurMap.png"
+                      alt="map"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                  <img
+                    src="/map/BorobudurMap.png"
+                    className="miniMapImage"
+                    style={{ width: "100%", height: "150px" }}
+                  />
+                  <div
+                    className="miniMapMarker"
+                    style={{
+                      left: `${(playerPos.x / mapWidth) * 150}px`,
+                      top: `${(playerPos.y / mapHeight) * 150}px`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  ></div>
+                </div>
+
+                <div className="inventory-container">
+                  <button
+                    className="inventory-button"
+                    onClick={() => setIsInventoryOpen(true)}
+                  >
+                    Inventory
+                  </button>
+                  <InventoryPopup
+                    isOpened={isInventoryOpen}
+                    onClose={() => setIsInventoryOpen(false)}
+                  />
+                </div>
+
+                {isProgressBarActive && activeInteraction ? (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
                   </div>
                 ) : null}
 
+                {currentEvent && !isProgressBarActive ? (
+                  <div className="eventcontainer flex justify-center items-center ">
+                    <button onClick={handleInteraction}>
+                      {currentEvent.name}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
