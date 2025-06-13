@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './inventory.css';
 import InventoryPopup from '../pages/inventoryPopup.jsx';
-import InventoryFoodPopup from '../pages/inventoryFoodPopUp.jsx';
+import InventoryFoodPopup from '../pages/inventoryFoodPopup.jsx';
 
 const InventoryPage = () => {
   const [activePopup, setActivePopup] = useState(null); // 'tools', 'food', or null
