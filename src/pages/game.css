@@ -69,7 +69,10 @@
         display: grid;
     }
     .barContainer{
-        width: 500px;
+        width: 400px;
+    }
+    .barContainer .divider {
+        flex-direction: column;
     }
 }
 
@@ -79,7 +82,6 @@
     justify-self: center;
     align-items: center;
     gap: 20px;
-    width: 900px;
     height: fit-content;
     background-color: rgba(240, 248, 255, 0.115);
     margin: 0px 50px 30px 50px;
@@ -140,8 +142,8 @@
   position: absolute;
   bottom: 360px;
   right: 40px;
-  width: 180px;
-  height: 127px;
+  /* width: 180px;
+  height: 127px; */
   border: 2px solid white;
   border-radius: 0.25rem;
   overflow: hidden;

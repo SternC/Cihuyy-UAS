@@ -15,6 +15,19 @@ const Home = () => {
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const mobileViewWidth = 400; // Sesuaikan dengan CSS media query Anda
+  const mobileViewHeight = 300; // Sesuaikan dengan kebutuhan
+
   const {
     time,
     money,
@@ -33,8 +46,6 @@ const Home = () => {
   const viewHeight = 530;
 
   const spawnPoint = { x: mapWidth / 2 - 170, y: mapHeight / 2 + 610 };
-
-  // Exit point saat keluar dari Home (harus sama dengan posisi Home di game world)
   const exitPoint = { x: 3840 / 2 - 1510, y: 2160 / 2 + 575 };
 
   const manualBoundaries = {
@@ -55,26 +66,39 @@ const Home = () => {
     setIsMoving,
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
-  const cameraClamp = {
-    left: viewWidth / 2,
-    right: Math.max(viewWidth / 2, mapWidth - viewWidth / 2),
-    top: viewHeight / 2,
-    bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
-  };
+  // Calculate camera bounds
+  // Gunakan viewport size yang sesuai berdasarkan ukuran layar
+  const currentViewWidth = isMobile ? mobileViewWidth : viewWidth;
+  const currentViewHeight = isMobile ? mobileViewHeight : viewHeight;
 
-  const cameraX = Math.max(
-    viewWidth / 2,
-    Math.min(playerPos.x, mapWidth - viewWidth / 2)
-  );
-  const cameraY = Math.max(
-    viewHeight / 2,
-    Math.min(playerPos.y, mapHeight - viewHeight / 2)
-  );
+  // Calculate camera bounds
+  const minOffsetX = currentViewWidth - mapWidth;
+  const minOffsetY = currentViewHeight - mapHeight;
+  const maxOffsetX = 0;
+  const maxOffsetY = 0;
 
-  const cameraPos = {
-    x: -(cameraX - viewWidth / 2),
-    y: -(cameraY - viewHeight / 2),
-  };
+  // Calculate desired camera position (centered on player)
+  const desiredOffsetX = currentViewWidth/2 - playerPos.x;
+  const desiredOffsetY = currentViewHeight/2 - playerPos.y;
+
+  // Clamp the camera position to keep it within map bounds
+  const clampedOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, desiredOffsetX));
+  const clampedOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, desiredOffsetY));
+
+  // Determine if we're at the edge of the map
+  const isAtLeftEdge = desiredOffsetX > maxOffsetX;
+  const isAtRightEdge = desiredOffsetX < minOffsetX;
+  const isAtTopEdge = desiredOffsetY > maxOffsetY;
+  const isAtBottomEdge = desiredOffsetY < minOffsetY;
+
+  // Calculate player position relative to viewport when at edges
+  const playerViewportX = isAtLeftEdge || isAtRightEdge 
+    ? playerPos.x + clampedOffsetX 
+    : currentViewWidth/2;
+
+  const playerViewportY = isAtTopEdge || isAtBottomEdge 
+    ? playerPos.y + clampedOffsetY 
+    : currentViewHeight/2;
 
   const locations = [
     {
@@ -144,8 +168,8 @@ const Home = () => {
     if (currentEvent) {
       navigate(currentEvent.path, {
         state: {
-          spawnPoint: exitPoint, // Titik spawn di scene tujuan
-          returnPoint: playerPos, // Titik kembali di scene ini
+          spawnPoint: exitPoint,
+          returnPoint: playerPos,
         },
       });
     }
@@ -164,9 +188,10 @@ const Home = () => {
     );
   };
 
+
   return (
     <PreventArrowScroll>
-       {isGameOver ? (
+      {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -178,25 +203,25 @@ const Home = () => {
           }}
         />
       ) : (
-      <div className="mainGameContainer">
-        <div className="titleContainer">
-          <Link to="/" state={{ spawnPoint: exitPoint }}>
-            <button className="quitButton">
-              <div className="circle">X</div>
-            </button>
-          </Link>
-          <h1>HOME</h1>
-        </div>
-        <div className="gameContainer">
-          <div className="timeMoney">
-            <div className="timeContainer">
-              <span className="timeText">Time: {time}</span>
-            </div>
-            <div className="moneyContainer">
-              <span className="moneyText">
-                Money: {new Intl.NumberFormat("id-ID").format(money)}
-              </span>
-            </div>
+        <div className="mainGameContainer">
+          <div className="titleContainer">
+            <Link to="/" state={{ spawnPoint: exitPoint }}>
+              <button className="quitButton">
+                <div className="circle">X</div>
+              </button>
+            </Link>
+            <h1>HOME</h1>
+          </div>
+          <div className="gameContainer">
+            <div className="timeMoney">
+              <div className="timeContainer">
+                <span className="timeText">Time: {time}</span>
+              </div>
+              <div className="moneyContainer">
+                <span className="moneyText">
+                  Money: {new Intl.NumberFormat("id-ID").format(money)}
+                </span>
+              </div>
             </div>
             <div className="barContainer">
               <div className="divider">
@@ -207,11 +232,10 @@ const Home = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                      style={{ width: `${hunger}%` }}
                       data-status="meal"
                     ></div>
                   </div>
@@ -223,7 +247,6 @@ const Home = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -240,7 +263,6 @@ const Home = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -255,7 +277,6 @@ const Home = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -266,37 +287,31 @@ const Home = () => {
               </div>
             </div>
 
-           <div className="mapStatusContainer relative mx-auto">
-            <div className="absolute w-[900px] h-[530px] z-5">
-              <DirectionalControls
-                keys={keys}
-                setKeys={setKeys}
-                isFlipped={isFlipped}
-                setIsFlipped={setIsFlipped}
-              />
-            </div>
-            <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-              <div
-                className="theChar absolute z-4"
-                style={{
-                  left: `${playerPos.x + cameraPos.x}px`,
-                  top: `${playerPos.y + cameraPos.y}px`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <div className="flex flex-col items-center relative">
-                  <div className="nameBackground mb-0">
-                    <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
-                      {character.name || "Your Character"}
-                    </h2>
+            <div className="mapStatusContainer relative mx-auto">
+              <div className={`absolute ${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} z-5`}>
+                <DirectionalControls
+                  keys={keys}
+                  setKeys={setKeys}
+                  isFlipped={isFlipped}
+                  setIsFlipped={setIsFlipped}
+                />
+              </div>
+              <div className={`${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]`}>
+                {/* Player Character - Now Centered */}
+                <div className="theChar absolute z-4" style={{
+                  left: `${playerViewportX}px`,
+                  top: `${playerViewportY}px`,
+                  transform: 'translate(-50%, -50%)'
+                }}>
+                  <div className="flex flex-col items-center relative">
+                    <div className="nameBackground mb-0">
+                      <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
+                        {character.name || "Your Character"}
+                      </h2>
                     </div>
-
                     <img
                       id="charImage"
-                      src={`/characters/${getCharacterImage(
-                        character.color,
-                        isMoving
-                      )}`}
+                      src={`/characters/${getCharacterImage(character.color, isMoving)}`}
                       alt="Character"
                       style={{
                         transform: `rotate(${rotation}deg) scale(1.5) ${
@@ -309,14 +324,16 @@ const Home = () => {
                   </div>
                 </div>
 
+                {/* Map Container - Moves Opposite of Player */}
                 <div className="w-full h-full overflow-hidden relative">
                   <div
                     className="absolute top-0 left-0"
                     style={{
                       width: `${mapWidth}px`,
                       height: `${mapHeight}px`,
-                      transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
-                      transition: "transform 0.3s ease",
+                      left: `${clampedOffsetX}px`,
+                      top: `${clampedOffsetY}px`,
+                      transition: "left 0.3s ease, top 0.3s ease",
                     }}
                   >
                     <img
@@ -331,22 +348,21 @@ const Home = () => {
                   </div>
                 </div>
 
-
-              <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-                <img
-                  src="/map/homeMap.png"
-                  className="miniMapImage"
-                  style={{ width: "100%", height: "100%" }}
-                />
-                <div
-                  className="miniMapMarker"
-                  style={{
-                    left: `${(playerPos.x / mapWidth) * 150}px`,
-                    top: `${(playerPos.y / mapHeight) * 150}px`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                ></div>
-              </div>
+                <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                  <img
+                    src="/map/homeMap.png"
+                    className="miniMapImage"
+                    style={{ width: "100%", height: "100%" }}
+                  />
+                  <div
+                    className="miniMapMarker"
+                    style={{
+                      left: `${(playerPos.x / mapWidth) * 150}px`,
+                      top: `${(playerPos.y / mapHeight) * 150}px`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  ></div>
+                </div>
                 <div className="inventory-container">
                   <button
                     className="inventory-button"
