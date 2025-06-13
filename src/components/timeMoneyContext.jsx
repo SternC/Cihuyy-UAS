@@ -35,10 +35,10 @@ export const TimeMoneyProvider = ({ children }) => {
     });
 
     // 2. Update status (dipisah dari setTime)
-    setHunger(prev => Math.max(0, prev - 0.5)); // 0.5% per detik
-    setSleep(prev => Math.max(0, prev - 0.5));
-    setHygiene(prev => Math.max(0, prev - 0.5));
-    setHappiness(prev => Math.max(0, prev - 5));
+    setHunger(prev => Math.max(0, prev - 0.75)); // 0.5% per detik
+    setSleep(prev => Math.max(0, prev - 0.75));
+    setHygiene(prev => Math.max(0, prev - 0.75));
+    setHappiness(prev => Math.max(0, prev - 0.75));
   }, 1000);
 
   return () => clearInterval(timer);
