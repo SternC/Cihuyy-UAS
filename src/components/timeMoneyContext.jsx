@@ -47,6 +47,12 @@ export const TimeMoneyProvider = ({ children }) => {
     setGameStarted(true);
   };
 
+  // Function to generate random degradation amount
+  const getRandomDegradation = () => {
+    // Returns a random number between 0.5 and 1.5
+    return Math.random() + 0.5;
+  };
+
   // Modify the status update effect to only run when game has started
   useEffect(() => {
     if (!gameStarted || isGameOver) return;
@@ -62,18 +68,18 @@ export const TimeMoneyProvider = ({ children }) => {
         return newTime;
       });
 
-      // Update status
-      setHunger(prev => Math.max(0, prev - 0.75));
-      setSleep(prev => Math.max(0, prev - 0.75));
-      setHygiene(prev => Math.max(0, prev - 0.75));
-      setHappiness(prev => Math.max(0, prev - 0.75));
+      // Update status with random degradation
+      setHunger(prev => Math.max(0, prev - getRandomDegradation()));
+      setSleep(prev => Math.max(0, prev - getRandomDegradation()));
+      setHygiene(prev => Math.max(0, prev - getRandomDegradation()));
+      setHappiness(prev => Math.max(0, prev - getRandomDegradation()));
 
       // Check game over after updates
       checkGameOver();
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameStarted, isGameOver, hunger, sleep, hygiene, happiness]);// Add isGameOver to dependencies
+  }, [gameStarted, isGameOver, hunger, sleep, hygiene, happiness]);
 
   // Fungsi untuk mengubah uang
   const updateMoney = (amount) => {
@@ -112,17 +118,17 @@ export const TimeMoneyProvider = ({ children }) => {
   };
 
   // Fungsi untuk reset game
-const resetGame = () => {
-  setTime(new Date());
-  setMoney(100000);
-  setHunger(100);
-  setSleep(100);
-  setHygiene(100);
-  setHappiness(100);
-  setIsGameOver(false);
-  // Return the default spawn point
-  return;
-};
+  const resetGame = () => {
+    setTime(new Date());
+    setMoney(100000);
+    setHunger(100);
+    setSleep(100);
+    setHygiene(100);
+    setHappiness(100);
+    setIsGameOver(false);
+    // Return the default spawn point
+    return;
+  };
 
   // Format waktu
   const formattedTime = time.toLocaleTimeString('id-ID', {
@@ -145,7 +151,7 @@ const resetGame = () => {
       isGameOver,
       resetGame,
       startGame,
-      stopGame, // Add this to the context value
+      stopGame,
       gameStarted
     }}>
       {children}
