@@ -72,6 +72,30 @@ const Home = () => {
       radius: 50,
       path: "/game",
     },
+    {
+      id: "bath",
+      name: "Take A Bath",
+      position: { x: mapWidth / 2 + 600, y: mapHeight / 2 - 400},
+      radius: 100,
+    },
+    {
+      id: "sleep",
+      name: "Sleep",
+      position: { x: mapWidth / 2 -500, y: mapHeight / 2 - 400},
+      radius: 300,
+    },
+    {
+      id: "eat",
+      name: "Eat",
+      position: { x: mapWidth / 2 -500, y: mapHeight / 2 +450},
+      radius: 200,
+    },
+    {
+      id: "watch",
+      name: "Watch TV",
+      position: { x: mapWidth / 2 +430, y: mapHeight / 2 +400},
+      radius: 175,
+    },
   ];
 
   useEffect(() => {
@@ -193,10 +217,18 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="mapStatusContainer">
+          <div className="mapStatusContainer relative">
+            <div className="absolute w-[900px] h-[530px] z-5">
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+            </div>
             <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               <div
-                className="absolute z-10"
+                className="absolute z-4"
                 style={{
                   left: `${playerPos.x + cameraPos.x}px`,
                   top: `${playerPos.y + cameraPos.y}px`,
@@ -249,13 +281,6 @@ const Home = () => {
                   />
                 </div>
               </div>
-
-              <DirectionalControls
-                keys={keys}
-                setKeys={setKeys}
-                isFlipped={isFlipped}
-                setIsFlipped={setIsFlipped}
-              />
 
               <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
                 <img

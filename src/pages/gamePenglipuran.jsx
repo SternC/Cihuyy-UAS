@@ -70,6 +70,24 @@ const Village = () => {
       radius: 20,
       path: "/game",
     },
+    {
+      id: "shopping",
+      name: "Buy something",
+      position: { x: mapWidth / 2 + 250, y: mapHeight / 2 + 150},
+      radius: 50,
+    },
+    {
+      id: "visit",
+      name: "Visit Villager", //rest+, happiness +,
+      position: { x: mapWidth / 2 -300, y: mapHeight / 2 - 200},
+      radius: 50,
+    },
+    {
+      id: "clean",
+      name: "Clean House", //DAPET UANG, hygene down
+      position: { x: mapWidth / 2 -300, y: mapHeight / 2 + 350},
+      radius: 50,
+    },
   ];
 
   useEffect(() => {
@@ -191,10 +209,18 @@ const Village = () => {
             </div>
           </div>
 
-          <div className="mapStatusContainer">
+          <div className="mapStatusContainer relative">
+            <div className="absolute w-[900px] h-[530px] z-5">
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+            </div>
             <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               <div
-                className="absolute z-10"
+                className="absolute z-4"
                 style={{
                   left: `${playerPos.x + cameraPos.x}px`,
                   top: `${playerPos.y + cameraPos.y}px`,
@@ -247,13 +273,6 @@ const Village = () => {
                   />
                 </div>
               </div>
-
-              <DirectionalControls
-                keys={keys}
-                setKeys={setKeys}
-                isFlipped={isFlipped}
-                setIsFlipped={setIsFlipped}
-              />
 
               <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
                 <img

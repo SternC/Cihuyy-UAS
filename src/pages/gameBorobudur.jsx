@@ -72,6 +72,24 @@ const Temple = () => {
       radius: 50,
       path: "/game",
     },
+    {
+      id: "meditate",
+      name: "Meditate",
+      position: { x: mapWidth / 2 + 30, y: mapHeight / 2+10},
+      radius: 30,
+    },
+    {
+      id: "enjoy",
+      name: "Enjoy View from Above",
+      position: { x: mapWidth / 2 +30 , y: mapHeight / 2 -200},
+      radius: 30,
+    },
+    {
+      id: "give",
+      name: "Give Offerings",
+      position: { x: mapWidth / 2 +30 , y: mapHeight / 2+300 },
+      radius: 30,
+    },
   ];
 
   useEffect(() => {

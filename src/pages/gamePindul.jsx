@@ -66,6 +66,24 @@ const Cave = () => {
       radius: 50,
       path: "/game",
     },
+    {
+      id: "photo",
+      name: "Take A Photo",
+      position: { x: mapWidth / 2 + 350 , y: mapHeight / 2 +120},
+      radius: 50,
+    },
+    {
+      id: "mining",
+      name: "G3t $0me G0Ld",
+      position: { x: mapWidth/2 + 650, y: mapHeight/2 + 400 },
+      radius: 50,
+    },
+    {
+      id: "eat",
+      name: "Eat",
+      position: { x: mapWidth / 2, y: mapHeight / 2 },
+      radius: 50,
+    },
   ];
 
   useEffect(() => {
@@ -185,10 +203,18 @@ const Cave = () => {
             </div>
           </div>
 
-          <div className="mapStatusContainer">
+          <div className="mapStatusContainer relative">
+            <div className="absolute w-[900px] h-[530px] z-5">
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+            </div>
             <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               <div
-                className="absolute z-10"
+                className="absolute z-4"
                 style={{
                   left: `${playerPos.x + cameraPos.x}px`,
                   top: `${playerPos.y + cameraPos.y}px`,
