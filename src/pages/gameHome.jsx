@@ -13,7 +13,7 @@ const Home = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
-  const { time, money } = useMoneyTime();
+  const { time, money, hunger, sleep, hygiene, happiness } = useMoneyTime();
 
   const mapWidth = 1650;
   const mapHeight = 1650;
@@ -153,39 +153,65 @@ const Home = () => {
           <div className="barContainer">
             <div className="divider">
               <div className="Bar flex items-center w-full">
-                <img src="symbol/mealSymbol.png" className="w-6 h-6" />
+                <img
+                  src="symbol/mealSymbol.png"
+                  className="w-6 h-6"
+                  alt="Meal"
+                />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hunger` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    key={`hunger-${hunger}`}
+                    className="progressBar h-4"
+                    style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
                     data-status="meal"
                   ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/sleepSymbol.png" className="w-6 h-6" />
+                <img
+                  src="symbol/sleepSymbol.png"
+                  className="w-6 h-6"
+                  alt="Sleep"
+                />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `sleep` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${sleep}%` }}
                     data-status="sleep"
                   ></div>
                 </div>
               </div>
             </div>
+
             <div className="divider">
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/cleanSymbol.png" className="w-6 h-6" />
+                <img
+                  src="symbol/cleanSymbol.png"
+                  className="w-6 h-6"
+                  alt="Clean"
+                />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hygiene` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${hygiene}%` }}
                     data-status="hygiene"
                   ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/happySymbol.png" className="w-6 h-6" />
+                <img
+                  src="symbol/happySymbol.png"
+                  className="w-6 h-6"
+                  alt="Happy"
+                />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `happiness` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${happiness}%` }}
                     data-status="happy"
                   ></div>
                 </div>
