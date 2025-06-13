@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from "../components/timeMoneyContext.jsx"; // Pastikan ini diimpor
-import "./game.css"; // Pastikan game.css berisi styling progress bar
+import { useMoneyTime } from "../components/timeMoneyContext.jsx";
+import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
@@ -20,15 +20,28 @@ const Temple = () => {
   const { character } = useCharacter();
   const [showQuitModule, setShowQuitModule] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const mobileViewWidth = 400;
+  const mobileViewHeight = 300;
+
   const {
     time,
-    money, // Pastikan 'money' di-destrukturisasi di sini
+    money,
     hunger,
     sleep,
     hygiene,
     happiness,
     updateStatus,
-    updateMoney, // <--- TAMBAHKAN INI
+    updateMoney,
     isGameOver,
     resetGame,
     stopGame,
@@ -40,7 +53,6 @@ const Temple = () => {
   const viewHeight = 530;
 
   const spawnPoint = { x: mapWidth / 2 + 465, y: mapHeight / 2 + 450 };
-
   const exitPoint = { x: 1835, y: 1150 };
 
   const manualBoundaries = {
@@ -62,26 +74,38 @@ const Temple = () => {
     setPlayerPos,
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
-  const cameraClamp = {
-    left: viewWidth / 2,
-    right: Math.max(viewWidth / 2, mapWidth - viewWidth / 2),
-    top: viewHeight / 2,
-    bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
-  };
+  // Calculate camera bounds based on screen size
+  const currentViewWidth = isMobile ? mobileViewWidth : viewWidth;
+  const currentViewHeight = isMobile ? mobileViewHeight : viewHeight;
 
-  const cameraX = Math.max(
-    viewWidth / 2,
-    Math.min(playerPos.x, mapWidth - viewWidth / 2)
-  );
-  const cameraY = Math.max(
-    viewHeight / 2,
-    Math.min(playerPos.y, mapHeight - viewHeight / 2)
-  );
+  // Calculate camera bounds
+  const minOffsetX = currentViewWidth - mapWidth;
+  const minOffsetY = currentViewHeight - mapHeight;
+  const maxOffsetX = 0;
+  const maxOffsetY = 0;
 
-  const cameraPos = {
-    x: -(cameraX - viewWidth / 2),
-    y: -(cameraY - viewHeight / 2),
-  };
+  // Calculate desired camera position (centered on player)
+  const desiredOffsetX = currentViewWidth/2 - playerPos.x;
+  const desiredOffsetY = currentViewHeight/2 - playerPos.y;
+
+  // Clamp the camera position to keep it within map bounds
+  const clampedOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, desiredOffsetX));
+  const clampedOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, desiredOffsetY));
+
+  // Determine if we're at the edge of the map
+  const isAtLeftEdge = desiredOffsetX > maxOffsetX;
+  const isAtRightEdge = desiredOffsetX < minOffsetX;
+  const isAtTopEdge = desiredOffsetY > maxOffsetY;
+  const isAtBottomEdge = desiredOffsetY < minOffsetY;
+
+  // Calculate player position relative to viewport when at edges
+  const playerViewportX = isAtLeftEdge || isAtRightEdge 
+    ? playerPos.x + clampedOffsetX 
+    : currentViewWidth/2;
+
+  const playerViewportY = isAtTopEdge || isAtBottomEdge 
+    ? playerPos.y + clampedOffsetY 
+    : currentViewHeight/2;
 
   const locations = [
     {
@@ -98,8 +122,8 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 10 },
       radius: 30,
       effect: () => {
-        updateStatus("sleep", -5); // Mengurangi sleep (ini mungkin efek negatif yang tidak diinginkan?)
-        updateStatus("hunger", -10); // Mengurangi hunger (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("sleep", -5);
+        updateStatus("hunger", -10);
         updateStatus("happiness", 20);
       },
       interactionTime: 3000,
@@ -110,7 +134,7 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 - 200 },
       radius: 30,
       effect: () => {
-        updateStatus("hygiene", -5); // Mengurangi hygiene (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("hygiene", -5);
         updateStatus("happiness", 25);
       },
       interactionTime: 4000,
@@ -121,7 +145,7 @@ const Temple = () => {
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 300 },
       radius: 30,
       effect: () => {
-        updateMoney(-5000); // <--- GUNAKAN updateMoney DI SINI
+        updateMoney(-5000);
         updateStatus("happiness", 30);
       },
       interactionTime: 2000,
@@ -160,51 +184,49 @@ const Temple = () => {
     checkLocationProximity();
   }, [playerPos, isProgressBarActive]);
 
-useEffect(() => {
-  let interval;
-  if (isProgressBarActive && activeInteraction) {
-    setProgressBarValue(0);
-    let currentProgress = 0;
-    const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      const step = 100 / (activeInteraction.interactionTime / 100);
 
-    interval = setInterval(() => {
-      currentProgress += step;
-      if (currentProgress >= 100) {
-        currentProgress = 100;
-        clearInterval(interval);
-        activeInteraction.effect(); // Apply the effect when progress is 100%
-        setIsProgressBarActive(false);
-        setProgressBarValue(0);
-        setActiveInteraction(null);
-      }
-      setProgressBarValue(currentProgress);
-    }, 100); // Update every 100ms
-  } else {
-    clearInterval(interval);
-  }
-
-  return () => clearInterval(interval);
-}, [isProgressBarActive, activeInteraction]);
-
-const handleInteraction = () => {
-  if (currentEvent) {
-    if (currentEvent.path) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint,
-          returnPoint: playerPos,
-        },
-      });
-    } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
-      // If it's an interaction with a progress bar
-      setIsProgressBarActive(true);
-      setActiveInteraction(currentEvent);
-    } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
-      // If it's an instant interaction
-      currentEvent.effect();
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect();
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100);
+    } else {
+      clearInterval(interval);
     }
-  }
-};
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
+    if (currentEvent) {
+      if (currentEvent.path) {
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        currentEvent.effect();
+      }
+    }
+  };
 
   const getCharacterImage = (color, isMoving) => {
     const characterImages = {
@@ -320,8 +342,8 @@ const handleInteraction = () => {
               </div>
             </div>
 
-            <div className="mapStatusContainer relative">
-              <div className="absolute w-[900px] h-[530px] z-5">
+            <div className="mapStatusContainer relative mx-auto">
+              <div className={`absolute ${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} z-5`}>
                 <DirectionalControls
                   keys={keys}
                   setKeys={setKeys}
@@ -329,28 +351,22 @@ const handleInteraction = () => {
                   setIsFlipped={setIsFlipped}
                 />
               </div>
-              <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-                <div
-                  className="absolute z-4"
-                  style={{
-                    left: `${playerPos.x + cameraPos.x}px`,
-                    top: `${playerPos.y + cameraPos.y}px`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
+              <div className={`${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]`}>
+                {/* Player Character */}
+                <div className="theChar absolute z-4" style={{
+                  left: `${playerViewportX}px`,
+                  top: `${playerViewportY}px`,
+                  transform: 'translate(-50%, -50%)'
+                }}>
                   <div className="flex flex-col items-center relative">
                     <div className="nameBackground mb-0">
                       <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
                         {character.name || "Your Character"}
                       </h2>
                     </div>
-
                     <img
                       id="charImage"
-                      src={`/characters/${getCharacterImage(
-                        character.color,
-                        isMoving
-                      )}`}
+                      src={`/characters/${getCharacterImage(character.color, isMoving)}`}
                       alt="Character"
                       style={{
                         transform: `rotate(${rotation}deg) scale(1.5) ${
@@ -363,14 +379,16 @@ const handleInteraction = () => {
                   </div>
                 </div>
 
+                {/* Map Container */}
                 <div className="w-full h-full overflow-hidden relative">
                   <div
                     className="absolute top-0 left-0"
                     style={{
                       width: `${mapWidth}px`,
                       height: `${mapHeight}px`,
-                      transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
-                      transition: "transform 0.3s ease",
+                      left: `${clampedOffsetX}px`,
+                      top: `${clampedOffsetY}px`,
+                      transition: "left 0.3s ease, top 0.3s ease",
                     }}
                   >
                     <img
@@ -385,11 +403,11 @@ const handleInteraction = () => {
                   </div>
                 </div>
 
-                <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
                   <img
                     src="/map/BorobudurMap.png"
                     className="miniMapImage"
-                    style={{ width: "100%", height: "150px" }}
+                    style={{ width: "100%", height: "100%" }}
                   />
                   <div
                     className="miniMapMarker"
