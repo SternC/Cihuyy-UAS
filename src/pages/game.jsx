@@ -5,17 +5,20 @@ import PreventArrowScroll from "../components/preventArrowScroll";
 import { useMoneyTime } from "../components/timeMoneyContext";
 import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
+import GameOverScreen from "../components/gameOverScreen";
 
 const SimpleProgressBar = ({ value }) => (
-  <div style={{ width: '100%', height: '20px', backgroundColor: '#ddd' }}>
-    <div style={{ width: `${value}%`, height: '100%', backgroundColor: 'blue' }} />
+  <div style={{ width: "100%", height: "20px", backgroundColor: "#ddd" }}>
+    <div
+      style={{ width: `${value}%`, height: "100%", backgroundColor: "blue" }}
+    />
   </div>
 );
 
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Game map dimensions
   const mapWidth = 3840;
   const mapHeight = 2160;
@@ -24,7 +27,7 @@ const TheGame = () => {
 
   // Default position
   const defaultPosition = { x: mapWidth / 2, y: mapHeight / 2 };
-  
+
   // Player state - updated initialization
   const [playerPos, setPlayerPos] = useState(() => {
     if (location.state?.spawnPoint) {
@@ -48,9 +51,19 @@ const TheGame = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const animationRef = useRef();
-  
+
   // Ambil semua status dari useMoneyTime
-  const { time, money, hunger, sleep, hygiene, happiness, updateStatus } = useMoneyTime();
+  const {
+    time,
+    money,
+    hunger,
+    sleep,
+    hygiene,
+    happiness,
+    updateStatus,
+    isGameOver,
+    resetGame,
+  } = useMoneyTime();
 
   // Game locations
   const locations = [
@@ -60,8 +73,8 @@ const TheGame = () => {
       position: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 },
       radius: 100,
       path: "/home",
-      onEnter: () => updateStatus('sleep', 50), // Contoh: Menambah sleep 50 saat masuk Home
-      exitPoint: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 525 } // Example exit point
+      onEnter: () => updateStatus("sleep", 50), // Contoh: Menambah sleep 50 saat masuk Home
+      exitPoint: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 525 }, // Example exit point
     },
     {
       id: "borobudur",
@@ -69,8 +82,8 @@ const TheGame = () => {
       position: { x: 1915, y: 1180 },
       radius: 100,
       path: "/temple",
-      onEnter: () => updateStatus('happiness', 30), // Contoh: Menambah happiness 30
-      exitPoint: { x: 1915, y: 1280 } // Example exit point
+      onEnter: () => updateStatus("happiness", 30), // Contoh: Menambah happiness 30
+      exitPoint: { x: 1915, y: 1280 }, // Example exit point
     },
     {
       id: "village",
@@ -78,8 +91,8 @@ const TheGame = () => {
       position: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 715 },
       radius: 100,
       path: "/village",
-      onEnter: () => updateStatus('hygiene', 20), // Contoh: Menambah hygiene 20
-      exitPoint: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 615 } // Example exit point
+      onEnter: () => updateStatus("hygiene", 20), // Contoh: Menambah hygiene 20
+      exitPoint: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 615 }, // Example exit point
     },
     {
       id: "cave",
@@ -87,8 +100,8 @@ const TheGame = () => {
       position: { x: mapWidth / 2 + 1370, y: mapHeight / 2 - 90 },
       radius: 100,
       path: "/cave",
-      onEnter: () => updateStatus('happiness', 20),
-      exitPoint: { x: mapWidth / 2 + 1370, y: mapHeight / 2 + 10 } // Example exit point
+      onEnter: () => updateStatus("happiness", 20),
+      exitPoint: { x: mapWidth / 2 + 1370, y: mapHeight / 2 + 10 }, // Example exit point
     },
     {
       id: "beach",
@@ -96,8 +109,8 @@ const TheGame = () => {
       position: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 780 },
       radius: 100,
       path: "/beach",
-      onEnter: () => updateStatus('happiness', 40),
-      exitPoint: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 680 } // Example exit point
+      onEnter: () => updateStatus("happiness", 40),
+      exitPoint: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 680 }, // Example exit point
     },
   ];
 
@@ -172,24 +185,27 @@ const TheGame = () => {
     setCurrentEvent(nearbyLocation || null);
   }, [playerPos]);
 
-  const handleNavigate = useCallback((e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    if (currentEvent) {
-      // Trigger the location's onEnter effect
-      currentEvent.onEnter();
-      
-      // Navigate to the location
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: currentEvent.exitPoint,
-          returnPoint: playerPos,
-        },
-        replace: true
-      });
-    }
-  }, [currentEvent, navigate, playerPos]);
+  const handleNavigate = useCallback(
+    (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (currentEvent) {
+        // Trigger the location's onEnter effect
+        currentEvent.onEnter();
+
+        // Navigate to the location
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: currentEvent.exitPoint,
+            returnPoint: playerPos,
+          },
+          replace: true,
+        });
+      }
+    },
+    [currentEvent, navigate, playerPos]
+  );
 
   // Handle keyboard events
   useEffect(() => {
@@ -260,217 +276,232 @@ const TheGame = () => {
 
   return (
     <PreventArrowScroll>
-      <div className="mainGameContainer">
-        <div className="titleContainer">
-          <Link to="/">
-            <button className="quitButton">
-              <div className="circle">X</div>
-            </button>
-          </Link>
-          <h1>SPACE</h1>
-        </div>
-
-        <div className="gameContainer">
-          {/* Status bars */}
-          <div className="timeMoney">
-            <div className="timeContainer">
-              <span className="timeText">Time: {time}</span>
-            </div>
-            <div className="moneyContainer">
-              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
-            </div>
+      {isGameOver ? (
+        <GameOverScreen
+          hunger={hunger}
+          sleep={sleep}
+          hygiene={hygiene}
+          happiness={happiness}
+          resetGame={() => {
+            const defaultPos = resetGame();
+            setPlayerPos(defaultPos);
+          }}
+        />
+      ) : (
+        <div className="mainGameContainer">
+          <div className="titleContainer">
+            <Link to="/">
+              <button className="quitButton">
+                <div className="circle">X</div>
+              </button>
+            </Link>
+            <h1>SPACE</h1>
           </div>
 
-          <div className="barContainer">
-            <div className="divider">
-              <div className="Bar flex items-center w-full">
-                <img
-                  src="symbol/mealSymbol.png"
-                  className="w-6 h-6"
-                  alt="Meal"
-                />
-                <div className="progressContain h-4">
-                  <div
-                    key={`hunger-${hunger}`}
-                    className="progressBar h-4"
-                    style={{ width: `${hunger}%` }}
-                    data-status="meal"
-                  ></div>
+          <div className="gameContainer">
+            {/* Status bars */}
+            <div className="timeMoney">
+              <div className="timeContainer">
+                <span className="timeText">Time: {time}</span>
+              </div>
+              <div className="moneyContainer">
+                <span className="moneyText">
+                  Money: {new Intl.NumberFormat("id-ID").format(money)}
+                </span>
+              </div>
+            </div>
+
+            <div className="barContainer">
+              <div className="divider">
+                <div className="Bar flex items-center w-full">
+                  <img
+                    src="symbol/mealSymbol.png"
+                    className="w-6 h-6"
+                    alt="Meal"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      key={`hunger-${hunger}`}
+                      className="progressBar h-4"
+                      style={{ width: `${hunger}%` }}
+                      data-status="meal"
+                    ></div>
+                  </div>
+                </div>
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/sleepSymbol.png"
+                    className="w-6 h-6"
+                    alt="Sleep"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      className="progressBar h-4"
+                      style={{ width: `${sleep}%` }}
+                      data-status="sleep"
+                    ></div>
+                  </div>
                 </div>
               </div>
-              <div className="Bar flex items-center gap-2 w-full">
-                <img
-                  src="symbol/sleepSymbol.png"
-                  className="w-6 h-6"
-                  alt="Sleep"
-                />
-                <div className="progressContain h-4">
-                  <div
-                    className="progressBar h-4"
-                    style={{ width: `${sleep}%` }}
-                    data-status="sleep"
-                  ></div>
+
+              <div className="divider">
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/cleanSymbol.png"
+                    className="w-6 h-6"
+                    alt="Clean"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      className="progressBar h-4"
+                      style={{ width: `${hygiene}%` }}
+                      data-status="hygiene"
+                    ></div>
+                  </div>
+                </div>
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/happySymbol.png"
+                    className="w-6 h-6"
+                    alt="Happy"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      className="progressBar h-4"
+                      style={{ width: `${happiness}%` }}
+                      data-status="happy"
+                    ></div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="divider">
-              <div className="Bar flex items-center gap-2 w-full">
-                <img
-                  src="symbol/cleanSymbol.png"
-                  className="w-6 h-6"
-                  alt="Clean"
-                />
-                <div className="progressContain h-4">
-                  <div
-                    className="progressBar h-4"
-                    style={{ width: `${hygiene}%` }}
-                    data-status="hygiene"
-                  ></div>
-                </div>
-              </div>
-              <div className="Bar flex items-center gap-2 w-full">
-                <img
-                  src="symbol/happySymbol.png"
-                  className="w-6 h-6"
-                  alt="Happy"
-                />
-                <div className="progressContain h-4">
-                  <div
-                    className="progressBar h-4"
-                    style={{ width: `${happiness}%` }}
-                    data-status="happy"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main game view */}
-          <div className="mapStatusContainer">
-            <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-              {/* Player character */}
-              <div
-                className="absolute z-10"
-                style={{
-                  transform: `translate(${playerPos.x + cameraPos.x}px, ${
-                    playerPos.y + cameraPos.y
-                  }px) rotate(${rotation}deg)`,
-                  transition: "transform 0.1s linear",
-                }}
-              >
-                <img
-                  src="rocket.png"
-                  alt="Player"
-                  style={{
-                    width: "50px",
-                    height: "auto",
-                  }}
-                />
-              </div>
-
-              {/* Game map */}
-              <div className="w-full h-full overflow-hidden relative">
+            {/* Main game view */}
+            <div className="mapStatusContainer">
+              <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
+                {/* Player character */}
                 <div
-                  className="absolute top-0 left-0"
+                  className="absolute z-10"
                   style={{
-                    width: `${mapWidth}px`,
-                    height: `${mapHeight}px`,
-                    transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
+                    transform: `translate(${playerPos.x + cameraPos.x}px, ${
+                      playerPos.y + cameraPos.y
+                    }px) rotate(${rotation}deg)`,
+                    transition: "transform 0.1s linear",
+                  }}
+                >
+                  <img
+                    src="rocket.png"
+                    alt="Player"
+                    style={{
+                      width: "50px",
+                      height: "auto",
+                    }}
+                  />
+                </div>
+
+                {/* Game map */}
+                <div className="w-full h-full overflow-hidden relative">
+                  <div
+                    className="absolute top-0 left-0"
+                    style={{
+                      width: `${mapWidth}px`,
+                      height: `${mapHeight}px`,
+                      transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
+                    }}
+                  >
+                    <img
+                      src="theMainSpace.png"
+                      alt="Game Map"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Direction controls */}
+                <DirectionalControls
+                  keys={keys}
+                  setKeys={setKeys}
+                  isFlipped={false}
+                  setIsFlipped={() => {}}
+                />
+
+                {/* Mini map */}
+                <div
+                  className="miniMapContainer"
+                  style={{
+                    width: "150px",
+                    height: "80px",
+                    position: "absolute",
+                    top: "20px",
+                    right: "20px",
+                    border: "2px solid white",
+                    borderRadius: "5px",
+                    overflow: "hidden",
                   }}
                 >
                   <img
                     src="theMainSpace.png"
-                    alt="Game Map"
+                    className="miniMapImage"
+                    alt="Mini Map"
                     style={{
                       width: "100%",
                       height: "100%",
-                      display: "block",
+                      objectFit: "cover",
+                      opacity: "0.8",
                     }}
                   />
+                  <div
+                    className="miniMapMarker"
+                    style={{
+                      position: "absolute",
+                      width: "6px",
+                      height: "6px",
+                      backgroundColor: "red",
+                      borderRadius: "50%",
+                      left: `${(playerPos.x / mapWidth) * 100}%`,
+                      top: `${(playerPos.y / mapHeight) * 85}%`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  ></div>
                 </div>
-              </div>
 
-              {/* Direction controls */}
-              <DirectionalControls
-                keys={keys}
-                setKeys={setKeys}
-                isFlipped={false}
-                setIsFlipped={() => {}}
-              />
-
-              {/* Mini map */}
-              <div
-                className="miniMapContainer"
-                style={{
-                  width: "150px",
-                  height: "80px",
-                  position: "absolute",
-                  top: "20px",
-                  right: "20px",
-                  border: "2px solid white",
-                  borderRadius: "5px",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src="theMainSpace.png"
-                  className="miniMapImage"
-                  alt="Mini Map"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    opacity: "0.8",
-                  }}
-                />
-                <div
-                  className="miniMapMarker"
-                  style={{
-                    position: "absolute",
-                    width: "6px",
-                    height: "6px",
-                    backgroundColor: "red",
-                    borderRadius: "50%",
-                    left: `${(playerPos.x / mapWidth) * 100}%`,
-                    top: `${(playerPos.y / mapHeight) * 85}%`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                ></div>
-              </div>
-
-              {/* Inventory button */}
-              <div className="inventory-container">
-                <button
-                  className="inventory-button"
-                  onClick={() => setIsInventoryOpen(true)}
-                  aria-label="Open inventory"
-                >
-                  Inventory
-                </button>
-
-                <InventoryPopup
-                  isOpened={isInventoryOpen}
-                  onClose={() => setIsInventoryOpen(false)}
-                />
-              </div>
-
-              {/* Location event */}
-              {currentEvent && (
-                <div className="eventcontainer flex justify-center items-center">
-                  <button 
-                    onClick={handleNavigate}
-                    onMouseDown={(e) => e.preventDefault()}
-                    className="location-button"
+                {/* Inventory button */}
+                <div className="inventory-container">
+                  <button
+                    className="inventory-button"
+                    onClick={() => setIsInventoryOpen(true)}
+                    aria-label="Open inventory"
                   >
-                    {currentEvent.name}
+                    Inventory
                   </button>
+
+                  <InventoryPopup
+                    isOpened={isInventoryOpen}
+                    onClose={() => setIsInventoryOpen(false)}
+                  />
                 </div>
-              )}
+
+                {/* Location event */}
+                {currentEvent && (
+                  <div className="eventcontainer flex justify-center items-center">
+                    <button
+                      onClick={handleNavigate}
+                      onMouseDown={(e) => e.preventDefault()}
+                      className="location-button"
+                    >
+                      {currentEvent.name}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </PreventArrowScroll>
   );
 };

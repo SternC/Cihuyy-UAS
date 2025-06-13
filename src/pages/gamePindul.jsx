@@ -3,24 +3,36 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from '../components/timeMoneyContext.jsx';
+import { useMoneyTime } from "../components/timeMoneyContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
+import GameOverScreen from "../components/gameOverScreen.jsx";
 
 const Cave = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
-  const { time, money, hunger, sleep, hygiene, happiness } = useMoneyTime();
+
+  const {
+    time,
+    money,
+    hunger,
+    sleep,
+    hygiene,
+    happiness,
+    updateStatus,
+    isGameOver,
+    resetGame,
+  } = useMoneyTime();
 
   const mapWidth = 1600;
   const mapHeight = 1120;
   const viewWidth = 900;
   const viewHeight = 530;
 
-  const spawnPoint = { x: mapWidth/2 - 530, y: mapHeight/2 + 375}; // Spawn point saat masuk ke Pindul
+  const spawnPoint = { x: mapWidth / 2 - 530, y: mapHeight / 2 + 375 }; // Spawn point saat masuk ke Pindul
 
   // Exit point saat keluar dari Pindul (harus sama dengan posisi Pindul di game world)
   const exitPoint = { x: 3840 / 2 + 1365, y: 2160 / 2 - 110 }; // Koordinat Pindul di game world
@@ -50,14 +62,20 @@ const Cave = () => {
     bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
   };
 
-  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
-  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
+  const cameraX = Math.max(
+    viewWidth / 2,
+    Math.min(playerPos.x, mapWidth - viewWidth / 2)
+  );
+  const cameraY = Math.max(
+    viewHeight / 2,
+    Math.min(playerPos.y, mapHeight - viewHeight / 2)
+  );
 
   const cameraPos = {
     x: -(cameraX - viewWidth / 2),
     y: -(cameraY - viewHeight / 2),
   };
-  
+
   const locations = [
     {
       id: "game",
@@ -69,32 +87,32 @@ const Cave = () => {
     {
       id: "photo",
       name: "Take A Photo",
-      position: { x: mapWidth / 2 + 350 , y: mapHeight / 2 +120},
+      position: { x: mapWidth / 2 + 350, y: mapHeight / 2 + 120 },
       radius: 50,
     },
     {
       id: "mining",
       name: "G3t $0me G0Ld",
-      position: { x: mapWidth/2 -340 , y: mapHeight/2 + 190},
+      position: { x: mapWidth / 2 - 340, y: mapHeight / 2 + 190 },
       radius: 30,
     },
     {
       id: "tubing",
       name: "Cave Tubing",
-      position: { x: mapWidth / 2+ 550, y: mapHeight / 2+ 600 },
+      position: { x: mapWidth / 2 + 550, y: mapHeight / 2 + 600 },
       radius: 300,
     },
   ];
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'i' || e.key === 'I') {
-        setIsInventoryOpen(prev => !prev);
+      if (e.key === "i" || e.key === "I") {
+        setIsInventoryOpen((prev) => !prev);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -119,10 +137,10 @@ const Cave = () => {
   const handleNavigate = () => {
     if (currentEvent) {
       navigate(currentEvent.path, {
-        state: { 
+        state: {
           spawnPoint: exitPoint, // Titik spawn di scene tujuan
-          returnPoint: playerPos // Titik kembali di scene ini
-        }
+          returnPoint: playerPos, // Titik kembali di scene ini
+        },
       });
     }
   };
@@ -142,6 +160,18 @@ const Cave = () => {
 
   return (
     <PreventArrowScroll>
+            {isGameOver ? (
+        <GameOverScreen
+          hunger={hunger}
+          sleep={sleep}
+          hygiene={hygiene}
+          happiness={happiness}
+          resetGame={() => {
+            const defaultPos = resetGame();
+            setPlayerPos(defaultPos);
+          }}
+        />
+      ) : (
       <div className="mainGameContainer">
         <div className="titleContainer">
           <Link to="/game" state={{ spawnPoint: exitPoint }}>
@@ -157,7 +187,9 @@ const Cave = () => {
               <span className="timeText">Time: {time}</span>
             </div>
             <div className="moneyContainer">
-              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
             </div>
           </div>
           <div className="barContainer">
@@ -318,29 +350,28 @@ const Cave = () => {
               </div>
 
               <div className="inventory-container">
-                <button 
+                <button
                   className="inventory-button"
                   onClick={() => setIsInventoryOpen(true)}
                 >
                   Inventory
                 </button>
-                <InventoryPopup 
+                <InventoryPopup
                   isOpened={isInventoryOpen}
                   onClose={() => setIsInventoryOpen(false)}
                 />
               </div>
-              
+
               {currentEvent ? (
                 <div className="eventcontainer flex justify-center items-center">
                   <button onClick={handleNavigate}>{currentEvent.name}</button>
                 </div>
-              ) : (
-                null
-              )}
+              ) : null}
             </div>
           </div>
         </div>
       </div>
+      )}
     </PreventArrowScroll>
   );
 };

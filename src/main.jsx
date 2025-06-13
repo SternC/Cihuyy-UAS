@@ -12,6 +12,7 @@ import Temple from './pages/gameBorobudur.jsx';
 import Beach from './pages/gameKuta.jsx';
 import Cave from './pages/gamePindul.jsx';
 import Village from './pages/gamePenglipuran.jsx';
+import GameOverScreen from './components/gameOverScreen.jsx';
 import { CharacterProvider } from './components/characterContext.jsx'
 import { TimeMoneyProvider } from './components/timeMoneyContext.jsx';
 
@@ -32,6 +33,7 @@ function Root() {
             <Route path="/beach" element={<Beach key="beach" />} />
             <Route path="/cave" element={<Cave key="cave" />} />
             <Route path="/village" element={<Village key="village" />} />
+            <Route path="/game-over" element={<GameOverScreen key="game-over" />} />
           </Routes>
         </CharacterProvider>
       </Router>
