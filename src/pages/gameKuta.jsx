@@ -13,10 +13,10 @@ const Beach = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const { character } = useCharacter();
   const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
   const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
   const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
-  const { character } = useCharacter();
 
   const {
     time,
@@ -25,8 +25,8 @@ const Beach = () => {
     sleep,
     hygiene,
     happiness,
-    updateStatus, // This is already here, good!
-    updateMoney, // <--- ADDED: To update money
+    updateStatus,
+    updateMoney, // ADDED: To update money
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -90,9 +90,9 @@ const Beach = () => {
       position: { x: mapWidth / 2 - 110, y: mapHeight / 2 + 130 },
       radius: 70,
       effect: () => {
-        updateStatus("sleep", 15); // Increase sleep
-        updateStatus("happiness", 10); // Increase happiness
-        updateStatus("hygiene", -5); // Decrease hygiene slightly
+        updateStatus("happiness", 20);
+        updateStatus("sleep", 10);
+        updateStatus("hygiene", -5); // Get a bit dirty
       },
       interactionTime: 4000, // 4 seconds
     },
@@ -102,9 +102,9 @@ const Beach = () => {
       position: { x: mapWidth / 2 + 275, y: mapHeight / 2 + 150 },
       radius: 75,
       effect: () => {
-        updateStatus("hunger", -10); // Decrease hunger
-        updateStatus("happiness", 20); // Increase happiness
-        updateStatus("hygiene", -10); // Decrease hygiene
+        updateStatus("happiness", 25);
+        updateStatus("hunger", -10); // Exertion
+        updateStatus("hygiene", -10); // Get dirty
       },
       interactionTime: 5000, // 5 seconds
     },
@@ -112,13 +112,14 @@ const Beach = () => {
       id: "swim",
       name: "Go Swim",
       position: { x: mapWidth / 2, y: mapHeight / 2 - 700 },
-      radius: 500, // Large radius for swimming area
+      radius: 500,
       effect: () => {
-        updateStatus("hygiene", 20); // Increase hygiene
-        updateStatus("happiness", 15); // Increase happiness
-        updateStatus("hunger", -5); // Decrease hunger slightly
+        updateStatus("hygiene", 30);
+        updateStatus("happiness", 15);
+        updateStatus("hunger", -15); // Exertion
+        updateStatus("sleep", -5); // Can be tiring
       },
-      interactionTime: 3000, // 3 seconds
+      interactionTime: 6000, // 6 seconds
     },
   ];
 
@@ -155,7 +156,7 @@ const Beach = () => {
     checkLocationProximity();
   }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
 
-  // Progress Bar Logic (Copied from gameBorobudur.jsx)
+  // Progress Bar Logic (Copied from gamePenglipuran.jsx)
   useEffect(() => {
     let interval;
     if (isProgressBarActive && activeInteraction) {
@@ -219,7 +220,7 @@ const Beach = () => {
 
   return (
     <PreventArrowScroll>
-    {isGameOver ? (
+      {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -231,26 +232,28 @@ const Beach = () => {
           }}
         />
       ) : (
-      <div className="mainGameContainer">
-        <div className="titleContainer">
-          <Link to="/" state={{ spawnPoint: exitPoint }}>
-            <button className="quitButton">
-              <div className="circle">X</div>
-            </button>
-          </Link>
-          <h1>KUTA BEACH</h1>
-        </div>
+        <div className="mainGameContainer">
+          <div className="titleContainer">
+            <Link to="/game" state={{ spawnPoint: exitPoint }}>
+              <button className="quitButton">
+                <div className="circle">X</div>
+              </button>
+            </Link>
+            <h1>KUTA BEACH</h1>
+          </div>
 
-        <div className="gameContainer">
-          <div className="timeMoney">
-            <div className="timeContainer">
-              <span className="timeText">Time: {time}</span>
+          <div className="gameContainer">
+            <div className="timeMoney">
+              <div className="timeContainer">
+                <span className="timeText">Time: {time}</span>
+              </div>
+              <div className="moneyContainer">
+                <span className="moneyText">
+                  Money: {new Intl.NumberFormat("id-ID").format(money)}
+                </span>
+              </div>
             </div>
-            <div className="moneyContainer">
-              <span className="moneyText">
-                Money: {new Intl.NumberFormat("id-ID").format(money)}
-              </span>
-            </div>
+
             <div className="barContainer">
               <div className="divider">
                 <div className="Bar flex items-center w-full">
@@ -260,10 +263,11 @@ const Beach = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
+                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }}
+                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
                       data-status="meal"
                     ></div>
                   </div>
@@ -275,6 +279,7 @@ const Beach = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
+                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -292,6 +297,7 @@ const Beach = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
+                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -306,6 +312,7 @@ const Beach = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
+                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -415,7 +422,7 @@ const Beach = () => {
                   />
                 </div>
 
-                {/* Progress Bar Overlay (Copied from gameBorobudur.jsx) */}
+                {/* Progress Bar Overlay */}
                 {isProgressBarActive && activeInteraction ? (
                   <div className="progressBarOverlay">
                     <div className="progressBarContainer">
@@ -442,10 +449,9 @@ const Beach = () => {
             </div>
           </div>
         </div>
-      </div>
-    )}
-  </PreventArrowScroll>
-);
-}
+      )}
+    </PreventArrowScroll>
+  );
+};
 
 export default Beach;
