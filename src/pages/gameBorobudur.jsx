@@ -231,7 +231,8 @@ const Temple = () => {
       ) : (
         <div className="mainGameContainer">
           <div className="titleContainer">
-            <Link to="/" state={{ spawnPoint: exitPoint }}>
+
+            <Link to="/game" state={{ spawnPoint: exitPoint }}>
               <button className="quitButton">
                 <div className="circle">X</div>
               </button>
@@ -242,6 +243,45 @@ const Temple = () => {
             <div className="timeMoney">
               <div className="timeContainer">
                 <span className="timeText">Time: {time}</span>
+              </div>
+              <div className="moneyContainer">
+                <span className="moneyText">
+                  Money: {new Intl.NumberFormat("id-ID").format(money)}
+                </span>
+              </div>
+            </div>
+
+            <div className="barContainer">
+              <div className="divider">
+                <div className="Bar flex items-center w-full">
+                  <img
+                    src="symbol/mealSymbol.png"
+                    className="w-6 h-6"
+                    alt="Meal"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      key={`hunger-${hunger}`}
+                      className="progressBar h-4"
+                      style={{ width: `${hunger}%` }}
+                      data-status="meal"
+                    ></div>
+                  </div>
+                </div>
+                <div className="Bar flex items-center gap-2 w-full">
+                  <img
+                    src="symbol/sleepSymbol.png"
+                    className="w-6 h-6"
+                    alt="Sleep"
+                  />
+                  <div className="progressContain h-4">
+                    <div
+                      className="progressBar h-4"
+                      style={{ width: `${sleep}%` }}
+                      data-status="sleep"
+                    ></div>
+                  </div>
+                </div>
               </div>
               <div className="moneyContainer">
                 <span className="moneyText">
@@ -407,29 +447,8 @@ const Temple = () => {
                       onClose={() => setIsInventoryOpen(false)}
                     />
                   </div>
+                ) : null}
 
-                  {isProgressBarActive && activeInteraction ? (
-                    <div className="progressBarOverlay">
-                      <div className="progressBarContainer">
-                        <h3>{activeInteraction.name}...</h3>
-                        <div className="progressBackground">
-                          <div
-                            className="progressFill"
-                            style={{ width: `${progressBarValue}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {currentEvent && !isProgressBarActive ? (
-                    <div className="eventcontainer flex justify-center items-center ">
-                      <button onClick={handleInteraction}>
-                        {currentEvent.name}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
               </div>
             </div>
           </div>
