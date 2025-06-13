@@ -8,6 +8,7 @@ import "./game.css"; // Pastikan game.css berisi styling progress bar
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
+import QuitModule from "../components/quitModule";
 
 const Temple = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Temple = () => {
   const [progressBarValue, setProgressBarValue] = useState(0);
   const [activeInteraction, setActiveInteraction] = useState(null);
   const { character } = useCharacter();
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   const {
     time,
@@ -232,11 +234,12 @@ const handleInteraction = () => {
       ) : (
         <div className="mainGameContainer">
           <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
+            <button
+              className="quitButton"
+              onClick={() => setShowQuitModule(true)}
+            >
+              <div className="circle">X</div>
+            </button>
             <h1>BOROBUDUR TEMPLE</h1>
           </div>
           <div className="gameContainer">
@@ -435,6 +438,15 @@ const handleInteraction = () => {
             </div>
           </div>
         </div>
+      )}
+      {showQuitModule && (
+        <QuitModule
+          onConfirm={() => {
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
+          }}
+          onCancel={() => setShowQuitModule(false)}
+        />
       )}
     </PreventArrowScroll>
   );
