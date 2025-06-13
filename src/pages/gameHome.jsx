@@ -156,7 +156,7 @@ const Home = () => {
     <PreventArrowScroll>
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/game" state={{ spawnPoint: exitPoint }}>
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
             <button className="quitButton">
               <div className="circle">X</div>
             </button>
@@ -243,7 +243,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="mapStatusContainer relative">
+          <div className="mapStatusContainer relative mx-auto">
             <div className="absolute w-[900px] h-[530px] z-5">
               <DirectionalControls
                 keys={keys}
@@ -254,7 +254,7 @@ const Home = () => {
             </div>
             <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               <div
-                className="absolute z-4"
+                className="theChar absolute z-4"
                 style={{
                   left: `${playerPos.x + cameraPos.x}px`,
                   top: `${playerPos.y + cameraPos.y}px`,
@@ -308,11 +308,11 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+              <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
                 <img
                   src="/map/homeMap.png"
                   className="miniMapImage"
-                  style={{ width: "100%", height: "150px" }}
+                  style={{ width: "100%", height: "100%" }}
                 />
                 <div
                   className="miniMapMarker"

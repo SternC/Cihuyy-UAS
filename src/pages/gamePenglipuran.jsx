@@ -148,7 +148,7 @@ const Village = () => {
     <PreventArrowScroll>
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/game" state={{ spawnPoint: exitPoint }}>
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
             <button className="quitButton">
               <div className="circle">X</div>
             </button>

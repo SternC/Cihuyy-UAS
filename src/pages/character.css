@@ -10,10 +10,12 @@ body{
     flex-direction: column;
     align-self: center;
     align-items: center;
+    align-content: center;
     justify-self: center;
     justify-content: center;
     justify-items: center;
     width: 800px;
+    min-height: 100vh
 }
 
 .titleContainer{
@@ -171,7 +173,7 @@ input:focus{
 
 @media (max-width: 900px) {
     .mainContainer {
-        width: 450px;
+        width: 400px;
         padding: 30px;
     }
     .container {
@@ -184,7 +186,7 @@ input:focus{
         display: flex;
         flex-direction: row; 
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 5px;
         justify-content: center;
         width: auto;
         padding: 0px;
@@ -194,9 +196,10 @@ input:focus{
         width: 50px;
         height: 50px;
     }
-  
+    
+    
     .char {
-        width: 350px;
+        width: 300px;
         height: auto;
         padding: 30px;
         gap: 30px;
