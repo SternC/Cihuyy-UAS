@@ -66,6 +66,31 @@ const Beach = () => {
       radius: 50,
       path: "/game",
     },
+    {
+      id: "sunbathe",
+      name: "Sunbathe",
+      position: { x: mapWidth / 2-110 , y: mapHeight / 2 + 130},
+      radius: 70,
+    },
+    {
+      id: "build",
+      name: "Build a Sand Castle",
+      position: { x: mapWidth/2 + 275 , y: mapHeight/2 +150},
+      radius: 75,
+    },
+    {
+      id: "swim",
+      name: "Go Swim",
+      position: { x: mapWidth/2 , y: mapHeight/2 -700},
+      radius: 500,
+    },
+    
+    {
+      id: "watch",
+      name: "Watch TV",
+      position: { x: mapWidth / 2 +430, y: mapHeight / 2 +400},
+      radius: 50,
+    },
   ];
 
   useEffect(() => {
@@ -215,11 +240,19 @@ const Beach = () => {
             </div>
           </div>
 
-          <div className="mapStatusContainer">
+          <div className="mapStatusContainer relative">
+            <div className="absolute w-[900px] h-[530px] z-5">
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+            </div>
             <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
               {/* Character */}
               <div
-                className="absolute z-10"
+                className="absolute z-4"
                 style={{
                   left: `${playerPos.x + cameraPos.x}px`,
                   top: `${playerPos.y + cameraPos.y}px`,
@@ -273,13 +306,6 @@ const Beach = () => {
                   />
                 </div>
               </div>
-
-              <DirectionalControls
-                keys={keys}
-                setKeys={setKeys}
-                isFlipped={isFlipped}
-                setIsFlipped={setIsFlipped}
-              />
 
               {/* Mini map */}
               <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
