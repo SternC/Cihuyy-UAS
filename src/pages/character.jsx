@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCharacter } from '../components/characterContext.jsx';
 import './character.css';
@@ -6,6 +6,7 @@ import './character.css';
 const CustomizationPage = () => {
   const { character, setCharacter } = useCharacter();
   const navigate = useNavigate();
+  const [showAlert, setShowAlert] = useState(false);
 
   const characterSkins = {
     red: 'characters/charGIF6.gif',
@@ -27,8 +28,34 @@ const CustomizationPage = () => {
     setCharacter(prev => ({ ...prev, name: e.target.value }));
   };
 
+  const handleNext = () => {
+    if (!character.name || character.name.trim() === '') {
+      setShowAlert(true);
+      return;
+    }
+    navigate('/home');
+  };
+
+  const closeAlert = () => {
+    setShowAlert(false);
+  };
+
   return (
     <div className='mainContainer'>
+      {/* Alert Modal */}
+      {showAlert && (
+        <div className="alert-modal">
+          <div className="alert-content">
+            <h3>Oops!</h3>
+            <p>Please give your character a name before continuing.</p>
+            <button onClick={closeAlert} className="alert-button">
+              OK
+            </button>
+          </div>
+          <div className="alert-overlay" onClick={closeAlert}></div>
+        </div>
+      )}
+
       <div className="titleContainer">
         <button className="quitButton" onClick={handleQuit}>
           <div className="circle">X</div>
@@ -71,7 +98,7 @@ const CustomizationPage = () => {
         </div>
       </div>
 
-      <button className="nextButton" onClick={() => navigate('/home')}>
+      <button className="nextButton" onClick={handleNext}>
           NEXT
       </button>
     </div>
