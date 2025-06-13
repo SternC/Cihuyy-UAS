@@ -218,7 +218,7 @@ const Home = () => {
 
   return (
     <PreventArrowScroll>
-      {isGameOver ? (
+       {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -230,25 +230,25 @@ const Home = () => {
           }}
         />
       ) : (
-        <div className="mainGameContainer">
-          <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
-            <h1>HOME</h1>
-          </div>
-          <div className="gameContainer">
-            <div className="timeMoney">
-              <div className="timeContainer">
-                <span className="timeText">Time: {time}</span>
-              </div>
-              <div className="moneyContainer">
-                <span className="moneyText">
-                  Money: {new Intl.NumberFormat("id-ID").format(money)}
-                </span>
-              </div>
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>HOME</h1>
+        </div>
+        <div className="gameContainer">
+          <div className="timeMoney">
+            <div className="timeContainer">
+              <span className="timeText">Time: {time}</span>
+            </div>
+            <div className="moneyContainer">
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
+            </div>
             </div>
             <div className="barContainer">
               <div className="divider">
@@ -282,7 +282,6 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-
               <div className="divider">
                 <div className="Bar flex items-center gap-2 w-full">
                   <img
@@ -315,29 +314,29 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="mapStatusContainer relative">
-              <div className="absolute w-[900px] h-[530px] z-5">
-                <DirectionalControls
-                  keys={keys}
-                  setKeys={setKeys}
-                  isFlipped={isFlipped}
-                  setIsFlipped={setIsFlipped}
-                />
-              </div>
-              <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-                <div
-                  className="absolute z-4"
-                  style={{
-                    left: `${playerPos.x + cameraPos.x}px`,
-                    top: `${playerPos.y + cameraPos.y}px`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <div className="flex flex-col items-center relative">
-                    <div className="nameBackground mb-0">
-                      <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
-                        {character.name || "Your Character"}
-                      </h2>
+           <div className="mapStatusContainer relative mx-auto">
+            <div className="absolute w-[900px] h-[530px] z-5">
+              <DirectionalControls
+                keys={keys}
+                setKeys={setKeys}
+                isFlipped={isFlipped}
+                setIsFlipped={setIsFlipped}
+              />
+            </div>
+            <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
+              <div
+                className="theChar absolute z-4"
+                style={{
+                  left: `${playerPos.x + cameraPos.x}px`,
+                  top: `${playerPos.y + cameraPos.y}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <div className="flex flex-col items-center relative">
+                  <div className="nameBackground mb-0">
+                    <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
+                      {character.name || "Your Character"}
+                    </h2>
                     </div>
 
                     <img
@@ -380,22 +379,22 @@ const Home = () => {
                   </div>
                 </div>
 
-                <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-                  <img
-                    src="/map/homeMap.png"
-                    className="miniMapImage"
-                    style={{ width: "100%", height: "150px" }}
-                  />
-                  <div
-                    className="miniMapMarker"
-                    style={{
-                      left: `${(playerPos.x / mapWidth) * 150}px`,
-                      top: `${(playerPos.y / mapHeight) * 150}px`,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  ></div>
-                </div>
 
+              <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                <img
+                  src="/map/homeMap.png"
+                  className="miniMapImage"
+                  style={{ width: "100%", height: "100%" }}
+                />
+                <div
+                  className="miniMapMarker"
+                  style={{
+                    left: `${(playerPos.x / mapWidth) * 150}px`,
+                    top: `${(playerPos.y / mapHeight) * 150}px`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                ></div>
+              </div>
                 <div className="inventory-container">
                   <button
                     className="inventory-button"

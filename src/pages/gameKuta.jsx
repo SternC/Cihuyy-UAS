@@ -219,7 +219,7 @@ const Beach = () => {
 
   return (
     <PreventArrowScroll>
-      {isGameOver ? (
+    {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -231,28 +231,26 @@ const Beach = () => {
           }}
         />
       ) : (
-        <div className="mainGameContainer">
-          <div className="titleContainer">
-            <Link to="/game" state={{ spawnPoint: exitPoint }}>
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
-            <h1>KUTA BEACH</h1>
-          </div>
+      <div className="mainGameContainer">
+        <div className="titleContainer">
+          <Link to="/" state={{ spawnPoint: exitPoint }}>
+            <button className="quitButton">
+              <div className="circle">X</div>
+            </button>
+          </Link>
+          <h1>KUTA BEACH</h1>
+        </div>
 
-          <div className="gameContainer">
-            <div className="timeMoney">
-              <div className="timeContainer">
-                <span className="timeText">Time: {time}</span>
-              </div>
-              <div className="moneyContainer">
-                <span className="moneyText">
-                  Money: {new Intl.NumberFormat("id-ID").format(money)}
-                </span>
-              </div>
+        <div className="gameContainer">
+          <div className="timeMoney">
+            <div className="timeContainer">
+              <span className="timeText">Time: {time}</span>
             </div>
-
+            <div className="moneyContainer">
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
+            </div>
             <div className="barContainer">
               <div className="divider">
                 <div className="Bar flex items-center w-full">
@@ -444,9 +442,10 @@ const Beach = () => {
             </div>
           </div>
         </div>
-      )}
-    </PreventArrowScroll>
-  );
-};
+      </div>
+    )}
+  </PreventArrowScroll>
+);
+}
 
 export default Beach;
