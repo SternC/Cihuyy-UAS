@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
-// Perbaiki jalur impor untuk useMoneyTime jika belum benar
 import { useMoneyTime } from "../components/timeMoneyContext";
 import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
@@ -16,10 +15,6 @@ const SimpleProgressBar = ({ value }) => (
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
-  const animationRef = useRef();
-  // Ambil semua status dari useMoneyTime
-  const { time, money, hunger, sleep, hygiene, happiness, updateStatus } = useMoneyTime();
   
   // Game map dimensions
   const mapWidth = 3840;
@@ -27,12 +22,15 @@ const TheGame = () => {
   const viewWidth = 900;
   const viewHeight = 530;
 
+  // Default position
+  const defaultPosition = { x: mapWidth / 2, y: mapHeight / 2 };
+  
   // Player state - updated initialization
   const [playerPos, setPlayerPos] = useState(() => {
     if (location.state?.spawnPoint) {
       return location.state.spawnPoint;
     }
-    return { x: mapWidth / 2, y: mapHeight / 2 };
+    return defaultPosition;
   });
 
   const [rotation, setRotation] = useState(0);
@@ -48,48 +46,58 @@ const TheGame = () => {
   });
   const [isMoving, setIsMoving] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const animationRef = useRef();
+  
+  // Ambil semua status dari useMoneyTime
+  const { time, money, hunger, sleep, hygiene, happiness, updateStatus } = useMoneyTime();
 
   // Game locations
   const locations = [
     {
       id: "home",
-      name: "Home",
+      name: "Go to Home",
       position: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 },
       radius: 100,
       path: "/home",
-      onEnter: () => updateStatus('sleep', 50) // Contoh: Menambah sleep 50 saat masuk Home
+      onEnter: () => updateStatus('sleep', 50), // Contoh: Menambah sleep 50 saat masuk Home
+      exitPoint: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 525 } // Example exit point
     },
     {
       id: "borobudur",
-      name: "Temple",
+      name: "Go to Borobudur Temple",
       position: { x: 1915, y: 1180 },
       radius: 100,
       path: "/temple",
-      onEnter: () => updateStatus('happiness', 30) // Contoh: Menambah happiness 30
+      onEnter: () => updateStatus('happiness', 30), // Contoh: Menambah happiness 30
+      exitPoint: { x: 1915, y: 1280 } // Example exit point
     },
     {
       id: "village",
-      name: "Penglipuran",
+      name: "Go to Penglipuran Village",
       position: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 715 },
       radius: 100,
       path: "/village",
-      onEnter: () => updateStatus('hygiene', 20) // Contoh: Menambah hygiene 20
+      onEnter: () => updateStatus('hygiene', 20), // Contoh: Menambah hygiene 20
+      exitPoint: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 615 } // Example exit point
     },
     {
       id: "cave",
-      name: "Pindul",
+      name: "Go to Pindul Cave",
       position: { x: mapWidth / 2 + 1370, y: mapHeight / 2 - 90 },
       radius: 100,
       path: "/cave",
-      onEnter: () => updateStatus('happiness', 20)
+      onEnter: () => updateStatus('happiness', 20),
+      exitPoint: { x: mapWidth / 2 + 1370, y: mapHeight / 2 + 10 } // Example exit point
     },
     {
       id: "beach",
-      name: "Kuta",
+      name: "Go to Kuta Beach",
       position: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 780 },
       radius: 100,
       path: "/beach",
-      onEnter: () => updateStatus('happiness', 40)
+      onEnter: () => updateStatus('happiness', 40),
+      exitPoint: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 680 } // Example exit point
     },
   ];
 
@@ -162,7 +170,26 @@ const TheGame = () => {
     });
 
     setCurrentEvent(nearbyLocation || null);
-  }, [playerPos, locations]); // Tambahkan `locations` ke dependensi
+  }, [playerPos]);
+
+  const handleNavigate = useCallback((e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (currentEvent) {
+      // Trigger the location's onEnter effect
+      currentEvent.onEnter();
+      
+      // Navigate to the location
+      navigate(currentEvent.path, {
+        state: {
+          spawnPoint: currentEvent.exitPoint,
+          returnPoint: playerPos,
+        },
+        replace: true
+      });
+    }
+  }, [currentEvent, navigate, playerPos]);
 
   // Handle keyboard events
   useEffect(() => {
@@ -231,18 +258,6 @@ const TheGame = () => {
     checkNearbyLocations();
   }, [playerPos, checkNearbyLocations]);
 
-  const handleNavigate = () => {
-    if (currentEvent) {
-      // Panggil fungsi onEnter jika ada saat navigasi
-      if (currentEvent.onEnter && typeof currentEvent.onEnter === 'function') {
-        currentEvent.onEnter();
-      }
-      navigate(currentEvent.path, {
-        state: { spawnPoint: playerPos } // Simpan posisi saat ini untuk kembali
-      });
-    }
-  };
-
   return (
     <PreventArrowScroll>
       <div className="mainGameContainer">
@@ -275,11 +290,10 @@ const TheGame = () => {
                   alt="Meal"
                 />
                 <div className="progressContain h-4">
-                  {/* Gunakan state `hunger` untuk mengatur lebar */}
                   <div
                     key={`hunger-${hunger}`}
                     className="progressBar h-4"
-                    style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                    style={{ width: `${hunger}%` }}
                     data-status="meal"
                   ></div>
                 </div>
@@ -291,7 +305,6 @@ const TheGame = () => {
                   alt="Sleep"
                 />
                 <div className="progressContain h-4">
-                  {/* Gunakan state `sleep` untuk mengatur lebar */}
                   <div
                     className="progressBar h-4"
                     style={{ width: `${sleep}%` }}
@@ -309,7 +322,6 @@ const TheGame = () => {
                   alt="Clean"
                 />
                 <div className="progressContain h-4">
-                  {/* Gunakan state `hygiene` untuk mengatur lebar */}
                   <div
                     className="progressBar h-4"
                     style={{ width: `${hygiene}%` }}
@@ -324,7 +336,6 @@ const TheGame = () => {
                   alt="Happy"
                 />
                 <div className="progressContain h-4">
-                  {/* Gunakan state `happiness` untuk mengatur lebar */}
                   <div
                     className="progressBar h-4"
                     style={{ width: `${happiness}%` }}
@@ -380,7 +391,7 @@ const TheGame = () => {
                 </div>
               </div>
 
-              {/* Direction controls - now using DirectionalControls component */}
+              {/* Direction controls */}
               <DirectionalControls
                 keys={keys}
                 setKeys={setKeys}
@@ -445,15 +456,17 @@ const TheGame = () => {
               </div>
 
               {/* Location event */}
-              <div className="eventcontainer flex justify-center items-center">
-                {currentEvent ? (
-                  <button onClick={handleNavigate}>
-                    Enter {currentEvent.name}
+              {currentEvent && (
+                <div className="eventcontainer flex justify-center items-center">
+                  <button 
+                    onClick={handleNavigate}
+                    onMouseDown={(e) => e.preventDefault()}
+                    className="location-button"
+                  >
+                    {currentEvent.name}
                   </button>
-                ) : (
-                  <span>No nearby locations</span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

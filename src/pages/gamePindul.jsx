@@ -75,14 +75,14 @@ const Cave = () => {
     {
       id: "mining",
       name: "G3t $0me G0Ld",
-      position: { x: mapWidth/2 + 650, y: mapHeight/2 + 400 },
-      radius: 50,
+      position: { x: mapWidth/2 -340 , y: mapHeight/2 + 190},
+      radius: 30,
     },
     {
-      id: "eat",
-      name: "Eat",
-      position: { x: mapWidth / 2, y: mapHeight / 2 },
-      radius: 50,
+      id: "tubing",
+      name: "Cave Tubing",
+      position: { x: mapWidth / 2+ 550, y: mapHeight / 2+ 600 },
+      radius: 300,
     },
   ];
 
