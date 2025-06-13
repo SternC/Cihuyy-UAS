@@ -356,20 +356,22 @@ const Temple = () => {
                   />
                 </div>
 
-                {currentEvent ? (
-                  <div className="eventcontainer flex justify-center items-center ">
+                {currentEvent && (
+                  <div className="eventcontainer flex justify-center items-center">
                     <button onClick={handleNavigate}>
                       {currentEvent.name}
                     </button>
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
           </div>
         </div>
-      )}
-    </PreventArrowScroll>
-  );
-};
+      </div>
+    )}
+  </PreventArrowScroll>
+);
+}
+
 
 export default Temple;

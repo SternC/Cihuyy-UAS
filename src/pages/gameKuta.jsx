@@ -373,9 +373,10 @@ const Beach = () => {
             </div>
           </div>
         </div>
-      )}
-    </PreventArrowScroll>
-  );
-};
+      </div>
+    )}
+  </PreventArrowScroll>
+);
+}
 
 export default Beach;
