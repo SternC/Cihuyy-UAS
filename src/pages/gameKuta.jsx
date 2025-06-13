@@ -13,6 +13,9 @@ const Beach = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
+  const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
+  const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
   const { character } = useCharacter();
 
   const {
@@ -22,7 +25,8 @@ const Beach = () => {
     sleep,
     hygiene,
     happiness,
-    updateStatus,
+    updateStatus, // This is already here, good!
+    updateMoney, // <--- ADDED: To update money
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -54,6 +58,7 @@ const Beach = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos, // Added to reset player position after game over
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraX = Math.max(
@@ -77,31 +82,43 @@ const Beach = () => {
       position: spawnPoint, // Exit position
       radius: 50,
       path: "/game",
+      interactionTime: 0, // No interaction time for navigation
     },
     {
       id: "sunbathe",
       name: "Sunbathe",
       position: { x: mapWidth / 2 - 110, y: mapHeight / 2 + 130 },
       radius: 70,
+      effect: () => {
+        updateStatus("sleep", 15); // Increase sleep
+        updateStatus("happiness", 10); // Increase happiness
+        updateStatus("hygiene", -5); // Decrease hygiene slightly
+      },
+      interactionTime: 4000, // 4 seconds
     },
     {
       id: "build",
       name: "Build a Sand Castle",
       position: { x: mapWidth / 2 + 275, y: mapHeight / 2 + 150 },
       radius: 75,
+      effect: () => {
+        updateStatus("hunger", -10); // Decrease hunger
+        updateStatus("happiness", 20); // Increase happiness
+        updateStatus("hygiene", -10); // Decrease hygiene
+      },
+      interactionTime: 5000, // 5 seconds
     },
     {
       id: "swim",
       name: "Go Swim",
       position: { x: mapWidth / 2, y: mapHeight / 2 - 700 },
-      radius: 500,
-    },
-
-    {
-      id: "watch",
-      name: "Watch TV",
-      position: { x: mapWidth / 2 + 430, y: mapHeight / 2 + 400 },
-      radius: 50,
+      radius: 500, // Large radius for swimming area
+      effect: () => {
+        updateStatus("hygiene", 20); // Increase hygiene
+        updateStatus("happiness", 15); // Increase happiness
+        updateStatus("hunger", -5); // Decrease hunger slightly
+      },
+      interactionTime: 3000, // 3 seconds
     },
   ];
 
@@ -118,31 +135,72 @@ const Beach = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      // Only check proximity if no progress bar is active
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
 
-  const handleNavigate = () => {
+  // Progress Bar Logic (Copied from gameBorobudur.jsx)
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      // Calculate step based on interactionTime to ensure it reaches 100%
+      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect(); // Apply the effect when progress is 100%
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100); // Update every 100ms
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Spawn point in target scene
-          returnPoint: playerPos, // Return point in this scene
-        },
-      });
+      if (currentEvent.path) {
+        // If it's a navigation event
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        // If it's an interaction with a progress bar
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        // If it's an instant interaction
+        currentEvent.effect();
+      }
     }
   };
 
@@ -204,11 +262,10 @@ const Beach = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                      style={{ width: `${hunger}%` }}
                       data-status="meal"
                     ></div>
                   </div>
@@ -220,7 +277,6 @@ const Beach = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -238,7 +294,6 @@ const Beach = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -253,7 +308,6 @@ const Beach = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -363,14 +417,29 @@ const Beach = () => {
                   />
                 </div>
 
-                {/* Location event */}
-                {currentEvent && (
+                {/* Progress Bar Overlay (Copied from gameBorobudur.jsx) */}
+                {isProgressBarActive && activeInteraction ? (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Location event (Modified to consider progress bar) */}
+                {currentEvent && !isProgressBarActive ? (
                   <div className="eventcontainer flex justify-center items-center">
-                    <button onClick={handleNavigate}>
+                    <button onClick={handleInteraction}>
                       {currentEvent.name}
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>

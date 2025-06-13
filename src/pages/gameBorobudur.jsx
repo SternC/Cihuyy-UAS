@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from "../components/timeMoneyContext.jsx";
-import "./game.css";
+import { useMoneyTime } from "../components/timeMoneyContext.jsx"; // Pastikan ini diimpor
+import "./game.css"; // Pastikan game.css berisi styling progress bar
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
@@ -13,16 +13,20 @@ const Temple = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false);
+  const [progressBarValue, setProgressBarValue] = useState(0);
+  const [activeInteraction, setActiveInteraction] = useState(null);
   const { character } = useCharacter();
 
   const {
     time,
-    money,
+    money, // Pastikan 'money' di-destrukturisasi di sini
     hunger,
     sleep,
     hygiene,
     happiness,
     updateStatus,
+    updateMoney, // <--- TAMBAHKAN INI
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -32,10 +36,9 @@ const Temple = () => {
   const viewWidth = 900;
   const viewHeight = 530;
 
-  const spawnPoint = { x: mapWidth / 2 + 465, y: mapHeight / 2 + 450 }; // Spawn point saat masuk ke Borobudur
+  const spawnPoint = { x: mapWidth / 2 + 465, y: mapHeight / 2 + 450 };
 
-  // Exit point saat keluar dari Borobudur (harus sama dengan posisi Borobudur di game world)
-  const exitPoint = { x: 1835, y: 1150 }; // Koordinat Borobudur di game world
+  const exitPoint = { x: 1835, y: 1150 };
 
   const manualBoundaries = {
     left: 160,
@@ -53,6 +56,7 @@ const Temple = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos,
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
@@ -80,27 +84,44 @@ const Temple = () => {
     {
       id: "game",
       name: "Go Outside",
-      position: spawnPoint, // Gunakan spawnPoint sebagai titik exit
+      position: spawnPoint,
       radius: 50,
       path: "/game",
+      interactionTime: 0,
     },
     {
       id: "meditate",
       name: "Meditate",
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 10 },
       radius: 30,
+      effect: () => {
+        updateStatus("sleep", -5); // Mengurangi sleep (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("hunger", -10); // Mengurangi hunger (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("happiness", 20);
+      },
+      interactionTime: 3000,
     },
     {
       id: "enjoy",
       name: "Enjoy View from Above",
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 - 200 },
       radius: 30,
+      effect: () => {
+        updateStatus("hygiene", -5); // Mengurangi hygiene (ini mungkin efek negatif yang tidak diinginkan?)
+        updateStatus("happiness", 25);
+      },
+      interactionTime: 4000,
     },
     {
       id: "give",
       name: "Give Offerings",
       position: { x: mapWidth / 2 + 30, y: mapHeight / 2 + 300 },
       radius: 30,
+      effect: () => {
+        updateMoney(-5000); // <--- GUNAKAN updateMoney DI SINI
+        updateStatus("happiness", 30);
+      },
+      interactionTime: 2000,
     },
   ];
 
@@ -117,31 +138,66 @@ const Temple = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]);
 
-  const handleNavigate = () => {
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect();
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100);
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Titik spawn di scene tujuan
-          returnPoint: playerPos, // Titik kembali di scene ini
-        },
-      });
+      if (currentEvent.path) {
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        currentEvent.effect();
+      }
     }
   };
 
@@ -202,11 +258,10 @@ const Temple = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                      style={{ width: `${hunger}%` }}
                       data-status="meal"
                     ></div>
                   </div>
@@ -218,7 +273,6 @@ const Temple = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -236,7 +290,6 @@ const Temple = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -251,7 +304,6 @@ const Temple = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -356,9 +408,23 @@ const Temple = () => {
                   />
                 </div>
 
-                {currentEvent ? (
+                {isProgressBarActive && activeInteraction ? (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {currentEvent && !isProgressBarActive ? (
                   <div className="eventcontainer flex justify-center items-center ">
-                    <button onClick={handleNavigate}>
+                    <button onClick={handleInteraction}>
                       {currentEvent.name}
                     </button>
                   </div>

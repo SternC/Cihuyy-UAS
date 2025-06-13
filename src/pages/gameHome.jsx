@@ -13,6 +13,9 @@ const Home = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // State untuk mengontrol aktifnya progress bar
+  const [progressBarValue, setProgressBarValue] = useState(0); // Nilai progress bar
+  const [activeInteraction, setActiveInteraction] = useState(null); // Event yang sedang diinteraksi
   const { character } = useCharacter();
 
   const {
@@ -34,7 +37,6 @@ const Home = () => {
 
   const spawnPoint = { x: mapWidth / 2 - 170, y: mapHeight / 2 + 610 };
 
-  // Exit point saat keluar dari Home (harus sama dengan posisi Home di game world)
   const exitPoint = { x: 3840 / 2 - 1510, y: 2160 / 2 + 575 };
 
   const manualBoundaries = {
@@ -53,6 +55,7 @@ const Home = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos,
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
@@ -83,30 +86,39 @@ const Home = () => {
       position: spawnPoint,
       radius: 50,
       path: "/game",
+      interactionTime: 0, // Tidak ada progress bar untuk navigasi
     },
     {
       id: "bath",
       name: "Take A Bath",
       position: { x: mapWidth / 2 + 600, y: mapHeight / 2 - 400 },
       radius: 100,
+      effect: () => updateStatus("hygiene", 20),
+      interactionTime: 3000, // Waktu dalam milidetik untuk progress bar
     },
     {
       id: "sleep",
       name: "Sleep",
       position: { x: mapWidth / 2 - 500, y: mapHeight / 2 - 400 },
       radius: 300,
+      effect: () => updateStatus("sleep", 30),
+      interactionTime: 5000,
     },
     {
       id: "eat",
       name: "Eat",
       position: { x: mapWidth / 2 - 500, y: mapHeight / 2 + 450 },
       radius: 200,
+      effect: () => updateStatus("hunger", 25),
+      interactionTime: 2000,
     },
     {
       id: "watch",
       name: "Watch TV",
       position: { x: mapWidth / 2 + 430, y: mapHeight / 2 + 400 },
       radius: 175,
+      effect: () => updateStatus("happiness", 15),
+      interactionTime: 4000,
     },
   ];
 
@@ -123,31 +135,71 @@ const Home = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      // Hanya update currentEvent jika tidak ada progress bar aktif
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]); // Tambahkan isProgressBarActive sebagai dependency
 
-  const handleNavigate = () => {
+  // Effect untuk mengelola progress bar
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0); // Reset progress bar
+      let currentProgress = 0;
+      const step = 100 / (activeInteraction.interactionTime / 100); // Hitung berapa persen per 100ms
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect(); // Terapkan efek setelah penuh
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100); // Update setiap 100ms
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Titik spawn di scene tujuan
-          returnPoint: playerPos, // Titik kembali di scene ini
-        },
-      });
+      if (currentEvent.path) {
+        // Navigasi ke halaman lain
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        // Mulai progress bar untuk interaksi
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        // Interaksi instan jika tidak ada interactionTime
+        currentEvent.effect();
+      }
     }
   };
 
@@ -207,11 +259,10 @@ const Home = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                      style={{ width: `${hunger}%` }}
                       data-status="meal"
                     ></div>
                   </div>
@@ -223,7 +274,6 @@ const Home = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -241,7 +291,6 @@ const Home = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -256,7 +305,6 @@ const Home = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -361,9 +409,24 @@ const Home = () => {
                   />
                 </div>
 
-                {currentEvent ? (
+                {/* Progress bar container */}
+                {isProgressBarActive && activeInteraction && (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentEvent && !isProgressBarActive ? ( // Hanya tampilkan tombol jika tidak ada progress bar aktif
                   <div className="eventcontainer flex justify-center items-center">
-                    <button onClick={handleNavigate}>
+                    <button onClick={handleInteraction}>
                       {currentEvent.name}
                     </button>
                   </div>

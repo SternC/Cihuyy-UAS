@@ -13,6 +13,9 @@ const Cave = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
+  const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
+  const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
   const { character } = useCharacter();
 
   const {
@@ -23,6 +26,7 @@ const Cave = () => {
     hygiene,
     happiness,
     updateStatus,
+    updateMoney, // <--- ADDED: To update money
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -53,6 +57,7 @@ const Cave = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos, // Added to reset player position after game over
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
@@ -83,24 +88,42 @@ const Cave = () => {
       position: spawnPoint, // Gunakan spawnPoint sebagai titik exit
       radius: 50,
       path: "/game",
+      interactionTime: 0, // No interaction time for navigation
     },
     {
       id: "photo",
       name: "Take A Photo",
       position: { x: mapWidth / 2 + 350, y: mapHeight / 2 + 120 },
       radius: 50,
+      effect: () => {
+        updateStatus("happiness", 15); // Increase happiness
+        updateStatus("hygiene", -5); // Decrease hygiene slightly (maybe a bit sweaty)
+      },
+      interactionTime: 2500, // 2.5 seconds
     },
     {
       id: "mining",
       name: "G3t $0me G0Ld",
       position: { x: mapWidth / 2 - 340, y: mapHeight / 2 + 190 },
       radius: 30,
+      effect: () => {
+        updateMoney(50000); // Earn money
+        updateStatus("hunger", -15); // Decrease hunger (hard work)
+        updateStatus("hygiene", -10); // Decrease hygiene (getting dirty)
+      },
+      interactionTime: 7000, // 7 seconds (mining takes time)
     },
     {
       id: "tubing",
       name: "Cave Tubing",
       position: { x: mapWidth / 2 + 550, y: mapHeight / 2 + 600 },
       radius: 300,
+      effect: () => {
+        updateStatus("happiness", 30); // Great happiness from tubing
+        updateStatus("hygiene", 10); // Get a bit cleaner from the water
+        updateStatus("sleep", -5); // A bit tiring
+      },
+      interactionTime: 6000, // 6 seconds
     },
   ];
 
@@ -117,31 +140,72 @@ const Cave = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      // Only check proximity if no progress bar is active
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
 
-  const handleNavigate = () => {
+  // Progress Bar Logic (Copied from gameBorobudur.jsx and gamePenglipuran.jsx)
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      // Calculate step based on interactionTime to ensure it reaches 100%
+      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect(); // Apply the effect when progress is 100%
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100); // Update every 100ms
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Titik spawn di scene tujuan
-          returnPoint: playerPos, // Titik kembali di scene ini
-        },
-      });
+      if (currentEvent.path) {
+        // If it's a navigation event
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        // If it's an interaction with a progress bar
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        // If it's an instant interaction
+        currentEvent.effect();
+      }
     }
   };
 
@@ -362,9 +426,27 @@ const Cave = () => {
                 />
               </div>
 
-              {currentEvent ? (
+              {/* Progress Bar Overlay */}
+              {isProgressBarActive && activeInteraction ? (
+                <div className="progressBarOverlay">
+                  <div className="progressBarContainer">
+                    <h3>{activeInteraction.name}...</h3>
+                    <div className="progressBackground">
+                      <div
+                        className="progressFill"
+                        style={{ width: `${progressBarValue}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Location event (Modified to consider progress bar) */}
+              {currentEvent && !isProgressBarActive ? (
                 <div className="eventcontainer flex justify-center items-center">
-                  <button onClick={handleNavigate}>{currentEvent.name}</button>
+                  <button onClick={handleInteraction}>
+                    {currentEvent.name}
+                  </button>
                 </div>
               ) : null}
             </div>
