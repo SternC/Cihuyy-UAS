@@ -6,6 +6,7 @@ import { useMoneyTime } from "../components/timeMoneyContext";
 import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
 import GameOverScreen from "../components/gameOverScreen";
+import QuitModule from "../components/quitModule";
 
 const SimpleProgressBar = ({ value }) => (
   <div style={{ width: "100%", height: "20px", backgroundColor: "#ddd" }}>
@@ -18,6 +19,7 @@ const SimpleProgressBar = ({ value }) => (
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   // Game map dimensions
   const mapWidth = 3840;
@@ -290,11 +292,12 @@ const TheGame = () => {
       ) : (
         <div className="mainGameContainer">
           <div className="titleContainer">
-            <Link to="/">
-              <button className="quitButton">
-                <div className="circle">X</div>
-              </button>
-            </Link>
+            <button
+              className="quitButton"
+              onClick={() => setShowQuitModule(true)}
+            >
+              <div className="circle">X</div>
+            </button>
             <h1>SPACE</h1>
           </div>
 
@@ -501,6 +504,15 @@ const TheGame = () => {
             </div>
           </div>
         </div>
+      )}
+      {showQuitModule && (
+        <QuitModule
+          onConfirm={() => {
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
+          }}
+          onCancel={() => setShowQuitModule(false)}
+        />
       )}
     </PreventArrowScroll>
   );
