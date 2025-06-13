@@ -8,12 +8,17 @@ import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
+import QuitModule from "../components/quitModule";
 
 const Village = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
+  const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
+  const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
   const { character } = useCharacter();
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   const {
     time,
@@ -23,6 +28,7 @@ const Village = () => {
     hygiene,
     happiness,
     updateStatus,
+    updateMoney, // <--- ADDED: To update money
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -51,6 +57,7 @@ const Village = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos, // Added to reset player position after game over
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
@@ -81,24 +88,43 @@ const Village = () => {
       position: spawnPoint, // Use spawnPoint as exit point
       radius: 20,
       path: "/game",
+      interactionTime: 0, // No interaction time for navigation
     },
     {
       id: "shopping",
       name: "Buy something",
       position: { x: mapWidth / 2 + 250, y: mapHeight / 2 + 150 },
       radius: 50,
+      effect: () => {
+        updateMoney(-15000); // Spend money for shopping
+        updateStatus("happiness", 15); // Increase happiness
+      },
+      interactionTime: 3000, // 3 seconds
     },
     {
       id: "visit",
       name: "Visit Villager", //rest+, happiness +,
       position: { x: mapWidth / 2 - 300, y: mapHeight / 2 - 200 },
       radius: 50,
+      effect: () => {
+        updateStatus("sleep", 10); // Increase sleep
+        updateStatus("happiness", 20); // Increase happiness
+        updateStatus("hunger", -5); // Decrease hunger slightly
+      },
+      interactionTime: 4000, // 4 seconds
     },
     {
       id: "clean",
       name: "Clean House", //DAPET UANG, hygene down
       position: { x: mapWidth / 2 - 300, y: mapHeight / 2 + 350 },
       radius: 50,
+      effect: () => {
+        updateMoney(10000); // Earn money
+        updateStatus("hygiene", -15); // Decrease hygiene (gets dirty while cleaning)
+        updateStatus("happiness", 5); // Slight happiness increase from good deed
+        updateStatus("hunger", -10); // Decrease hunger from exertion
+      },
+      interactionTime: 5000, // 5 seconds
     },
   ];
 
@@ -115,31 +141,72 @@ const Village = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      // Only check proximity if no progress bar is active
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
 
-  const handleNavigate = () => {
+  // Progress Bar Logic (Copied from gameBorobudur.jsx and gameKuta.jsx)
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      // Calculate step based on interactionTime to ensure it reaches 100%
+      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect(); // Apply the effect when progress is 100%
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100); // Update every 100ms
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Spawn point in main game world
-          returnPoint: playerPos, // Return point in this scene
-        },
-      });
+      if (currentEvent.path) {
+        // If it's a navigation event
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        // If it's an interaction with a progress bar
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        // If it's an instant interaction
+        currentEvent.effect();
+      }
     }
   };
 
@@ -172,11 +239,12 @@ const Village = () => {
       ) : (
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/" state={{ spawnPoint: exitPoint }}>
-            <button className="quitButton">
+            <button
+              className="quitButton"
+              onClick={() => setShowQuitModule(true)}
+            >
               <div className="circle">X</div>
             </button>
-          </Link>
           <h1>PENGLIPURAN VILLAGE</h1>
           </div>
           <div className="gameContainer">
@@ -353,9 +421,25 @@ const Village = () => {
                   />
                 </div>
 
-                {currentEvent ? (
+                {/* Progress Bar Overlay */}
+                {isProgressBarActive && activeInteraction ? (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Location event (Modified to consider progress bar) */}
+                {currentEvent && !isProgressBarActive ? (
                   <div className="eventcontainer flex justify-center items-center">
-                    <button onClick={handleNavigate}>
+                    <button onClick={handleInteraction}>
                       {currentEvent.name}
                     </button>
                   </div>
@@ -364,6 +448,15 @@ const Village = () => {
             </div>
           </div>
         </div>
+      )}
+      {showQuitModule && (
+        <QuitModule
+          onConfirm={() => {
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
+          }}
+          onCancel={() => setShowQuitModule(false)}
+        />
       )}
     </PreventArrowScroll>
   );

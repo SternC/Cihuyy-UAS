@@ -109,7 +109,7 @@ const resetGame = () => {
   setHappiness(100);
   setIsGameOver(false);
   // Return the default spawn point
-  return { x: mapWidth / 2, y: mapHeight / 2 };
+  return;
 };
 
   // Format waktu

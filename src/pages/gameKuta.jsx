@@ -14,6 +14,9 @@ const Beach = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
+  const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
+  const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
 
   const {
     time,
@@ -23,6 +26,7 @@ const Beach = () => {
     hygiene,
     happiness,
     updateStatus,
+    updateMoney, // ADDED: To update money
     isGameOver,
     resetGame,
   } = useMoneyTime();
@@ -54,6 +58,7 @@ const Beach = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
+    setPlayerPos, // Added to reset player position after game over
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraX = Math.max(
@@ -77,31 +82,44 @@ const Beach = () => {
       position: spawnPoint, // Exit position
       radius: 50,
       path: "/game",
+      interactionTime: 0, // No interaction time for navigation
     },
     {
       id: "sunbathe",
       name: "Sunbathe",
       position: { x: mapWidth / 2 - 110, y: mapHeight / 2 + 130 },
       radius: 70,
+      effect: () => {
+        updateStatus("happiness", 20);
+        updateStatus("sleep", 10);
+        updateStatus("hygiene", -5); // Get a bit dirty
+      },
+      interactionTime: 4000, // 4 seconds
     },
     {
       id: "build",
       name: "Build a Sand Castle",
       position: { x: mapWidth / 2 + 275, y: mapHeight / 2 + 150 },
       radius: 75,
+      effect: () => {
+        updateStatus("happiness", 25);
+        updateStatus("hunger", -10); // Exertion
+        updateStatus("hygiene", -10); // Get dirty
+      },
+      interactionTime: 5000, // 5 seconds
     },
     {
       id: "swim",
       name: "Go Swim",
       position: { x: mapWidth / 2, y: mapHeight / 2 - 700 },
       radius: 500,
-    },
-
-    {
-      id: "watch",
-      name: "Watch TV",
-      position: { x: mapWidth / 2 + 430, y: mapHeight / 2 + 400 },
-      radius: 50,
+      effect: () => {
+        updateStatus("hygiene", 30);
+        updateStatus("happiness", 15);
+        updateStatus("hunger", -15); // Exertion
+        updateStatus("sleep", -5); // Can be tiring
+      },
+      interactionTime: 6000, // 6 seconds
     },
   ];
 
@@ -118,31 +136,72 @@ const Beach = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      for (const location of locations) {
-        const distance = Math.sqrt(
-          Math.pow(playerPos.x - location.position.x, 2) +
-            Math.pow(playerPos.y - location.position.y, 2)
-        );
+      // Only check proximity if no progress bar is active
+      if (!isProgressBarActive) {
+        for (const location of locations) {
+          const distance = Math.sqrt(
+            Math.pow(playerPos.x - location.position.x, 2) +
+              Math.pow(playerPos.y - location.position.y, 2)
+          );
 
-        if (distance <= location.radius) {
-          setCurrentEvent(location);
-          return;
+          if (distance <= location.radius) {
+            setCurrentEvent(location);
+            return;
+          }
         }
+        setCurrentEvent(null);
       }
-      setCurrentEvent(null);
     };
 
     checkLocationProximity();
-  }, [playerPos]);
+  }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
 
-  const handleNavigate = () => {
+  // Progress Bar Logic (Copied from gamePenglipuran.jsx)
+  useEffect(() => {
+    let interval;
+    if (isProgressBarActive && activeInteraction) {
+      setProgressBarValue(0);
+      let currentProgress = 0;
+      // Calculate step based on interactionTime to ensure it reaches 100%
+      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+
+      interval = setInterval(() => {
+        currentProgress += step;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(interval);
+          activeInteraction.effect(); // Apply the effect when progress is 100%
+          setIsProgressBarActive(false);
+          setProgressBarValue(0);
+          setActiveInteraction(null);
+        }
+        setProgressBarValue(currentProgress);
+      }, 100); // Update every 100ms
+    } else {
+      clearInterval(interval);
+    }
+
+    return () => clearInterval(interval);
+  }, [isProgressBarActive, activeInteraction]);
+
+  const handleInteraction = () => {
     if (currentEvent) {
-      navigate(currentEvent.path, {
-        state: {
-          spawnPoint: exitPoint, // Spawn point in target scene
-          returnPoint: playerPos, // Return point in this scene
-        },
-      });
+      if (currentEvent.path) {
+        // If it's a navigation event
+        navigate(currentEvent.path, {
+          state: {
+            spawnPoint: exitPoint,
+            returnPoint: playerPos,
+          },
+        });
+      } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
+        // If it's an interaction with a progress bar
+        setIsProgressBarActive(true);
+        setActiveInteraction(currentEvent);
+      } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
+        // If it's an instant interaction
+        currentEvent.effect();
+      }
     }
   };
 
@@ -161,7 +220,7 @@ const Beach = () => {
 
   return (
     <PreventArrowScroll>
-    {isGameOver ? (
+      {isGameOver ? (
         <GameOverScreen
           hunger={hunger}
           sleep={sleep}
@@ -173,26 +232,28 @@ const Beach = () => {
           }}
         />
       ) : (
-      <div className="mainGameContainer">
-        <div className="titleContainer">
-          <Link to="/" state={{ spawnPoint: exitPoint }}>
-            <button className="quitButton">
-              <div className="circle">X</div>
-            </button>
-          </Link>
-          <h1>KUTA BEACH</h1>
-        </div>
+        <div className="mainGameContainer">
+          <div className="titleContainer">
+            <Link to="/game" state={{ spawnPoint: exitPoint }}>
+              <button className="quitButton">
+                <div className="circle">X</div>
+              </button>
+            </Link>
+            <h1>KUTA BEACH</h1>
+          </div>
 
-        <div className="gameContainer">
-          <div className="timeMoney">
-            <div className="timeContainer">
-              <span className="timeText">Time: {time}</span>
+          <div className="gameContainer">
+            <div className="timeMoney">
+              <div className="timeContainer">
+                <span className="timeText">Time: {time}</span>
+              </div>
+              <div className="moneyContainer">
+                <span className="moneyText">
+                  Money: {new Intl.NumberFormat("id-ID").format(money)}
+                </span>
+              </div>
             </div>
-            <div className="moneyContainer">
-              <span className="moneyText">
-                Money: {new Intl.NumberFormat("id-ID").format(money)}
-              </span>
-            </div>
+
             <div className="barContainer">
               <div className="divider">
                 <div className="Bar flex items-center w-full">
@@ -361,22 +422,36 @@ const Beach = () => {
                   />
                 </div>
 
-                {/* Location event */}
-                {currentEvent && (
+                {/* Progress Bar Overlay */}
+                {isProgressBarActive && activeInteraction ? (
+                  <div className="progressBarOverlay">
+                    <div className="progressBarContainer">
+                      <h3>{activeInteraction.name}...</h3>
+                      <div className="progressBackground">
+                        <div
+                          className="progressFill"
+                          style={{ width: `${progressBarValue}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Location event (Modified to consider progress bar) */}
+                {currentEvent && !isProgressBarActive ? (
                   <div className="eventcontainer flex justify-center items-center">
-                    <button onClick={handleNavigate}>
+                    <button onClick={handleInteraction}>
                       {currentEvent.name}
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-  </PreventArrowScroll>
-);
-}
+      )}
+    </PreventArrowScroll>
+  );
+};
 
 export default Beach;
