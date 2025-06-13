@@ -13,7 +13,7 @@ const Beach = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const { character } = useCharacter();
-  const { time, money } = useMoneyTime();
+  const { time, money, hunger, sleep, hygiene, happiness } = useMoneyTime();
 
   const mapWidth = 1120;
   const mapHeight = 1120;
@@ -155,8 +155,11 @@ const Beach = () => {
                   alt="Meal"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hunger` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    key={`hunger-${hunger}`}
+                    className="progressBar h-4"
+                    style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
                     data-status="meal"
                   ></div>
                 </div>
@@ -168,8 +171,10 @@ const Beach = () => {
                   alt="Sleep"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `sleep` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${sleep}%` }}
                     data-status="sleep"
                   ></div>
                 </div>
@@ -184,8 +189,10 @@ const Beach = () => {
                   alt="Clean"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hygiene` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${hygiene}%` }}
                     data-status="hygiene"
                   ></div>
                 </div>
@@ -197,8 +204,10 @@ const Beach = () => {
                   alt="Happy"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `happiness` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${happiness}%` }}
                     data-status="happy"
                   ></div>
                 </div>
