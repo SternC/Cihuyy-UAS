@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './inventory.css';
-import InventoryFoodPopup from '../pages/inventoryFoodPopUp.jsx';
+import InventoryFoodPopup from '../pages/inventoryFoodPopup.jsx';
 
 const InventoryFood = () => {
   const [isOpened, setIsOpened] = useState(true); 
