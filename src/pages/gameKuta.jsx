@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from '../components/timeMoneyContext.jsx';
+import { useMoneyTime } from "../components/timeMoneyContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
@@ -21,10 +21,17 @@ const Beach = () => {
   const viewHeight = 530;
 
   // Spawn point when entering Kuta Beach
-  const spawnPoint = { x: mapWidth / 2 -385, y: mapHeight / 2 +410};
+  const spawnPoint = { x: mapWidth / 2 - 385, y: mapHeight / 2 + 410 };
 
   // Exit point when leaving Kuta Beach (should match Kuta position in game world)
-  const exitPoint = {  x: 3840 / 2 + 860, y: 2160 / 2 + 740 };
+  const exitPoint = { x: 3840 / 2 + 860, y: 2160 / 2 + 740 };
+
+  const manualBoundaries = {
+    left: 50,
+    right: 1060,
+    top: 50,
+    bottom: 1050,
+  };
 
   const {
     position: playerPos,
@@ -35,16 +42,22 @@ const Beach = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement(spawnPoint, mapWidth, mapHeight);
+  } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
-  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
-  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
+  const cameraX = Math.max(
+    viewWidth / 2,
+    Math.min(playerPos.x, mapWidth - viewWidth / 2)
+  );
+  const cameraY = Math.max(
+    viewHeight / 2,
+    Math.min(playerPos.y, mapHeight - viewHeight / 2)
+  );
 
   const cameraPos = {
     x: -(cameraX - viewWidth / 2),
     y: -(cameraY - viewHeight / 2),
   };
-  
+
   const locations = [
     {
       id: "game",
@@ -57,13 +70,13 @@ const Beach = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'i' || e.key === 'I') {
-        setIsInventoryOpen(prev => !prev);
+      if (e.key === "i" || e.key === "I") {
+        setIsInventoryOpen((prev) => !prev);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -88,10 +101,10 @@ const Beach = () => {
   const handleNavigate = () => {
     if (currentEvent) {
       navigate(currentEvent.path, {
-        state: { 
+        state: {
           spawnPoint: exitPoint, // Spawn point in target scene
-          returnPoint: playerPos // Return point in this scene
-        }
+          returnPoint: playerPos, // Return point in this scene
+        },
       });
     }
   };
@@ -127,37 +140,67 @@ const Beach = () => {
               <span className="timeText">Time: {time}</span>
             </div>
             <div className="moneyContainer">
-              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
             </div>
           </div>
 
           <div className="barContainer">
             <div className="divider">
               <div className="Bar flex items-center w-full">
-                <img src="symbol/mealSymbol.png" className="w-6 h-6" alt="Meal" />
+                <img
+                  src="symbol/mealSymbol.png"
+                  className="w-6 h-6"
+                  alt="Meal"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="meal"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="meal"
+                  ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/sleepSymbol.png" className="w-6 h-6" alt="Sleep" />
+                <img
+                  src="symbol/sleepSymbol.png"
+                  className="w-6 h-6"
+                  alt="Sleep"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="sleep"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="sleep"
+                  ></div>
                 </div>
               </div>
             </div>
 
             <div className="divider">
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/cleanSymbol.png" className="w-6 h-6" alt="Clean" />
+                <img
+                  src="symbol/cleanSymbol.png"
+                  className="w-6 h-6"
+                  alt="Clean"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="hygiene"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="hygiene"
+                  ></div>
                 </div>
               </div>
               <div className="Bar flex items-center gap-2 w-full">
-                <img src="symbol/happySymbol.png" className="w-6 h-6" alt="Happy" />
+                <img
+                  src="symbol/happySymbol.png"
+                  className="w-6 h-6"
+                  alt="Happy"
+                />
                 <div className="progressContain h-4">
-                  <div className="progressBar h-4 w-1/2" data-status="happy"></div>
+                  <div
+                    className="progressBar h-4 w-1/2"
+                    data-status="happy"
+                  ></div>
                 </div>
               </div>
             </div>
@@ -183,7 +226,10 @@ const Beach = () => {
 
                   <img
                     id="charImage"
-                    src={`/characters/${getCharacterImage(character.color, isMoving)}`}
+                    src={`/characters/${getCharacterImage(
+                      character.color,
+                      isMoving
+                    )}`}
                     alt="Character"
                     style={{
                       transform: `rotate(${rotation}deg) scale(1.5) ${
@@ -228,9 +274,9 @@ const Beach = () => {
 
               {/* Mini map */}
               <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
-                <img 
-                  src="/map/kutaMap.png" 
-                  className="miniMapImage" 
+                <img
+                  src="/map/kutaMap.png"
+                  className="miniMapImage"
                   style={{ width: "100%", height: "150px" }}
                   alt="Mini Map"
                 />
@@ -246,18 +292,18 @@ const Beach = () => {
 
               {/* Inventory */}
               <div className="inventory-container">
-                <button 
+                <button
                   className="inventory-button"
                   onClick={() => setIsInventoryOpen(true)}
                 >
                   Inventory
                 </button>
-                <InventoryPopup 
+                <InventoryPopup
                   isOpened={isInventoryOpen}
                   onClose={() => setIsInventoryOpen(false)}
                 />
               </div>
-              
+
               {/* Location event */}
               {currentEvent && (
                 <div className="eventcontainer flex justify-center items-center">

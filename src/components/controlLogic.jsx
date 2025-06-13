@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export const useMovement = (initialPosition, mapWidth, mapHeight) => {
+export const useMovement = (initialPosition, mapWidth, mapHeight, manualBoundaries = null) => {
   const [position, setPosition] = useState(initialPosition);
   const [rotation, setRotation] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -21,14 +21,18 @@ export const useMovement = (initialPosition, mapWidth, mapHeight) => {
       let newX = prevPos.x + dx;
       let newY = prevPos.y + dy;
 
-      newX = Math.max(0, Math.min(newX, mapWidth));
-      newY = Math.max(0, Math.min(newY, mapHeight));
+      const left = manualBoundaries?.left ?? 0;
+      const right = manualBoundaries?.right ?? mapWidth;
+      const top = manualBoundaries?.top ?? 0;
+      const bottom = manualBoundaries?.bottom ?? mapHeight;
+
+      newX = Math.max(left, Math.min(newX, right));
+      newY = Math.max(top, Math.min(newY, bottom));
 
       return { x: newX, y: newY };
     });
-  }, [mapWidth, mapHeight]);
+  }, [mapWidth, mapHeight, manualBoundaries]);
 
-  // Keyboard event handlers
   useEffect(() => {
     const handleKeyDown = (e) => {
       const key = e.key.toLowerCase();
