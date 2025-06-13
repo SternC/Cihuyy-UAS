@@ -18,6 +18,7 @@ const SimpleProgressBar = ({ value }) => (
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   // Game map dimensions
   const mapWidth = 3840;
