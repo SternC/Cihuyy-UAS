@@ -31,6 +31,7 @@ const Temple = () => {
     updateMoney, // <--- TAMBAHKAN INI
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1152;
@@ -442,6 +443,7 @@ const handleInteraction = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
+            stopGame(); // Stop the game mechanics
             resetGame(); // Reset all stats
             navigate("/"); // Then navigate home
           }}

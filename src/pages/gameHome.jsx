@@ -43,6 +43,7 @@ const Home = () => {
     updateStatus,
     isGameOver,
     resetGame,
+    stopGame,
   } = useMoneyTime();
 
   const mapWidth = 1650;
@@ -463,6 +464,7 @@ const Home = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
+            stopGame(); // Stop the game mechanics
             resetGame(); // Reset all stats
             navigate("/"); // Then navigate home
           }}
