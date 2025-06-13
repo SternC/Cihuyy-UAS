@@ -14,11 +14,24 @@ const Beach = () => {
   const navigate = useNavigate();
   const [currentEvent, setCurrentEvent] = useState(null);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isProgressBarActive, setIsProgressBarActive] = useState(false);
+  const [progressBarValue, setProgressBarValue] = useState(0);
+  const [activeInteraction, setActiveInteraction] = useState(null);
   const { character } = useCharacter();
-  const [isProgressBarActive, setIsProgressBarActive] = useState(false); // Added for progress bar
-  const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
-  const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
   const [showQuitModule, setShowQuitModule] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const mobileViewWidth = 400;
+  const mobileViewHeight = 300;
 
   const {
     time,
@@ -28,7 +41,7 @@ const Beach = () => {
     hygiene,
     happiness,
     updateStatus,
-    updateMoney, // ADDED: To update money
+    updateMoney,
     isGameOver,
     resetGame,
     stopGame,
@@ -39,10 +52,7 @@ const Beach = () => {
   const viewWidth = 900;
   const viewHeight = 530;
 
-  // Spawn point when entering Kuta Beach
   const spawnPoint = { x: mapWidth / 2 - 385, y: mapHeight / 2 + 410 };
-
-  // Exit point when leaving Kuta Beach (should match Kuta position in game world)
   const exitPoint = { x: 3840 / 2 + 860, y: 2160 / 2 + 740 };
 
   const manualBoundaries = {
@@ -61,31 +71,50 @@ const Beach = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-    setPlayerPos, // Added to reset player position after game over
+    setPlayerPos,
   } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
-  const cameraX = Math.max(
-    viewWidth / 2,
-    Math.min(playerPos.x, mapWidth - viewWidth / 2)
-  );
-  const cameraY = Math.max(
-    viewHeight / 2,
-    Math.min(playerPos.y, mapHeight - viewHeight / 2)
-  );
+  // Calculate camera bounds based on responsive viewport
+  const currentViewWidth = isMobile ? mobileViewWidth : viewWidth;
+  const currentViewHeight = isMobile ? mobileViewHeight : viewHeight;
 
-  const cameraPos = {
-    x: -(cameraX - viewWidth / 2),
-    y: -(cameraY - viewHeight / 2),
-  };
+  // Calculate camera bounds
+  const minOffsetX = currentViewWidth - mapWidth;
+  const minOffsetY = currentViewHeight - mapHeight;
+  const maxOffsetX = 0;
+  const maxOffsetY = 0;
+
+  // Calculate desired camera position (centered on player)
+  const desiredOffsetX = currentViewWidth/2 - playerPos.x;
+  const desiredOffsetY = currentViewHeight/2 - playerPos.y;
+
+  // Clamp the camera position to keep it within map bounds
+  const clampedOffsetX = Math.max(minOffsetX, Math.min(maxOffsetX, desiredOffsetX));
+  const clampedOffsetY = Math.max(minOffsetY, Math.min(maxOffsetY, desiredOffsetY));
+
+  // Determine if we're at the edge of the map
+  const isAtLeftEdge = desiredOffsetX > maxOffsetX;
+  const isAtRightEdge = desiredOffsetX < minOffsetX;
+  const isAtTopEdge = desiredOffsetY > maxOffsetY;
+  const isAtBottomEdge = desiredOffsetY < minOffsetY;
+
+  // Calculate player position relative to viewport when at edges
+  const playerViewportX = isAtLeftEdge || isAtRightEdge 
+    ? playerPos.x + clampedOffsetX 
+    : currentViewWidth/2;
+
+  const playerViewportY = isAtTopEdge || isAtBottomEdge 
+    ? playerPos.y + clampedOffsetY 
+    : currentViewHeight/2;
 
   const locations = [
     {
       id: "game",
       name: "Go Outside",
-      position: spawnPoint, // Exit position
+      position: spawnPoint,
       radius: 50,
       path: "/game",
-      interactionTime: 0, // No interaction time for navigation
+      interactionTime: 0,
     },
     {
       id: "sunbathe",
@@ -95,9 +124,9 @@ const Beach = () => {
       effect: () => {
         updateStatus("happiness", 20);
         updateStatus("sleep", 10);
-        updateStatus("hygiene", -5); // Get a bit dirty
+        updateStatus("hygiene", -5);
       },
-      interactionTime: 4000, // 4 seconds
+      interactionTime: 4000,
     },
     {
       id: "build",
@@ -106,10 +135,10 @@ const Beach = () => {
       radius: 75,
       effect: () => {
         updateStatus("happiness", 25);
-        updateStatus("hunger", -10); // Exertion
-        updateStatus("hygiene", -10); // Get dirty
+        updateStatus("hunger", -10);
+        updateStatus("hygiene", -10);
       },
-      interactionTime: 5000, // 5 seconds
+      interactionTime: 5000,
     },
     {
       id: "swim",
@@ -119,10 +148,10 @@ const Beach = () => {
       effect: () => {
         updateStatus("hygiene", 30);
         updateStatus("happiness", 15);
-        updateStatus("hunger", -15); // Exertion
-        updateStatus("sleep", -5); // Can be tiring
+        updateStatus("hunger", -15);
+        updateStatus("sleep", -5);
       },
-      interactionTime: 6000, // 6 seconds
+      interactionTime: 6000,
     },
   ];
 
@@ -139,7 +168,6 @@ const Beach = () => {
 
   useEffect(() => {
     const checkLocationProximity = () => {
-      // Only check proximity if no progress bar is active
       if (!isProgressBarActive) {
         for (const location of locations) {
           const distance = Math.sqrt(
@@ -157,29 +185,27 @@ const Beach = () => {
     };
 
     checkLocationProximity();
-  }, [playerPos, isProgressBarActive]); // Add isProgressBarActive to dependencies
+  }, [playerPos, isProgressBarActive]);
 
-  // Progress Bar Logic (Copied from gamePenglipuran.jsx)
   useEffect(() => {
     let interval;
     if (isProgressBarActive && activeInteraction) {
       setProgressBarValue(0);
       let currentProgress = 0;
-      // Calculate step based on interactionTime to ensure it reaches 100%
-      const step = activeInteraction.interactionTime > 0 ? 100 / (activeInteraction.interactionTime / 100) : 100;
+      const step = 100 / (activeInteraction.interactionTime / 100);
 
       interval = setInterval(() => {
         currentProgress += step;
         if (currentProgress >= 100) {
           currentProgress = 100;
           clearInterval(interval);
-          activeInteraction.effect(); // Apply the effect when progress is 100%
+          activeInteraction.effect();
           setIsProgressBarActive(false);
           setProgressBarValue(0);
           setActiveInteraction(null);
         }
         setProgressBarValue(currentProgress);
-      }, 100); // Update every 100ms
+      }, 100);
     } else {
       clearInterval(interval);
     }
@@ -190,7 +216,6 @@ const Beach = () => {
   const handleInteraction = () => {
     if (currentEvent) {
       if (currentEvent.path) {
-        // If it's a navigation event
         navigate(currentEvent.path, {
           state: {
             spawnPoint: exitPoint,
@@ -198,11 +223,9 @@ const Beach = () => {
           },
         });
       } else if (currentEvent.effect && currentEvent.interactionTime > 0) {
-        // If it's an interaction with a progress bar
         setIsProgressBarActive(true);
         setActiveInteraction(currentEvent);
       } else if (currentEvent.effect && currentEvent.interactionTime === 0) {
-        // If it's an instant interaction
         currentEvent.effect();
       }
     }
@@ -267,11 +290,10 @@ const Beach = () => {
                     alt="Meal"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hunger` untuk mengatur lebar */}
                     <div
                       key={`hunger-${hunger}`}
                       className="progressBar h-4"
-                      style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
+                      style={{ width: `${hunger}%` }}
                       data-status="meal"
                     ></div>
                   </div>
@@ -283,7 +305,6 @@ const Beach = () => {
                     alt="Sleep"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `sleep` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${sleep}%` }}
@@ -301,7 +322,6 @@ const Beach = () => {
                     alt="Clean"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `hygiene` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${hygiene}%` }}
@@ -316,7 +336,6 @@ const Beach = () => {
                     alt="Happy"
                   />
                   <div className="progressContain h-4">
-                    {/* Gunakan state `happiness` untuk mengatur lebar */}
                     <div
                       className="progressBar h-4"
                       style={{ width: `${happiness}%` }}
@@ -327,8 +346,8 @@ const Beach = () => {
               </div>
             </div>
 
-            <div className="mapStatusContainer relative">
-              <div className="absolute w-[900px] h-[530px] z-5">
+            <div className="mapStatusContainer relative mx-auto">
+              <div className={`absolute ${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} z-5`}>
                 <DirectionalControls
                   keys={keys}
                   setKeys={setKeys}
@@ -336,29 +355,22 @@ const Beach = () => {
                   setIsFlipped={setIsFlipped}
                 />
               </div>
-              <div className="w-[900px] h-[530px] relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]">
-                {/* Character */}
-                <div
-                  className="absolute z-4"
-                  style={{
-                    left: `${playerPos.x + cameraPos.x}px`,
-                    top: `${playerPos.y + cameraPos.y}px`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
+              <div className={`${isMobile ? 'w-[400px] h-[300px]' : 'w-[900px] h-[530px]'} relative overflow-hidden p-[15px] rounded-[20px] bg-[linear-gradient(135deg,_#666,_#ccc,_#888)]`}>
+                {/* Player Character - Now Centered */}
+                <div className="theChar absolute z-4" style={{
+                  left: `${playerViewportX}px`,
+                  top: `${playerViewportY}px`,
+                  transform: 'translate(-50%, -50%)'
+                }}>
                   <div className="flex flex-col items-center relative">
                     <div className="nameBackground mb-0">
                       <h2 className="text-sm font-bold text-white px-2 py-1 rounded-lg">
                         {character.name || "Your Character"}
                       </h2>
                     </div>
-
                     <img
                       id="charImage"
-                      src={`/characters/${getCharacterImage(
-                        character.color,
-                        isMoving
-                      )}`}
+                      src={`/characters/${getCharacterImage(character.color, isMoving)}`}
                       alt="Character"
                       style={{
                         transform: `rotate(${rotation}deg) scale(1.5) ${
@@ -371,15 +383,16 @@ const Beach = () => {
                   </div>
                 </div>
 
-                {/* Map */}
+                {/* Map Container - Moves Opposite of Player */}
                 <div className="w-full h-full overflow-hidden relative">
                   <div
                     className="absolute top-0 left-0"
                     style={{
                       width: `${mapWidth}px`,
                       height: `${mapHeight}px`,
-                      transform: `translate(${cameraPos.x}px, ${cameraPos.y}px)`,
-                      transition: "transform 0.3s ease",
+                      left: `${clampedOffsetX}px`,
+                      top: `${clampedOffsetY}px`,
+                      transition: "left 0.3s ease, top 0.3s ease",
                     }}
                   >
                     <img
@@ -394,13 +407,11 @@ const Beach = () => {
                   </div>
                 </div>
 
-                {/* Mini map */}
-                <div className="absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
+                <div className="miniMapContainer absolute bottom-[360px] right-10 w-[150px] h-[150px] border-2 border-white rounded overflow-hidden bg-black z-20">
                   <img
                     src="/map/kutaMap.png"
                     className="miniMapImage"
-                    style={{ width: "100%", height: "150px" }}
-                    alt="Mini Map"
+                    style={{ width: "100%", height: "100%" }}
                   />
                   <div
                     className="miniMapMarker"
@@ -411,8 +422,6 @@ const Beach = () => {
                     }}
                   ></div>
                 </div>
-
-                {/* Inventory */}
                 <div className="inventory-container">
                   <button
                     className="inventory-button"
@@ -426,8 +435,8 @@ const Beach = () => {
                   />
                 </div>
 
-                {/* Progress Bar Overlay */}
-                {isProgressBarActive && activeInteraction ? (
+                {/* Progress bar container */}
+                {isProgressBarActive && activeInteraction && (
                   <div className="progressBarOverlay">
                     <div className="progressBarContainer">
                       <h3>{activeInteraction.name}...</h3>
@@ -439,9 +448,8 @@ const Beach = () => {
                       </div>
                     </div>
                   </div>
-                ) : null}
+                )}
 
-                {/* Location event (Modified to consider progress bar) */}
                 {currentEvent && !isProgressBarActive ? (
                   <div className="eventcontainer flex justify-center items-center">
                     <button onClick={handleInteraction}>
@@ -458,8 +466,8 @@ const Beach = () => {
         <QuitModule
           onConfirm={() => {
             stopGame();
-            resetGame(); // Reset all stats
-            navigate("/"); // Then navigate home
+            resetGame();
+            navigate("/");
           }}
           onCancel={() => setShowQuitModule(false)}
         />
