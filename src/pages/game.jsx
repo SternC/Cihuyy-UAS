@@ -2,16 +2,24 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll";
-import { useMoneyTime } from '../components/timeMoneyContext.jsx';
+// Perbaiki jalur impor untuk useMoneyTime jika belum benar
+import { useMoneyTime } from "../components/timeMoneyContext";
 import { InventoryPopup } from "../pages/inventoryPopup.jsx";
 import DirectionalControls from "../components/directionalControlSpace";
+
+const SimpleProgressBar = ({ value }) => (
+  <div style={{ width: '100%', height: '20px', backgroundColor: '#ddd' }}>
+    <div style={{ width: `${value}%`, height: '100%', backgroundColor: 'blue' }} />
+  </div>
+);
 
 const TheGame = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const animationRef = useRef();
-  const { time, money } = useMoneyTime();
+  // Ambil semua status dari useMoneyTime
+  const { time, money, hunger, sleep, hygiene, happiness, updateStatus } = useMoneyTime();
   
   // Game map dimensions
   const mapWidth = 3840;
@@ -49,6 +57,7 @@ const TheGame = () => {
       position: { x: mapWidth / 2 - 1460, y: mapHeight / 2 + 625 },
       radius: 100,
       path: "/home",
+      onEnter: () => updateStatus('sleep', 50) // Contoh: Menambah sleep 50 saat masuk Home
     },
     {
       id: "borobudur",
@@ -56,6 +65,7 @@ const TheGame = () => {
       position: { x: 1915, y: 1180 },
       radius: 100,
       path: "/temple",
+      onEnter: () => updateStatus('happiness', 30) // Contoh: Menambah happiness 30
     },
     {
       id: "village",
@@ -63,6 +73,7 @@ const TheGame = () => {
       position: { x: mapWidth / 2 - 645, y: mapHeight / 2 - 715 },
       radius: 100,
       path: "/village",
+      onEnter: () => updateStatus('hygiene', 20) // Contoh: Menambah hygiene 20
     },
     {
       id: "cave",
@@ -70,6 +81,7 @@ const TheGame = () => {
       position: { x: mapWidth / 2 + 1370, y: mapHeight / 2 - 90 },
       radius: 100,
       path: "/cave",
+      onEnter: () => updateStatus('happiness', 20)
     },
     {
       id: "beach",
@@ -77,6 +89,7 @@ const TheGame = () => {
       position: { x: mapWidth / 2 + 900, y: mapHeight / 2 + 780 },
       radius: 100,
       path: "/beach",
+      onEnter: () => updateStatus('happiness', 40)
     },
   ];
 
@@ -149,7 +162,7 @@ const TheGame = () => {
     });
 
     setCurrentEvent(nearbyLocation || null);
-  }, [playerPos]);
+  }, [playerPos, locations]); // Tambahkan `locations` ke dependensi
 
   // Handle keyboard events
   useEffect(() => {
@@ -220,6 +233,10 @@ const TheGame = () => {
 
   const handleNavigate = () => {
     if (currentEvent) {
+      // Panggil fungsi onEnter jika ada saat navigasi
+      if (currentEvent.onEnter && typeof currentEvent.onEnter === 'function') {
+        currentEvent.onEnter();
+      }
       navigate(currentEvent.path, {
         state: { spawnPoint: playerPos } // Simpan posisi saat ini untuk kembali
       });
@@ -258,8 +275,11 @@ const TheGame = () => {
                   alt="Meal"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hunger` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    key={`hunger-${hunger}`}
+                    className="progressBar h-4"
+                    style={{ width: `${hunger}%` }} // Atur lebar berdasarkan persentase hunger
                     data-status="meal"
                   ></div>
                 </div>
@@ -271,8 +291,10 @@ const TheGame = () => {
                   alt="Sleep"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `sleep` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${sleep}%` }}
                     data-status="sleep"
                   ></div>
                 </div>
@@ -287,8 +309,10 @@ const TheGame = () => {
                   alt="Clean"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `hygiene` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${hygiene}%` }}
                     data-status="hygiene"
                   ></div>
                 </div>
@@ -300,8 +324,10 @@ const TheGame = () => {
                   alt="Happy"
                 />
                 <div className="progressContain h-4">
+                  {/* Gunakan state `happiness` untuk mengatur lebar */}
                   <div
-                    className="progressBar h-4 w-1/2"
+                    className="progressBar h-4"
+                    style={{ width: `${happiness}%` }}
                     data-status="happy"
                   ></div>
                 </div>
