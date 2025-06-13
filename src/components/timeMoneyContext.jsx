@@ -6,60 +6,82 @@ const GameContext = createContext();
 export const TimeMoneyProvider = ({ children }) => {
   // State untuk waktu
   const [time, setTime] = useState(() => {
-    // Inisialisasi waktu dengan waktu saat ini (real-time)
     const now = new Date();
-    // Anda bisa mengatur waktu awal sesuai kebutuhan, misal 12:00:00 jika game dimulai pada jam tersebut
     return now;
   });
 
   // State untuk uang
   const [money, setMoney] = useState(100000);
 
-  // State untuk status pemain, inisialisasi di nilai maksimal (100)
+  // State untuk status pemain
   const [hunger, setHunger] = useState(100);
   const [sleep, setSleep] = useState(100);
   const [hygiene, setHygiene] = useState(100);
   const [happiness, setHappiness] = useState(100);
 
-  // Faktor percepatan waktu (15 kali dari waktu normal)
+  // State untuk game over
+  const [isGameOver, setIsGameOver] = useState(false);
+
+  // Faktor percepatan waktu
   const timeAccelerationFactor = 15;
 
-  // Update waktu dan status setiap detik (real-time yang dipercepat)
-  useEffect(() => {
+  // Check if any status reached 0
+const checkGameOver = () => {
+  if (isGameOver) return true;
+  if (hunger <= 0 || sleep <= 0 || hygiene <= 0 || happiness <= 0) {
+    setIsGameOver(true);
+    return true;
+  }
+  return false;
+};
+
+// Modify the status update effect to check game over first
+useEffect(() => {
+  if (isGameOver) return;
+
   const timer = setInterval(() => {
-    // 1. Update waktu
+    // Check game over before updates
+    if (checkGameOver()) return;
+
+    // Update time
     setTime(prevTime => {
       const newTime = new Date(prevTime);
       newTime.setSeconds(newTime.getSeconds() + timeAccelerationFactor);
       return newTime;
     });
 
-    // 2. Update status (dipisah dari setTime)
-    setHunger(prev => Math.max(0, prev - 0.75)); // 0.5% per detik
+    // Update status
+    setHunger(prev => Math.max(0, prev - 0.75));
     setSleep(prev => Math.max(0, prev - 0.75));
     setHygiene(prev => Math.max(0, prev - 0.75));
     setHappiness(prev => Math.max(0, prev - 0.75));
+
+    // Check game over after updates
+    checkGameOver();
   }, 1000);
 
   return () => clearInterval(timer);
-}, []);
+}, [isGameOver, hunger, sleep, hygiene, happiness]);// Add isGameOver to dependencies
 
-  // Fungsi untuk mengubah uang (+/-)
+  // Fungsi untuk mengubah uang
   const updateMoney = (amount) => {
+    if (isGameOver) return; // Prevent changes if game is over
     setMoney(prev => {
       const newAmount = prev + amount;
-      return newAmount < 0 ? 0 : newAmount; // Pastikan tidak minus
+      return newAmount < 0 ? 0 : newAmount;
     });
   };
 
-  // Fungsi baru untuk mengubah status pemain (untuk digunakan saat berinteraksi dengan item/lokasi)
+  // Fungsi untuk mengubah status pemain
   const updateStatus = (statusType, amount) => {
+    if (isGameOver) return; // Prevent changes if game is over
+    
     const clamp = (value) => Math.min(100, Math.max(0, value));
 
-      switch (statusType) {
+    switch (statusType) {
       case 'hunger':
-      setHunger(prev => clamp(prev + amount));
-      break;
+        setHunger(prev => clamp(prev + amount));
+        break;
       case 'sleep':
         setSleep(prev => clamp(prev + amount));
         break;
@@ -72,9 +94,25 @@ export const TimeMoneyProvider = ({ children }) => {
       default:
         console.warn(`Unknown status type: ${statusType}`);
     }
+    
+    // Check game over after status update
+    checkGameOver();
   };
 
-  // Format waktu menjadi HH:MM
+  // Fungsi untuk reset game
+const resetGame = () => {
+  setTime(new Date());
+  setMoney(100000);
+  setHunger(100);
+  setSleep(100);
+  setHygiene(100);
+  setHappiness(100);
+  setIsGameOver(false);
+  // Return the default spawn point
+  return { x: mapWidth / 2, y: mapHeight / 2 };
+};
+
+  // Format waktu
   const formattedTime = time.toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit',
@@ -86,13 +124,14 @@ export const TimeMoneyProvider = ({ children }) => {
       time: formattedTime,
       money,
       updateMoney,
-      rawTime: time, // Jika perlu akses object Date
-      // Tambahkan status pemain ke konteks
+      rawTime: time,
       hunger,
       sleep,
       hygiene,
       happiness,
-      updateStatus // Sediakan fungsi untuk mengubah status
+      updateStatus,
+      isGameOver,
+      resetGame
     }}>
       {children}
     </GameContext.Provider>

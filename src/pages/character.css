@@ -226,4 +226,82 @@ input:focus{
         margin-right: 10px;
     }
   }
+
+  /* Animation Keyframes */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Alert Modal Styles */
+.alert-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.alert-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.alert-content {
+  position: relative;
+  z-index: 1000;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  animation: fadeInScale 0.3s ease;
+}
+
+/* Headings and Text */
+.alert-content h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #cc0000;
+}
+
+.alert-content p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #333333;
+}
+
+/* Alert Button */
+.alert-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff4d4d;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.alert-button:hover {
+  background-color: #e60000;
+}
+
+  
   
