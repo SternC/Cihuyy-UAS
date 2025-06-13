@@ -55,17 +55,18 @@ const TheGame = () => {
   const animationRef = useRef();
 
   // Ambil semua status dari useMoneyTime
-  const {
-    time,
-    money,
-    hunger,
-    sleep,
-    hygiene,
-    happiness,
-    updateStatus,
-    isGameOver,
-    resetGame,
-  } = useMoneyTime();
+const {
+  time,
+  money,
+  hunger,
+  sleep,
+  hygiene,
+  happiness,
+  updateStatus,
+  isGameOver,
+  resetGame,
+  stopGame, // Add this
+} = useMoneyTime();
 
   // Game locations
   const locations = [
@@ -508,6 +509,7 @@ const TheGame = () => {
       {showQuitModule && (
         <QuitModule
           onConfirm={() => {
+            stopGame();
             resetGame(); // Reset all stats
             navigate("/"); // Then navigate home
           }}

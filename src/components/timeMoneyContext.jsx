@@ -1,4 +1,3 @@
-// contexts/GameContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
 const GameContext = createContext();
@@ -22,46 +21,59 @@ export const TimeMoneyProvider = ({ children }) => {
   // State untuk game over
   const [isGameOver, setIsGameOver] = useState(false);
 
+  // State untuk track apakah game sudah dimulai
+  const [gameStarted, setGameStarted] = useState(false);
+
   // Faktor percepatan waktu
   const timeAccelerationFactor = 15;
 
   // Check if any status reached 0
-const checkGameOver = () => {
-  if (isGameOver) return true;
-  if (hunger <= 0 || sleep <= 0 || hygiene <= 0 || happiness <= 0) {
-    setIsGameOver(true);
-    return true;
-  }
-  return false;
-};
+  const checkGameOver = () => {
+    if (isGameOver) return true;
+    if (hunger <= 0 || sleep <= 0 || hygiene <= 0 || happiness <= 0) {
+      setIsGameOver(true);
+      return true;
+    }
+    return false;
+  };
 
-// Modify the status update effect to check game over first
-useEffect(() => {
-  if (isGameOver) return;
+  const stopGame = () => {
+    setGameStarted(false);
+    resetGame(); // This will reset all stats to default
+  };
 
-  const timer = setInterval(() => {
-    // Check game over before updates
-    if (checkGameOver()) return;
+  // Function to start the game
+  const startGame = () => {
+    setGameStarted(true);
+  };
 
-    // Update time
-    setTime(prevTime => {
-      const newTime = new Date(prevTime);
-      newTime.setSeconds(newTime.getSeconds() + timeAccelerationFactor);
-      return newTime;
-    });
+  // Modify the status update effect to only run when game has started
+  useEffect(() => {
+    if (!gameStarted || isGameOver) return;
 
-    // Update status
-    setHunger(prev => Math.max(0, prev - 0.75));
-    setSleep(prev => Math.max(0, prev - 0.75));
-    setHygiene(prev => Math.max(0, prev - 0.75));
-    setHappiness(prev => Math.max(0, prev - 0.75));
+    const timer = setInterval(() => {
+      // Check game over before updates
+      if (checkGameOver()) return;
 
-    // Check game over after updates
-    checkGameOver();
-  }, 1000);
+      // Update time
+      setTime(prevTime => {
+        const newTime = new Date(prevTime);
+        newTime.setSeconds(newTime.getSeconds() + timeAccelerationFactor);
+        return newTime;
+      });
 
-  return () => clearInterval(timer);
-}, [isGameOver, hunger, sleep, hygiene, happiness]);// Add isGameOver to dependencies
+      // Update status
+      setHunger(prev => Math.max(0, prev - 0.75));
+      setSleep(prev => Math.max(0, prev - 0.75));
+      setHygiene(prev => Math.max(0, prev - 0.75));
+      setHappiness(prev => Math.max(0, prev - 0.75));
+
+      // Check game over after updates
+      checkGameOver();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameStarted, isGameOver, hunger, sleep, hygiene, happiness]);// Add isGameOver to dependencies
 
   // Fungsi untuk mengubah uang
   const updateMoney = (amount) => {
@@ -131,7 +143,10 @@ const resetGame = () => {
       happiness,
       updateStatus,
       isGameOver,
-      resetGame
+      resetGame,
+      startGame,
+      stopGame, // Add this to the context value
+      gameStarted
     }}>
       {children}
     </GameContext.Provider>
