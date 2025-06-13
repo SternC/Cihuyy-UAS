@@ -25,6 +25,13 @@ const Cave = () => {
   // Exit point saat keluar dari Pindul (harus sama dengan posisi Pindul di game world)
   const exitPoint = { x: 3840 / 2 + 1365, y: 2160 / 2 - 110 }; // Koordinat Pindul di game world
 
+  const manualBoundaries = {
+    left: 50,
+    right: 1550,
+    top: 500,
+    bottom: 1050,
+  };
+
   const {
     position: playerPos,
     rotation,
@@ -34,7 +41,7 @@ const Cave = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement(spawnPoint, mapWidth, mapHeight);
+  } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
     left: viewWidth / 2,

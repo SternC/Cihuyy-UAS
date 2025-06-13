@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useMovement } from "../components/controlLogic.jsx";
 import DirectionalControls from "../components/directionalControl.jsx";
 import { useCharacter } from "../components/characterContext.jsx";
-import { useMoneyTime } from '../components/timeMoneyContext.jsx';
+import { useMoneyTime } from "../components/timeMoneyContext.jsx";
 import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
@@ -20,8 +20,15 @@ const Village = () => {
   const viewWidth = 900;
   const viewHeight = 530;
 
-  const spawnPoint = { x: mapWidth/2+15, y: mapHeight/2 +440 }; // Adjusted spawn point
-  const exitPoint = { x: 3840/2 - 685, y: 2160/2 - 755 }; // Matching position in main game world
+  const spawnPoint = { x: mapWidth / 2 + 15, y: mapHeight / 2 + 440 }; // Adjusted spawn point
+  const exitPoint = { x: 3840 / 2 - 685, y: 2160 / 2 - 755 }; // Matching position in main game world
+
+  const manualBoundaries = {
+    left: 50,
+    right: 1030,
+    top: 50,
+    bottom: 1030,
+  };
 
   const {
     position: playerPos,
@@ -32,7 +39,7 @@ const Village = () => {
     setIsFlipped,
     isMoving,
     setIsMoving,
-  } = useMovement(spawnPoint, mapWidth, mapHeight);
+  } = useMovement(spawnPoint, mapWidth, mapHeight, manualBoundaries);
 
   const cameraClamp = {
     left: viewWidth / 2,
@@ -41,14 +48,20 @@ const Village = () => {
     bottom: Math.max(viewHeight / 2, mapHeight - viewHeight / 2),
   };
 
-  const cameraX = Math.max(viewWidth / 2, Math.min(playerPos.x, mapWidth - viewWidth / 2));
-  const cameraY = Math.max(viewHeight / 2, Math.min(playerPos.y, mapHeight - viewHeight / 2));
+  const cameraX = Math.max(
+    viewWidth / 2,
+    Math.min(playerPos.x, mapWidth - viewWidth / 2)
+  );
+  const cameraY = Math.max(
+    viewHeight / 2,
+    Math.min(playerPos.y, mapHeight - viewHeight / 2)
+  );
 
   const cameraPos = {
     x: -(cameraX - viewWidth / 2),
     y: -(cameraY - viewHeight / 2),
   };
-  
+
   const locations = [
     {
       id: "game",
@@ -61,13 +74,13 @@ const Village = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'i' || e.key === 'I') {
-        setIsInventoryOpen(prev => !prev);
+      if (e.key === "i" || e.key === "I") {
+        setIsInventoryOpen((prev) => !prev);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -92,10 +105,10 @@ const Village = () => {
   const handleNavigate = () => {
     if (currentEvent) {
       navigate(currentEvent.path, {
-        state: { 
+        state: {
           spawnPoint: exitPoint, // Spawn point in main game world
-          returnPoint: playerPos // Return point in this scene
-        }
+          returnPoint: playerPos, // Return point in this scene
+        },
       });
     }
   };
@@ -130,7 +143,9 @@ const Village = () => {
               <span className="timeText">Time: {time}</span>
             </div>
             <div className="moneyContainer">
-              <span className="moneyText">Money: {new Intl.NumberFormat('id-ID').format(money)}</span>
+              <span className="moneyText">
+                Money: {new Intl.NumberFormat("id-ID").format(money)}
+              </span>
             </div>
           </div>
           <div className="barContainer">
@@ -257,25 +272,23 @@ const Village = () => {
               </div>
 
               <div className="inventory-container">
-                <button 
+                <button
                   className="inventory-button"
                   onClick={() => setIsInventoryOpen(true)}
                 >
                   Inventory
                 </button>
-                <InventoryPopup 
+                <InventoryPopup
                   isOpened={isInventoryOpen}
                   onClose={() => setIsInventoryOpen(false)}
                 />
               </div>
-              
+
               {currentEvent ? (
                 <div className="eventcontainer flex justify-center items-center">
                   <button onClick={handleNavigate}>{currentEvent.name}</button>
                 </div>
-              ) : (
-                null
-              )}
+              ) : null}
             </div>
           </div>
         </div>
