@@ -12,14 +12,8 @@ const GameOverScreen = ({ hunger, sleep, hygiene, happiness, resetGame }) => {
           <p>Hygiene: {hygiene}%</p>
           <p>Happiness: {happiness}%</p>
         </div>
-        <button 
-          className="reset-button" 
-          onClick={resetGame}
-        >
-          Play Again
-        </button>
         <Link to="/">
-          <button className="quit-button">
+          <button className="quit-button" onClick={resetGame}>
             Return to Main Menu
           </button>
         </Link>
