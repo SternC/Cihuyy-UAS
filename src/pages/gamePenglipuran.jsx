@@ -8,6 +8,7 @@ import "./game.css";
 import PreventArrowScroll from "../components/preventArrowScroll.jsx";
 import { InventoryPopup } from "./inventoryPopup.jsx";
 import GameOverScreen from "../components/gameOverScreen.jsx";
+import QuitModule from "../components/quitModule";
 
 const Village = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Village = () => {
   const [progressBarValue, setProgressBarValue] = useState(0); // Added for progress bar value
   const [activeInteraction, setActiveInteraction] = useState(null); // Added to store the active interaction
   const { character } = useCharacter();
+  const [showQuitModule, setShowQuitModule] = useState(false);
 
   const {
     time,
@@ -237,11 +239,12 @@ const Village = () => {
       ) : (
       <div className="mainGameContainer">
         <div className="titleContainer">
-          <Link to="/" state={{ spawnPoint: exitPoint }}>
-            <button className="quitButton">
+            <button
+              className="quitButton"
+              onClick={() => setShowQuitModule(true)}
+            >
               <div className="circle">X</div>
             </button>
-          </Link>
           <h1>PENGLIPURAN VILLAGE</h1>
           </div>
           <div className="gameContainer">
@@ -445,6 +448,15 @@ const Village = () => {
             </div>
           </div>
         </div>
+      )}
+      {showQuitModule && (
+        <QuitModule
+          onConfirm={() => {
+            resetGame(); // Reset all stats
+            navigate("/"); // Then navigate home
+          }}
+          onCancel={() => setShowQuitModule(false)}
+        />
       )}
     </PreventArrowScroll>
   );
